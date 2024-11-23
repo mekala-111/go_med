@@ -7,6 +7,8 @@ import 'package:go_med/providers/loader.dart';
 class LoginScreen extends ConsumerWidget {
   final phoneController = TextEditingController();
 
+  LoginScreen({super.key});
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(loadingProvider);
@@ -24,7 +26,7 @@ class LoginScreen extends ConsumerWidget {
               height: 100,
             ),
             const SizedBox(height: 16),
-            Text(
+            const Text(
               "GoMedServ Healthcare Pvt Ltd",
               style: TextStyle(
                 fontSize: 18,
@@ -40,7 +42,7 @@ class LoginScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
+                boxShadow: const [
                   BoxShadow(
                     color: Colors.black12,
                     blurRadius: 10,
@@ -85,7 +87,7 @@ class LoginScreen extends ConsumerWidget {
                               authNotifier.sendOTP("+91$phoneNumber");
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(content: Text('Enter a valid phone number')),
+                                const SnackBar(content: Text('Enter a valid phone number')),
                               );
                             }
                           },
@@ -97,8 +99,8 @@ class LoginScreen extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                     ),
                     child: authState.isLoading
-                        ? CircularProgressIndicator(color: Colors.white)
-                        : Text(
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : const Text(
                             "Send OTP",
                             style: TextStyle(fontSize: 16),
                           ),
@@ -112,7 +114,7 @@ class LoginScreen extends ConsumerWidget {
               onTap: () {
                 // Navigate to registration
               },
-              child: Text(
+              child: const Text(
                 "Don't have an account? Register Here",
                 style: TextStyle(color: Colors.teal, fontSize: 14),
               ),
@@ -122,7 +124,7 @@ class LoginScreen extends ConsumerWidget {
               onTap: () {
                 // Show help dialog
               },
-              child: Text(
+              child: const Text(
                 "Have trouble? click here",
                 style: TextStyle(color: Colors.teal, fontSize: 14),
               ),
@@ -134,7 +136,7 @@ class LoginScreen extends ConsumerWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 20.0),
                 child: Text(
                   authState.errorMessage,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.red,
                     fontSize: 14,
                   ),

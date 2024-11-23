@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
-import 'package:go_med/screens/LoginPage.dart';
 import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/Profile.dart';
 import '../providers/logout_notifier.dart';
