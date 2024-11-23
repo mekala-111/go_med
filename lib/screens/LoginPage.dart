@@ -40,7 +40,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Input Container Section
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 300),
+            duration: const Duration(milliseconds: 100),
             curve: Curves.easeInOut,
             top: isKeyboardVisible
                 ? screenHeight * 0.25 // Position just below the image when keyboard is visible
