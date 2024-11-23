@@ -1,0 +1,1 @@
+{"flutter":{"platforms":{"android":{"default":{"projectId":"go-med-serve","appId":"1:942219741281:android:de407f3b3ec65011624220","fileOutput":"android/app/google-services.json"}},"dart":{"lib/firebase_options.dart":{"projectId":"go-med-serve","configurations":{"android":"1:942219741281:android:de407f3b3ec65011624220","ios":"1:942219741281:ios:46c77309232a436d624220"}}}}}}
