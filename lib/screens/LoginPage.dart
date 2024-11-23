@@ -25,7 +25,7 @@ class _LoginScreenState extends State<LoginScreen> {
         children: [
           // Logo Section
           Positioned(
-            top: isKeyboardVisible ? 30 : screenHeight * 0.10, // Adjust logo position
+            top: isKeyboardVisible ? 10 : screenHeight * 0.10, // Adjust logo position
             left: 0,
             right: 0,
             child: Center(
@@ -40,11 +40,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
           // Input Container Section
           AnimatedPositioned(
-            duration: const Duration(milliseconds: 100),
+            duration: const Duration(milliseconds: 50),
             curve: Curves.easeInOut,
             top: isKeyboardVisible
                 ? screenHeight * 0.25 // Position just below the image when keyboard is visible
-                : screenHeight * 0.55, // Default position when keyboard is not visible
+                : screenHeight * 0.49, // Default position when keyboard is not visible
             left: 0,
             right: 0,
             child: Container(
@@ -52,10 +52,10 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: const BoxDecoration(
                 color: Color(0x802E3236), // Dark gray background
                 borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(120), // Top-left curve
+                  topLeft: Radius.circular(160), // Top-left curve
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 80),
+              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 110),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -79,7 +79,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: otpController,
                         ),
                       ),
-                      const SizedBox(width: 20),
+                      const SizedBox(width: 15),
                       ElevatedButton(
                         onPressed: () {
                           // Add OTP verification logic
@@ -89,7 +89,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
                         ),
                         child: const Text(
                           'Verify',
@@ -101,7 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 20),
 
                   // Login Button
                   SizedBox(
@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 15),
 
                   // Registration Link
                   Center(
@@ -137,8 +137,8 @@ class _LoginScreenState extends State<LoginScreen> {
                         "Don't have an account? Register Here",
                         style: TextStyle(
                           color: Colors.white,
-                          fontSize: 16,
-                          decoration: TextDecoration.underline,
+                          fontSize: 17,
+
                         ),
                       ),
                     ),
