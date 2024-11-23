@@ -31,7 +31,9 @@ class PhoneAuthNotifier extends StateNotifier<PhoneAuthState> {
   }
 
   Future<void> verifyPhoneNumber(
-      String phoneNumber, WidgetRef ref, Function verifyOtp) async {
+    String phoneNumber,
+    WidgetRef ref,
+  ) async {
     final auth = ref.read(firebaseAuthProvider);
     var loader = ref.read(loadingProvider.notifier);
     var codeSentNotifier = ref.read(codeSentProvider.notifier);
