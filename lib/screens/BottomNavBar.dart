@@ -32,7 +32,7 @@ class BottomNavBar extends StatelessWidget {
         page = const ServicesPage();
         break;
          case 5:
-        page = const SettingsPage();
+        page = SettingsPage();
       // You can add more cases for additional pages like Services and Settings
       default:
         return;
