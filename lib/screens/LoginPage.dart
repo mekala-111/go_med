@@ -1,211 +1,198 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_med/providers/firebase_auth.dart';
-import 'package:go_med/providers/loader.dart';
-import 'otp_verify.dart';
 
-class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
-
+class LoginScreen extends StatefulWidget {
   @override
-  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+  _LoginScreenState createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends ConsumerState<LoginScreen> {
-  final TextEditingController phoneController =
-      TextEditingController(text: "+91");
+class _LoginScreenState extends State<LoginScreen> {
+  final TextEditingController phoneNumberController = TextEditingController();
+  final TextEditingController otpController = TextEditingController();
 
-  List<TextEditingController> otpControllers = List.generate(
-    6, // Replace with the number of OTP fields
-    (index) => TextEditingController(),
-  );
+  double bottomPadding = 0;
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(loadingProvider);
-    final authNotifier = ref.read(phoneAuthProvider.notifier);
-
     return Scaffold(
-      backgroundColor: Colors.grey.shade300,
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Logo and Title
-            Image.asset(
-              'assets/logo.png', // Replace with your logo asset path
-              height: 100,
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              "GoMedServ Healthcare Pvt Ltd",
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.teal,
+      backgroundColor: const Color(0xFFC0C0C2), // Gray background
+      resizeToAvoidBottomInset: true,
+      body: AnimatedPadding(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+        padding: EdgeInsets.only(bottom: bottomPadding),
+        child: GestureDetector(
+          onTap: () {
+            FocusScope.of(context).unfocus(); // Dismiss keyboard when tapping outside
+          },
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              // Logo Section
+              const SizedBox(height: 50),
+              Center(
+                child: Image.asset(
+                  'images/logo.png', // Replace with your actual logo path
+                  width: 300,
+                  height: 250,
+                  fit: BoxFit.contain,
+                ),
               ),
-            ),
-            const SizedBox(height: 40),
-            // Login Card
-            Container(
-              padding: const EdgeInsets.all(16.0),
-              margin: const EdgeInsets.symmetric(horizontal: 20.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                boxShadow: const [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 10,
-                    offset: Offset(0, 5),
+              const Spacer(), // Push content to the top and leave space for the form
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0x802E3236), // Dark gray background
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(120), // Top-left curve
                   ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  const Text(
-                    "Phone Number",
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                  ),
-                  const SizedBox(height: 8),
-                  // Phone Number Input
-                  TextField(
-                    controller: phoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.grey.shade100,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        borderSide: BorderSide.none,
-                      ),
-                      hintText: "Enter phone number",
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 14.0,
-                        horizontal: 12.0,
-                      ),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Phone Number Label and TextField
+                    _buildLabel('Phone Number'),
+                    _buildTextField(
+                      hintText: 'Enter your phone number',
+                      controller: phoneNumberController,
+                      context: context,
                     ),
-                    onChanged: (value) {
-                      if (!value.startsWith("+91")) {
-                        phoneController.text = "+91";
-                        phoneController.selection = TextSelection.fromPosition(
-                          TextPosition(offset: phoneController.text.length),
-                        );
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                    const SizedBox(height: 20),
 
-                  // Send OTP Button
-                  Consumer(
-                    builder: (context, ref, child) {
-                      final phoneAuthNotifier =
-                          ref.read(phoneAuthProvider.notifier);
-                      var loader = ref.watch(loadingProvider);
-                      return ElevatedButton(
-                        onPressed: loader
-                            ? null
-                            : () async {
-                                String phoneNumber =
-                                    phoneController.text.trim();
+                    // OTP Label and TextField with Verify Button
+                    _buildLabel('OTP'),
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: _buildTextField(
+                            hintText: 'Enter OTP',
+                            controller: otpController,
+                            context: context,
+                          ),
+                        ),
+                        const SizedBox(width: 20),
+                        ElevatedButton(
+                          onPressed: () {
+                            // Add OTP verification logic
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0x801BA4CA), // Light teal
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                          ),
+                          child: const Text(
+                            'Verify',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 40),
 
-                                bool isValid = phoneNumber.startsWith("+91") &&
-                                    phoneNumber.length == 13 &&
-                                    RegExp(r'^[6-9]\d{9}$')
-                                        .hasMatch(phoneNumber.substring(3));
-
-                                if (isValid) {
-                                  // Attempt to send the OTP
-                                  await phoneAuthNotifier.verifyPhoneNumber(
-                                      phoneNumber, ref, () {});
-
-                                  // Show the bottom sheet immediately
-                                  showModalBottomSheet(
-                                    context: context,
-                                    isScrollControlled: true,
-                                    builder: (BuildContext context) {
-                                      return Padding(
-                                        padding: EdgeInsets.only(
-                                          bottom: MediaQuery.of(context)
-                                              .viewInsets
-                                              .bottom,
-                                        ),
-                                        child: Container(
-                                          decoration: const BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius: BorderRadius.vertical(
-                                              top: Radius.circular(24),
-                                            ),
-                                          ),
-                                          child: OTPInputScreen(otpControllers),
-                                        ),
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                          'Please enter a valid 10-digit mobile number.'),
-                                    ),
-                                  );
-                                }
-                              },
+                    // Login Button
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: () {},
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.teal,
+                          backgroundColor: const Color(0x801BA4CA),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: const Text(
-                          "Send OTP",
-                          style: TextStyle(fontSize: 16, color: Colors.black),
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      );
-                    },
-                  ),
-                ],
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+
+                    // Registration Link
+                    Center(
+                      child: GestureDetector(
+                        onTap: () {
+                          // Navigate to registration
+                        },
+                        child: const Text(
+                          "Don't have an account? Register Here",
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            decoration: TextDecoration.underline,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            // Register and Help Links
-            GestureDetector(
-              onTap: () {
-                // Navigate to registration
-              },
-              child: const Text(
-                "Don't have an account? Register Here",
-                style: TextStyle(color: Colors.teal, fontSize: 14),
-              ),
-            ),
-            const SizedBox(height: 8),
-            GestureDetector(
-              onTap: () {
-                // Show help dialog
-              },
-              child: const Text(
-                "Have trouble? click here",
-                style: TextStyle(color: Colors.teal, fontSize: 14),
-              ),
-            ),
-            const SizedBox(height: 16),
-            // Error Message
-            // if (authState.errorMessage.isNotEmpty)
-            //   Padding(
-            //     padding: const EdgeInsets.symmetric(horizontal: 20.0),
-            //     child: Text(
-            //       authState.errorMessage,
-            //       style: const TextStyle(
-            //         color: Colors.red,
-            //         fontSize: 14,
-            //       ),
-            //       textAlign: TextAlign.center,
-            //     ),
-            //   ),
-          ],
+            ],
+          ),
         ),
+      ),
+    );
+  }
+
+  // Label for Input Fields
+  Widget _buildLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Text(
+        text,
+        style: const TextStyle(
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+          fontSize: 16,
+        ),
+      ),
+    );
+  }
+
+  // Reusable TextField
+  Widget _buildTextField({
+    required String hintText,
+    required TextEditingController controller,
+    required BuildContext context,
+  }) {
+    return Focus(
+      onFocusChange: (hasFocus) {
+        if (hasFocus) {
+          // Move screen up when focusing on TextField
+          setState(() {
+            bottomPadding = MediaQuery.of(context).viewInsets.bottom;
+          });
+        } else {
+          // Reset padding when focus is lost
+          setState(() {
+            bottomPadding = 0;
+          });
+        }
+      },
+      child: TextField(
+        controller: controller,
+        decoration: InputDecoration(
+          hintText: hintText,
+          filled: true,
+          fillColor: Colors.grey[200],
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(8),
+            borderSide: BorderSide.none,
+          ),
+        ),
+        keyboardType: TextInputType.number,
       ),
     );
   }
