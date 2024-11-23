@@ -2,15 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/firebase_auth.dart';
 import 'package:go_med/providers/loader.dart';
+import 'otp_verify.dart';
 
-
-class LoginScreen extends ConsumerWidget {
-  final phoneController = TextEditingController();
-
-  LoginScreen({super.key});
+class LoginScreen extends ConsumerStatefulWidget {
+  const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends ConsumerState<LoginScreen> {
+  final TextEditingController phoneController =
+      TextEditingController(text: "+91");
+
+  List<TextEditingController> otpControllers = List.generate(
+    6, // Replace with the number of OTP fields
+    (index) => TextEditingController(),
+  );
+
+  @override
+  Widget build(BuildContext context) {
     final authState = ref.watch(loadingProvider);
     final authNotifier = ref.read(phoneAuthProvider.notifier);
 
@@ -75,35 +86,85 @@ class LoginScreen extends ConsumerWidget {
                         horizontal: 12.0,
                       ),
                     ),
+                    onChanged: (value) {
+                      if (!value.startsWith("+91")) {
+                        phoneController.text = "+91";
+                        phoneController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: phoneController.text.length),
+                        );
+                      }
+                    },
                   ),
                   const SizedBox(height: 16),
+
                   // Send OTP Button
-                  ElevatedButton(
-                    onPressed: authState.isLoading
-                        ? null
-                        : () {
-                            final phoneNumber = phoneController.text.trim();
-                            if (phoneNumber.length == 10) {
-                              authNotifier.sendOTP("+91$phoneNumber");
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Enter a valid phone number')),
-                              );
-                            }
-                          },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.teal,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: authState.isLoading
-                        ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text(
-                            "Send OTP",
-                            style: TextStyle(fontSize: 16),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final phoneAuthNotifier =
+                          ref.read(phoneAuthProvider.notifier);
+                      var loader = ref.watch(loadingProvider);
+                      return ElevatedButton(
+                        onPressed: loader
+                            ? null
+                            : () async {
+                                String phoneNumber =
+                                    phoneController.text.trim();
+
+                                bool isValid = phoneNumber.startsWith("+91") &&
+                                    phoneNumber.length == 13 &&
+                                    RegExp(r'^[6-9]\d{9}$')
+                                        .hasMatch(phoneNumber.substring(3));
+
+                                if (isValid) {
+                                  // Attempt to send the OTP
+                                  await phoneAuthNotifier.verifyPhoneNumber(
+                                      phoneNumber, ref, () {});
+
+                                  // Show the bottom sheet immediately
+                                  showModalBottomSheet(
+                                    context: context,
+                                    isScrollControlled: true,
+                                    builder: (BuildContext context) {
+                                      return Padding(
+                                        padding: EdgeInsets.only(
+                                          bottom: MediaQuery.of(context)
+                                              .viewInsets
+                                              .bottom,
+                                        ),
+                                        child: Container(
+                                          decoration: const BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.vertical(
+                                              top: Radius.circular(24),
+                                            ),
+                                          ),
+                                          child: OTPInputScreen(otpControllers),
+                                        ),
+                                      );
+                                    },
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                          'Please enter a valid 10-digit mobile number.'),
+                                    ),
+                                  );
+                                }
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.teal,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
                           ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                        ),
+                        child: const Text(
+                          "Send OTP",
+                          style: TextStyle(fontSize: 16, color: Colors.black),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),
@@ -131,18 +192,18 @@ class LoginScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             // Error Message
-            if (authState.errorMessage.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20.0),
-                child: Text(
-                  authState.errorMessage,
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontSize: 14,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
+            // if (authState.errorMessage.isNotEmpty)
+            //   Padding(
+            //     padding: const EdgeInsets.symmetric(horizontal: 20.0),
+            //     child: Text(
+            //       authState.errorMessage,
+            //       style: const TextStyle(
+            //         color: Colors.red,
+            //         fontSize: 14,
+            //       ),
+            //       textAlign: TextAlign.center,
+            //     ),
+            //   ),
           ],
         ),
       ),
