@@ -18,10 +18,10 @@ class ServicesPage extends StatelessWidget {
         return false; // Prevent default back navigation
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFC0C0C2), 
+        backgroundColor:  const Color(0xFFE8F7F2), 
         appBar: AppBar(
           title: const Text("Services"),
-          backgroundColor: const Color(0x802E3236),
+          backgroundColor: const Color(0xFF6BC37A),
           actions: [
             IconButton(
               icon: const Icon(Icons.notifications),

@@ -23,9 +23,9 @@ class SettingsPage extends ConsumerWidget {
         return false; // Prevent default back navigation
       },
       child: Scaffold(
-        backgroundColor: const Color(0xFFC0C0C2),
+        backgroundColor:  const Color(0xFFE8F7F2),
         appBar: AppBar(
-          backgroundColor: const Color(0x802E3236),
+          backgroundColor: const Color(0xFF6BC37A),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.black),

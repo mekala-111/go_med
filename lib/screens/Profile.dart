@@ -19,16 +19,16 @@ class ProfilePage extends StatelessWidget {
       },
       child: 
     Scaffold(
-      backgroundColor: const Color(0xFFF4F4F9), // Light background color
+      backgroundColor:  const Color(0xFFE8F7F2), // Light background color
       appBar: AppBar(
-        backgroundColor: const Color(0x802E3236), // App bar color
+        backgroundColor: const Color(0xFF6BC37A), // App bar color
         elevation: 0,
         title: Row(
           children: [
-            const Text("Profile", style: TextStyle(color: Colors.black, fontWeight: FontWeight.bold)),
+            const Text("Profile", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             const Spacer(),
             IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.black),
+              icon: const Icon(Icons.notifications, color: Colors.white),
               onPressed: () {},
             ),
           ],

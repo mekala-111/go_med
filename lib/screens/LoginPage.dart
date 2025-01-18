@@ -28,25 +28,53 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     isKeyboardVisible = bottomInset > 0;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFC0C0C2), // Gray background
+  
       resizeToAvoidBottomInset: true,
       body: Stack(
         children: [
+          Positioned.fill(
+        child: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFF6EE883), // Green color
+                Color(0xFFFFFFFF), // White color
+              ],
+            ),
+          ),
+        ),
+      ),
           // Logo Section
           Positioned(
             top: isKeyboardVisible
-                ? 10
+                ? 30
                 : screenHeight * 0.10, // Adjust logo position
             left: 0,
             right: 0,
-            child: Center(
-              child: Image.asset(
-                'images/logo.png', // Replace with your actual logo path
-                width: 580,
-                height: 300,
-                fit: BoxFit.contain,
-              ),
-            ),
+            
+            child:  Center(
+  child: Container(
+  width: 300,
+  height: 100,
+  decoration: BoxDecoration(
+    borderRadius: BorderRadius.circular(30), // Set your desired curve radius
+   
+  ),
+  child: ClipRRect(
+    borderRadius: BorderRadius.circular(30), // Make sure this matches the container's radius
+    child: Image.asset(
+      'images/logo.jpg', // Replace with your actual logo path
+      width: 300,
+      height: 100, // Set height to match the container's height
+      fit: BoxFit.cover, // This ensures the image fills the container without distortion
+    ),
+  ),
+),
+
+),
+
           ),
 
           // Input Container Section
@@ -63,11 +91,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             child: Container(
               width: double.infinity,
               decoration: const BoxDecoration(
-                color: Color(0x802E3236), // Dark gray background
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(160), // Top-left curve
-                ),
-              ),
+      gradient: LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF8ED6F8), // Light blue
+          Color(0xFFFEFFF9), // Off-white
+        ],
+        stops: [0.18, 0.98],
+      ),
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(160), // Top-left curve
+      ),
+    ),
               padding:
                   const EdgeInsets.symmetric(horizontal: 50, vertical: 110),
               child: Column(
@@ -75,9 +111,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // Phone Number Label and TextField
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: const Text(
+                  const Padding(
+                    padding:  EdgeInsets.only(bottom: 4.0),
+                    child: Text(
                       'Phone Number',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -110,9 +146,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   const SizedBox(height: 10),
 
                   // OTP Label and TextField with Verify Button
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 4.0),
-                    child: const Text(
+                  const Padding(
+                    padding:  EdgeInsets.only(bottom: 4.0),
+                    child: Text(
                       'OTP',
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
@@ -174,7 +210,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   },
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
-                                  const Color(0x801BA4CA), // Light teal
+                                  const Color(0xFF0E7AAB), // Light teal
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -236,7 +272,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         }
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0x801BA4CA),
+                        backgroundColor: const Color(0xFF0E7AAB),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -252,7 +288,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 19),
 
                   // Registration Link
                   Center(
@@ -260,10 +296,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       onTap: () {
                         // Navigate to registration
                       },
+                      
                       child: const Text(
                         "Don't have an account? Register Here",
                         style: TextStyle(
-                          color: Colors.white,
+                          color: Colors.black,
                           fontSize: 17,
                         ),
                       ),

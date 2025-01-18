@@ -4,29 +4,39 @@ import 'package:go_med/screens/BottomNavBar.dart';
 import 'package:go_med/screens/Services.dart';
 import 'package:go_med/screens/products_scrren.dart';
 
-
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFC0C0C2), // Background color
+      backgroundColor: const Color(0xFFE8F7F2), // Background color
       appBar: AppBar(
-        backgroundColor: const Color(0x802E3236),
+        backgroundColor: const Color(0xFF6BC37A), // Green color from the screenshot
+         
         elevation: 0,
         title: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const CircleAvatar(
-              backgroundImage: AssetImage("images/logo.png"),
-              radius: 24,
+            // Logo with white background and rounded corners
+            Container(
+              padding: const EdgeInsets.all(8.0), // Padding for the white background
+              decoration: BoxDecoration(
+                color: Colors.white,  // White background for the logo
+                borderRadius: BorderRadius.circular(10), // Rounded corners
+              ),
+              child: SizedBox(
+                width: 90,  // Adjust width of the logo
+                height: 30,  // Adjust height of the logo
+                child: Image.asset(
+                  "images/logo.jpg", // Your logo path here
+                  fit: BoxFit.contain, // Ensures logo fits properly
+                ),
+              ),
             ),
-            const Spacer(),
-            const Text("Status : ", style: TextStyle(color: Colors.black)),
-            const Text("Active", style: TextStyle(color: Colors.green)),
-            const Spacer(),
+            // Status and notification section
             IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.black),
+              icon: const Icon(Icons.notifications, color: Colors.black),  // Notification icon
               onPressed: () {},
             ),
           ],
@@ -34,16 +44,25 @@ class DashboardPage extends StatelessWidget {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: const Color(0x802E3236), // Background color
-            height: 1.0, // Adding height for the border
+            color: const Color(0xFF6ACF73), // Green color for the border at the bottom
+            height: 1.0, // Border height
           ),
         ),
       ),
       body: const Padding(
-        padding: EdgeInsets.all(16.0),
+        padding: EdgeInsets.all(8.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Text("Status: ", style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold)),
+                Text("Active", style: TextStyle(color: Colors.green,fontSize: 16,fontWeight: FontWeight.w600)),
+                SizedBox(width: 10), 
+              ],
+            ),
+            SizedBox(height: 20), 
             DashboardButtonRow(),
             SizedBox(height: 20),
             SearchField(),
@@ -58,7 +77,7 @@ class DashboardPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 0,),
+      bottomNavigationBar: const BottomNavBar(currentIndex: 0),
     );
   }
 }
@@ -71,22 +90,23 @@ class DashboardButtonRow extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        DashboardButton(label: "Manage\nServices",
-        onTap: () {
+        DashboardButton(
+          label: "Manage\nServices",
+          onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ServicesPage()),
             );
           },
         ),
-         DashboardButton(label: "Restock\nProducts",
-        onTap: () {
+        DashboardButton(
+          label: "Restock\nProducts",
+          onTap: () {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ProductScreen()),
             );
           },
-        
         ),
         DashboardButton(
           label: "View\nBookings",
@@ -116,12 +136,12 @@ class DashboardButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0x801BA4CA),
-          borderRadius: BorderRadius.circular(8),
+          color: const Color(0xFF0E7AAB),
+          borderRadius: BorderRadius.circular(12),
         ),
         child: Text(label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold)),
+            style: const TextStyle(fontWeight: FontWeight.bold,color: Color(0xFFFFFFFF))),
       ),
     );
   }
@@ -138,7 +158,7 @@ class SearchField extends StatelessWidget {
         prefixIcon: Icon(Icons.search),
         border: OutlineInputBorder(),
         filled: true,
-        fillColor: Color(0xFFC0C0C2),
+        fillColor: Color(0xFFFFFFFF),
       ),
     );
   }
@@ -168,20 +188,17 @@ class NotificationsContainer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x801BA4CA),
+        color: const Color(0x80C4E4F7),  // Background color from the screenshot
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text("You have 3 new bookings for tomorrow.",
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("You have 3 new bookings for tomorrow.", style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 5),
-          Text("Inventory low: 2 products need restocking",
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("Inventory low: 2 products need restocking", style: TextStyle(fontWeight: FontWeight.bold)),
           SizedBox(height: 5),
-          Text("Verification pending: Complete your profile to get verified.",
-              style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("Verification pending: Complete your profile to get verified.", style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),
     );
@@ -224,4 +241,3 @@ class OverviewItem extends StatelessWidget {
     );
   }
 }
-

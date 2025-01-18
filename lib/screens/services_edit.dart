@@ -36,9 +36,9 @@ class _ServicesPageEditState extends State<ServicesPageEdit> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFC0C0C2),
+      backgroundColor:  const Color(0xFFE8F7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0x802E3236),
+        backgroundColor: const Color(0xFF6BC37A),
         title: const Text("Services"),
         leading: const Icon(Icons.arrow_back),
         actions: const [
