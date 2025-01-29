@@ -12,22 +12,24 @@ class DashboardPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2), // Background color
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A), // Green color from the screenshot
-         
+        backgroundColor:
+            const Color(0xFF6BC37A), // Green color from the screenshot
+
         elevation: 0,
         title: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             // Logo with white background and rounded corners
             Container(
-              padding: const EdgeInsets.all(8.0), // Padding for the white background
+              padding:
+                  const EdgeInsets.all(8.0), // Padding for the white background
               decoration: BoxDecoration(
-                color: Colors.white,  // White background for the logo
+                color: Colors.white, // White background for the logo
                 borderRadius: BorderRadius.circular(10), // Rounded corners
               ),
               child: SizedBox(
-                width: 90,  // Adjust width of the logo
-                height: 30,  // Adjust height of the logo
+                width: 90, // Adjust width of the logo
+                height: 30, // Adjust height of the logo
                 child: Image.asset(
                   "images/logo.jpg", // Your logo path here
                   fit: BoxFit.contain, // Ensures logo fits properly
@@ -36,7 +38,8 @@ class DashboardPage extends StatelessWidget {
             ),
             // Status and notification section
             IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.black),  // Notification icon
+              icon: const Icon(Icons.notifications,
+                  color: Colors.black), // Notification icon
               onPressed: () {},
             ),
           ],
@@ -44,7 +47,8 @@ class DashboardPage extends StatelessWidget {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: const Color(0xFF6ACF73), // Green color for the border at the bottom
+            color: const Color(
+                0xFF6ACF73), // Green color for the border at the bottom
             height: 1.0, // Border height
           ),
         ),
@@ -57,12 +61,20 @@ class DashboardPage extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Text("Status: ", style: TextStyle(color: Colors.black,fontSize: 16,fontWeight: FontWeight.bold)),
-                Text("Active", style: TextStyle(color: Colors.green,fontSize: 16,fontWeight: FontWeight.w600)),
-                SizedBox(width: 10), 
+                Text("Status: ",
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold)),
+                Text("Active",
+                    style: TextStyle(
+                        color: Colors.green,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600)),
+                SizedBox(width: 10),
               ],
             ),
-            SizedBox(height: 20), 
+            SizedBox(height: 20),
             DashboardButtonRow(),
             SizedBox(height: 20),
             SearchField(),
@@ -87,38 +99,44 @@ class DashboardButtonRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        DashboardButton(
-          label: "Manage\nServices",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ServicesPage()),
-            );
-          },
-        ),
-        DashboardButton(
-          label: "Restock\nProducts",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ProductScreen()),
-            );
-          },
-        ),
-        DashboardButton(
-          label: "View\nBookings",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const BookingsPage()),
-            );
-          },
-        ),
-        const DashboardButton(label: "Check\nFeedback"),
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal, // Makes the Row scroll horizontally
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          DashboardButton(
+            label: "Manage\nServices",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ServicesPage()),
+              );
+            },
+          ),
+         const SizedBox(width: 2,),
+          DashboardButton(
+            label: "Restock\nProducts",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProductScreen()),
+              );
+            },
+          ),
+           const SizedBox(width: 2,),
+          DashboardButton(
+            label: "View\nBookings",
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const BookingsPage()),
+              );
+            },
+          ),
+           const SizedBox(width: 2,),
+          const DashboardButton(label: "Check\nFeedback"),
+        ],
+      ),
     );
   }
 }
@@ -134,14 +152,15 @@ class DashboardButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         decoration: BoxDecoration(
           color: const Color(0xFF0E7AAB),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(label,
             textAlign: TextAlign.center,
-            style: const TextStyle(fontWeight: FontWeight.bold,color: Color(0xFFFFFFFF))),
+            style: const TextStyle(
+                fontWeight: FontWeight.bold, color: Color(0xFFFFFFFF))),
       ),
     );
   }
@@ -159,6 +178,7 @@ class SearchField extends StatelessWidget {
         border: OutlineInputBorder(),
         filled: true,
         fillColor: Color(0xFFFFFFFF),
+        contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 12.0),
       ),
     );
   }
@@ -188,17 +208,20 @@ class NotificationsContainer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color(0x80C4E4F7),  // Background color from the screenshot
+        color: const Color(0x80C4E4F7), // Background color from the screenshot
         borderRadius: BorderRadius.circular(8),
       ),
       child: const Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Text("You have 3 new bookings for tomorrow.", style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("You have 3 new bookings for tomorrow.",
+              style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13)),
           SizedBox(height: 5),
-          Text("Inventory low: 2 products need restocking", style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("Inventory low: 2 products need restocking",
+              style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13)),
           SizedBox(height: 5),
-          Text("Verification pending: Complete your profile to get verified.", style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("Verification pending: Complete your profile to get verified.",
+              style: TextStyle(fontWeight: FontWeight.bold,fontSize: 13)),
         ],
       ),
     );
@@ -210,13 +233,15 @@ class OverviewItems extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Column(
-      children: [
-        OverviewItem(label: "Earnings Today", value: "₹1,25,46,485"),
-        OverviewItem(label: "Total Bookings Today", value: "15745"),
-        OverviewItem(label: "Products Low in Stock", value: "45"),
-        OverviewItem(label: "Pending Reviews", value: "45"),
-      ],
+    return const SingleChildScrollView(
+      child: Column(
+        children: [
+          OverviewItem(label: "Earnings Today", value: "₹1,25,46,485"),
+          OverviewItem(label: "Total Bookings Today", value: "15745"),
+          OverviewItem(label: "Products Low in Stock", value: "45"),
+          OverviewItem(label: "Pending Reviews", value: "45"),
+        ],
+      ),
     );
   }
 }

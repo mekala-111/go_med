@@ -21,3 +21,4 @@ class LogoutNotifier extends StateNotifier<void> {
 final logoutProvider = StateNotifierProvider<LogoutNotifier, void>(
   (ref) => LogoutNotifier(),
 );
+

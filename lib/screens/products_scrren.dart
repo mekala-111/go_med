@@ -1,18 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/providers/products.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
 import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/product_edit.dart';
-import 'Bookings.dart'; 
+import 'Bookings.dart';
+import '../model/product_state.dart';
 
-class ProductScreen extends StatelessWidget {
+class ProductScreen extends ConsumerStatefulWidget {
   const ProductScreen({super.key});
 
   @override
+  ConsumerState<ProductScreen> createState() => _ProductScreenState();
+}
+
+class _ProductScreenState extends ConsumerState<ProductScreen> {
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Fetch products when the widget is loaded
+    ref.read(productProvider.notifier).getProducts();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final productState = ref.watch(productProvider).data ?? [];
+
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A), // Use the preferred color
+        backgroundColor: const Color(0xFF6BC37A),
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
@@ -41,13 +58,7 @@ class ProductScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildActionButton1(context, 'Add New \nProducts', ProductScreenEdit()),
-                _buildActionButton(context, 'Manage \nInventory', BookingsPage()),
-              ],
-            ),
+            _buildHeaderActions(context),
             const SizedBox(height: 16),
             const Text(
               'Products',
@@ -57,33 +68,9 @@ class ProductScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: ListView.builder(
-                itemCount: 4, // Example for 4 products
-                itemBuilder: (context, index) {
-                  return _buildProductCard(context);
-                },
-              ),
-            ),
+            Expanded(child: _buildProductList(productState)),
             const SizedBox(height: 16),
-            Center(
-              child: ElevatedButton(
-                onPressed: () {
-                  // Handle submit action here
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0x801BA4CA),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 40),
-                ),
-                child: const Text(
-                  'Submit',
-                  style: TextStyle(fontSize: 16, color: Colors.black),
-                ),
-              ),
-            ),
+            // _buildSubmitButton(),
           ],
         ),
       ),
@@ -93,27 +80,66 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButton1(BuildContext context, String label, Widget page) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(
+  Widget _buildHeaderActions(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        _buildActionButton(
           context,
-          MaterialPageRoute(builder: (context) => page),
-        );
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0x801BA4CA),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
+          'Add New \nProducts',
+          const AddProductScreen(),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(color: Colors.black),
-      ),
+        _buildActionButton(
+          context,
+          'Manage \nInventory',
+          const BookingsPage(),
+        ),
+      ],
     );
   }
+
+  Widget _buildProductList(List<Data> productState) {
+    if (productState.isEmpty) {
+      return const Center(
+        child: Text(
+          'No products available',
+          style: TextStyle(fontSize: 16, color: Colors.black54),
+        ),
+      );
+    }
+
+    return ListView.builder(
+      itemCount: productState.length,
+      itemBuilder: (context, index) {
+        final product = productState[index];
+        return _buildProductCard(context, product);
+      },
+    );
+  }
+
+  // Widget _buildSubmitButton() {
+  //   return Center(
+  //     child: ElevatedButton(
+  //       onPressed: () {
+  //         // Handle submit action here
+  //       },
+  //       style: ElevatedButton.styleFrom(
+  //         backgroundColor: const Color(0x801BA4CA),
+  //         shape: RoundedRectangleBorder(
+  //           borderRadius: BorderRadius.circular(8),
+  //         ),
+  //         padding: const EdgeInsets.symmetric(
+  //           vertical: 12,
+  //           horizontal: 40,
+  //         ),
+  //       ),
+  //       child: const Text(
+  //         'Submit',
+  //         style: TextStyle(fontSize: 16, color: Colors.black),
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildActionButton(BuildContext context, String label, Widget page) {
     return ElevatedButton(
@@ -137,7 +163,7 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildProductCard(BuildContext context) {
+  Widget _buildProductCard(BuildContext context, Data product) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
@@ -155,19 +181,19 @@ class ProductScreen extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                'Digital Thermometer',
-                style: TextStyle(
+                product.productName ?? '',
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                 ),
               ),
               Text(
-                'Price: ₹500',
-                style: TextStyle(
+                'Price: ₹${product.price ?? 0}',
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                 ),
@@ -175,35 +201,45 @@ class ProductScreen extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          const Text(
-            'Stock: 20 units',
-            style: TextStyle(fontSize: 14),
+          Text(
+            'Category: ${product.category ?? 'Unknown'}',
+            style: const TextStyle(fontSize: 14),
           ),
-          const Text(
-            'Last Restocked: Aug 28, 2024',
-            style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          Text(
+            'Description: ${product.productDescription ?? ''}',
+            style: const TextStyle(fontSize: 14),
           ),
           const SizedBox(height: 16),
           Row(
             children: [
               _buildActionButtonCard(context, 'Restock', Colors.green, () {
-                _showConfirmationDialog(context, "Restock", "Are you sure you want to restock?", () {
-                  // Handle restock action here
+                _showConfirmationDialog(
+                    context, 'Restock', 'Are you sure you want to restock?',
+                    () {
+                  // Handle restock action
                 });
               }),
               const SizedBox(width: 8),
               _buildActionButtonCard(context, 'Edit', Colors.grey, () {
-                _showConfirmationDialog(context, "Edit", "Are you sure you want to edit this product?", () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) =>  ProductScreenEdit()),
-                  );
-                });
+                Navigator.pushNamed(
+                  context,
+                  'addproductscreen',
+                  arguments: {
+                    'type': "edit",
+                    'productName': product.productName,
+                    'price': product.price.toString(),
+                    'category': product.category,
+                    'description': product.productDescription,
+                    'productId': product.productId
+                  },
+                );
               }),
               const SizedBox(width: 8),
               _buildActionButtonCard(context, 'Delete', Colors.red, () {
-                _showConfirmationDialog(context, "Delete", "Are you sure you want to delete this product?", () {
-                  // Handle delete action here
+                _showConfirmationDialog(context, 'Delete',
+                    'Are you sure you want to delete this product?', () {
+                  // Handle delete action
+                  ref.read(productProvider.notifier).deleteProduct( product.productId);
                 });
               }),
             ],
@@ -213,7 +249,8 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildActionButtonCard(BuildContext context, String label, Color color, VoidCallback onPressed) {
+  Widget _buildActionButtonCard(
+      BuildContext context, String label, Color color, VoidCallback onPressed) {
     return Expanded(
       child: ElevatedButton(
         onPressed: onPressed,
@@ -232,26 +269,27 @@ class ProductScreen extends StatelessWidget {
     );
   }
 
-  void _showConfirmationDialog(BuildContext context, String action, String message, VoidCallback onConfirmed) {
+  void _showConfirmationDialog(BuildContext context, String action,
+      String message, VoidCallback onConfirmed) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(action),
           content: Text(message),
-          actions: <Widget>[
+          actions: [
             TextButton(
-              child: const Text("Cancel"),
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              child: const Text('Cancel'),
             ),
             TextButton(
-              child: const Text("OK"),
               onPressed: () {
                 Navigator.of(context).pop();
-                onConfirmed();  // Perform the action after confirmation
+                onConfirmed();
               },
+              child: const Text('OK'),
             ),
           ],
         );

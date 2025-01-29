@@ -2,50 +2,56 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../states/RegisterNotifier.dart';
+import '../model/RegisterState.dart';
+import '../utils/gomed_api.dart';
 
 class RegistrationNotifier extends StateNotifier<RegistrationState> {
   RegistrationNotifier() : super(RegistrationState());
 
   // Method to update the registration form state
   void updateForm({
-    String? username,
-    String? email,
+    // String? username,
+    // String? email,
     String? firmName,
     String? gstNumber,
     String? contactNumber,
     String? address,
+    String? ownerName,
   }) {
     state = state.copyWith(
-      username: username ?? state.username,
-      email: email ?? state.email,
-      firmName: firmName ?? state.firmName,
-      gstNumber: gstNumber ?? state.gstNumber,
-      contactNumber: contactNumber ?? state.contactNumber,
-      address: address ?? state.address,
-    );
+        // username: username ?? state.ownerName,
+        // email: email ?? state.email,
+        firmName: firmName ?? state.firmName,
+        gstNumber: gstNumber ?? state.gstNumber,
+        contactNumber: contactNumber ?? state.contactNumber,
+        address: address ?? state.address,
+        ownerName: ownerName ?? state.ownerName);
   }
 
   // Method to handle form submission
   Future<void> submitForm() async {
+    const String apiUrl = Bbapi.signup;
     state = state.copyWith(isSubmitting: true);
 
     try {
       final response = await http.post(
-        Uri.parse('https://your-api-url.com/register'),
+        Uri.parse(apiUrl),
         body: json.encode({
-          'username': state.username,
-          'email': state.email,
-          'firm_name': state.firmName,
-          'gst_number': state.gstNumber,
-          'contact_number': state.contactNumber,
+          'ownerName': state.ownerName,
+          'role': "distributor",
+          'firmName': state.firmName,
+          'gstNumber': state.gstNumber,
+          'mobile': state.contactNumber,
           'address': state.address,
+          "activity":"zero"
         }),
         headers: {'Content-Type': 'application/json'},
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         // Registration successful, handle success logic
+        print('registration successful...................');
+        print('response.registration data${response.body}');
         state = state.copyWith(isSubmitting: false);
         // Handle the success, maybe navigate to a different page or show a success message
       } else {
@@ -54,6 +60,7 @@ class RegistrationNotifier extends StateNotifier<RegistrationState> {
           isSubmitting: false,
           errorMessage: 'Registration failed. Please try again.',
         );
+         print('response.registration data${response.body}');
       }
     } catch (error) {
       state = state.copyWith(
@@ -63,7 +70,8 @@ class RegistrationNotifier extends StateNotifier<RegistrationState> {
     }
   }
 }
+
 final registrationProvider =
-StateNotifierProvider<RegistrationNotifier, RegistrationState>((ref) {
+    StateNotifierProvider<RegistrationNotifier, RegistrationState>((ref) {
   return RegistrationNotifier();
 });

@@ -41,7 +41,8 @@ dependencies:
   intl_phone_number_input: ^0.7.0+2
   flutter_riverpod: ^2.6.1
   shared_preferences: ^2.3.3
-  
+  http: ^1.2.2
+  image_picker: ^1.1.2
 
 dev_dependencies:
   flutter_test:

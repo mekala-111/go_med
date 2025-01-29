@@ -1,9 +1,10 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+
 
 class RegistrationState {
-  final String username;
+  final String ownerName;
   final String email;
   final String firmName;
+  // final String role;
   final String gstNumber;
   final String contactNumber;
   final String address;
@@ -11,7 +12,7 @@ class RegistrationState {
   final String? errorMessage;
 
   RegistrationState({
-    this.username = '',
+    this.ownerName = '',
     this.email = '',
     this.firmName = '',
     this.gstNumber = '',
@@ -19,6 +20,7 @@ class RegistrationState {
     this.address = '',
     this.isSubmitting = false,
     this.errorMessage,
+    // this.role='',
   });
 
   RegistrationState copyWith({
@@ -30,10 +32,13 @@ class RegistrationState {
     String? address,
     bool? isSubmitting,
     String? errorMessage,
+     String? ownerName,
+    //  String? role,
   }) {
     return RegistrationState(
-      username: username ?? this.username,
+      ownerName: username ?? this.ownerName,
       email: email ?? this.email,
+      // role: role??this.role,
       firmName: firmName ?? this.firmName,
       gstNumber: gstNumber ?? this.gstNumber,
       contactNumber: contactNumber ?? this.contactNumber,

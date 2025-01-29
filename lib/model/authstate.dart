@@ -3,6 +3,7 @@ class PhoneAuthState {
   final bool isLoading;
   final String? error;
   final String? firebaseToken;
+  
 
   PhoneAuthState({
     required this.verificationId,
@@ -24,4 +25,5 @@ class PhoneAuthState {
       firebaseToken: firebaseToken ?? this.firebaseToken,
     );
   }
+  
 }

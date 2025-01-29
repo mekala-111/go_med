@@ -7,10 +7,10 @@ final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
   return FirebaseAuth.instance;
 });
 
-final phoneAuthProvider =
-    StateNotifierProvider<PhoneAuthNotifier, PhoneAuthState>((ref) {
-  return PhoneAuthNotifier();
-});
+// final phoneAuthProvider =
+//     StateNotifierProvider<PhoneAuthNotifier, PhoneAuthState>((ref) {
+//   return PhoneAuthNotifier();
+// });
 
 final authStateProvider = StreamProvider<User?>((ref) {
   return ref.watch(firebaseAuthProvider).authStateChanges();
