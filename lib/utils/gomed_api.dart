@@ -1,7 +1,4 @@
-// class GomedApi {
-//   final String baseUrl = "http://68.178.165.167:8000/";
-//   final String endpointname = "endpoint";
-// }
+
 class Bbapi {
   static const String baseUrl = "http://97.74.93.26:3000";
 

@@ -128,27 +128,51 @@ class SettingsPage extends ConsumerWidget {
                 const SizedBox(height: 20),
                 ListTile(
                   title: Center(
-                    child: ElevatedButton(
-                      onPressed: () => logoutNotifier.logout(context),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1BA4CA), // Button color
-                        shape: RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(10), // Rounded corners
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                            vertical: 15, horizontal: 30), // Adjust padding
-                      ),
-                      child: const Text(
-                        'Log Out',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white, // Text color
-                        ),
-                      ),
-                    ),
+                    child:ElevatedButton(
+  onPressed: () {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Confirm Logout"),
+          content: const Text("Are you sure you want to log out?"),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text("No"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+                logoutNotifier.logout(context); // Call logout function
+              },
+              child: const Text("Yes"),
+            ),
+          ],
+        );
+      },
+    );
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF1BA4CA), // Button color
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(10), // Rounded corners
+    ),
+    padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 30), // Adjust padding
+  ),
+  child: const Text(
+    'Log Out',
+    textAlign: TextAlign.center,
+    style: TextStyle(
+      fontWeight: FontWeight.bold,
+      fontSize: 20,
+      color: Colors.white, // Text color
+    ),
+  ),
+),
+
                   ),
                 ),
                 const SizedBox(height: 20),

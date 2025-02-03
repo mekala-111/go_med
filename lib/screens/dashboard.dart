@@ -53,40 +53,42 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
       ),
-      body: const Padding(
-        padding: EdgeInsets.all(8.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Text("Status: ",
-                    style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold)),
-                Text("Active",
-                    style: TextStyle(
-                        color: Colors.green,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600)),
-                SizedBox(width: 10),
-              ],
-            ),
-            SizedBox(height: 20),
-            DashboardButtonRow(),
-            SizedBox(height: 20),
-            SearchField(),
-            SizedBox(height: 20),
-            NotificationsHeader(),
-            SizedBox(height: 10),
-            NotificationsContainer(),
-            SizedBox(height: 20),
-            Text("Overview:", style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 10),
-            OverviewItems(),
-          ],
+      body:const SingleChildScrollView(
+        child:  Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  Text("Status: ",
+                      style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold)),
+                  Text("Active",
+                      style: TextStyle(
+                          color: Colors.green,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600)),
+                  SizedBox(width: 10),
+                ],
+              ),
+              SizedBox(height: 20),
+              DashboardButtonRow(),
+              SizedBox(height: 20),
+              SearchField(),
+              SizedBox(height: 20),
+              NotificationsHeader(),
+              SizedBox(height: 10),
+              NotificationsContainer(),
+              SizedBox(height: 20),
+              Text("Overview:", style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 10),
+              OverviewItems(),
+            ],
+          ),
         ),
       ),
       bottomNavigationBar: const BottomNavBar(currentIndex: 0),

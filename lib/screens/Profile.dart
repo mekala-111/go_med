@@ -15,12 +15,27 @@ class ProfilePage extends ConsumerStatefulWidget {
 
 class _ProfilePageState extends ConsumerState<ProfilePage> {
   bool isEditing = false;
-  final TextEditingController nameController = TextEditingController(text: "John Doe");
-  final TextEditingController emailController = TextEditingController(text: "johndoe@example.com");
-  final TextEditingController phoneController = TextEditingController(text: "1234567890");
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController phoneController = TextEditingController();
 
   File? _selectedImage;
   final double maxImageSize = 5 * 1024 * 1024; // 5 MB in bytes
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    final userModel = ref.read(loginProvider);
+    if (userModel.data != null && userModel.data!.isNotEmpty) {
+      final user = userModel.data![0].user;
+      nameController.text = user?.ownerName ?? "";
+      emailController.text = user?.email ?? "";
+      phoneController.text = user?.mobile ??"";
+    }
+  }
 
   Future<void> _pickImage(ImageSource source) async {
     final ImagePicker picker = ImagePicker();
@@ -114,8 +129,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     SizedBox(height: screenHeight * 0.02),
                     Text(
-                      nameController.text, // Ensure it updates correctly
-                      style: TextStyle(fontSize: screenWidth * 0.06, fontWeight: FontWeight.bold),
+                     nameController.text.isNotEmpty ? nameController.text : "User Name",
+                    style: TextStyle(fontSize: screenWidth * 0.06, fontWeight: FontWeight.bold),
+    
                     ),
                   ],
                 ),

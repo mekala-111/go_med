@@ -75,7 +75,8 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           json.decode(prefs.getString('userData')!) as Map<String, dynamic>;
 
       // Validate that all necessary keys exist in the extracted data
-      if (extractedData.containsKey('statusCode') &&
+      if (
+        extractedData.containsKey('statusCode') &&
           extractedData.containsKey('success') &&
           extractedData.containsKey('messages') &&
           extractedData.containsKey('data')) {
@@ -234,7 +235,9 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         //data: [Data.fromJson(userDetails['user'])],); // Assuming userDetails['user'] maps to the Data model
         state = user;
         final userData = json.encode({
-          'accessToken': user.data?[0].accessToken,
+          // 'accessToken': user.data?[0].accessToken,
+          'statusCode':user.statusCode,
+          'success':user.success,
           'messages': user.messages,
           'data': user.data
               ?.map((data) => data.toJson())
@@ -470,16 +473,40 @@ final client = RetryClient(
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("Profile updated successfully.");
 
-        final updatedUser = json.decode(response.body);
-        print('upadated userdata $updatedUser');
-        state = state.copyWith(
-          data: [
-            Data.fromJson(updatedUser['user'])
-          ], // Assuming response contains updated user data
-        );
+        // final updatedUser = json.decode(response.body);
+        // print('upadated userdata $updatedUser');
+        // state = state.copyWith(
+        //   data: [
+        //     Data.fromJson(updatedUser['user'])
+        //   ], // Assuming response contains updated user data
+        // );
 
-        // Optionally, update the local storage
-        await prefs.setString('userData', json.encode(updatedUser));
+        // // Optionally, update the local storage
+        // await prefs.setString('userData', json.encode(updatedUser));
+         var userDetails = json.decode(response.body);
+        UserModel user = UserModel.fromJson(userDetails);
+        print(" updated Response: ${response.body}");
+
+        // Debug: Print the user data to check if it's correct
+        print("updated User Data to Save: ${user.toJson()}");
+
+        //state=state.copyWith(messages:userDetails['message'],
+
+        //data: [Data.fromJson(userDetails['user'])],); // Assuming userDetails['user'] maps to the Data model
+        state = user;
+        final userData = json.encode({
+          // 'accessToken': user.data?[0].accessToken,
+           'statusCode':user.statusCode,
+          'success':user.success,
+          'messages': user.messages,
+          'data': user.data
+              ?.map((data) => data.toJson())
+              .toList(), // Serialize all Data objects
+        });
+        // Debug: Print userData before saving
+        print("updated User Data to Save in SharedPreferences: $userData");
+
+        await prefs.setString('userData', userData);
       } else {
         print("Failed to update profile. Status code: ${response.statusCode}");
         print("Response: ${response.body}");

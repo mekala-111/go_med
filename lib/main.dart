@@ -7,6 +7,17 @@ import 'package:go_med/screens/product_edit.dart';
 import 'screens/LoginPage.dart';
 import 'firebase_options.dart';
 import 'package:go_med/providers/auth_provider.dart';
+import 'package:go_med/screens/Bookings.dart';
+
+import 'package:go_med/screens/Profile.dart';
+import 'package:go_med/screens/Profile_setup.dart';
+import 'package:go_med/screens/Register.dart';
+import 'package:go_med/screens/Services.dart';
+
+import 'package:go_med/screens/products_scrren.dart';
+import 'package:go_med/screens/services_edit.dart';
+
+import 'package:go_med/screens/settings.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -78,7 +89,18 @@ class MyApp extends StatelessWidget {
           },
         ),
         routes: {
-          "addproductscreen":(context)=>const AddProductScreen(),        }
+          "addproductscreen":(context)=>const AddProductScreen(), 
+          "productscreen":(context)=>const ProductScreen(),
+          "loginscreen":(context)=>LoginScreen(),
+          "dashboardpage":(context)=>const DashboardPage (),
+           "bookingpage":(context)=>const BookingsPage(),      
+          "profilesetuppage":(context)=>const ProfileSetupPage(),
+          "profilepage":(context)=>const  ProfilePage(),
+          "registrationpage":(context)=>const RegistrationPage(),
+          "servicepageedit":(context)=>const ServicesPageEdit(),
+          "servicepage":(context)=>const ServicesPage(),
+          "settingspage":(context)=>const SettingsPage(),
+           }
         );
     // This trailing comma makes auto-formatting nicer for build methods.
   }

@@ -15,16 +15,27 @@ class ProductScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductScreenState extends ConsumerState<ProductScreen> {
+  //  @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   // Fetch products after the build process is complete
+  //   Future.microtask(() => ref.read(productProvider.notifier).getProducts());
+  //   print('products loaded============================');
+  // }
+
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    // Fetch products when the widget is loaded
-    ref.read(productProvider.notifier).getProducts();
+  void initState() {
+    super.initState();
+    Future.microtask(() => ref.read(productProvider.notifier).getProducts());
+    print('init state excuteded...........');
   }
 
   @override
   Widget build(BuildContext context) {
     final productState = ref.watch(productProvider).data ?? [];
+    final productMassege = ref.watch(productProvider).messages;
+    print('productstate++++++$productMassege');
+
 
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
@@ -239,7 +250,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                 _showConfirmationDialog(context, 'Delete',
                     'Are you sure you want to delete this product?', () {
                   // Handle delete action
-                  ref.read(productProvider.notifier).deleteProduct( product.productId);
+                  ref.read(productProvider.notifier).deleteProduct(product.productId);
                 });
               }),
             ],

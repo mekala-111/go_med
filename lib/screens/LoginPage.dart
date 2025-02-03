@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+import 'dart:async';
 import '../providers/firebase_auth.dart';
 import '../providers/loader.dart';
 import 'dashboard.dart';
 import '../screens/Register.dart';
 import '../providers/auth_provider.dart';
+
 
 class LoginScreen extends ConsumerStatefulWidget {
   @override
@@ -20,6 +21,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool isSendingOtp = false; // Loading state for "Send OTP" button
   bool isLoggingIn = false; // Loading state for "Login" button
   bool isOtpEntered = false; // Tracks if OTP is entered
+
+
+  bool isLoading = false; // To control loading state
+  int countdown = 0; // Countdown timer for OTP
+  late Timer _timer; // Timer object
+
+  // @override
+  // void dispose() {
+  //   if (_timer.isActive) {
+  //     _timer.cancel(); // Cancel the timer when the screen is disposed
+  //   }
+  //   super.dispose();
+  // }
+
+  void startOtpCountdown() {
+    setState(() {
+      countdown = 60; // Start countdown at 60 seconds
+    });
+
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      setState(() {
+        if (countdown > 0) {
+          countdown--;
+        } else {
+          _timer.cancel();
+        }
+      });
+    });
+  }
 
   @override
   void initState() {
@@ -255,9 +285,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   strokeWidth: 2,
                                 ),
                               )
-                            : const Text(
-                                'Send OTP',
-                                style: TextStyle(
+                            :  Text(
+                                countdown > 0 ? '$countdown sec':'Send OTP',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16,
                                 ),

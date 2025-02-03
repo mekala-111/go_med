@@ -1,8 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'BottomNavBar.dart';
 import '../providers/products.dart';
 import '../providers/loader.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class AddProductScreen extends ConsumerStatefulWidget {
   const AddProductScreen({Key? key}) : super(key: key);
@@ -17,12 +20,91 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
   final TextEditingController priceController = TextEditingController();
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
+  final TextEditingController SparePartsContoller = TextEditingController();
   final bool isLoading = false;
   String? productId;
   String? type;
-  
+
   // Local variable to manage the checkbox state
   bool isChecked = false;
+
+  // Image Picker variables
+  File? _image;
+  final ImagePicker _picker = ImagePicker();
+
+  // Local variable for selected dropdown item
+  String? selectedProduct;
+   // Show popup for selecting camera or gallery
+  void _showImagePickerOptions() {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return Wrap(
+          children: [
+            ListTile(
+              leading: const Icon(Icons.camera_alt),
+              title: const Text("Take a Photo"),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.camera);
+              },
+            ),
+            ListTile(
+              leading: const Icon(Icons.photo_library),
+              title: const Text("Choose from Gallery"),
+              onTap: () {
+                Navigator.pop(context);
+                _pickImage(ImageSource.gallery);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+   void _showAlertDialog(String title, String message) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(title),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(source: source);
+      if (pickedFile != null) {
+        File imageFile = File(pickedFile.path);
+        final fileSizeInBytes = await imageFile.length();
+        final maxFileSize = 2 * 1024 * 1024; // 2MB
+
+        if (fileSizeInBytes > maxFileSize) {
+          _showAlertDialog(
+              'Error', 'File size exceeds 2MB. Please select a smaller file.');
+        } else {
+          setState(() {
+            _image = imageFile;
+          });
+        }
+      }
+    } catch (e) {
+      _showAlertDialog('Error', 'Failed to pick image: $e');
+    }
+  }
+
+
 
   @override
   void didChangeDependencies() {
@@ -45,6 +127,7 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final productState = ref.watch(productProvider).data ?? []; // Product state from provider
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
@@ -72,35 +155,85 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                     // Main Text
                     Text(
                       type == 'edit' ? 'edit products' : 'Add Products',
-                      style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(width: 70), // Spacing between elements
 
                     // Checkbox
-                    Checkbox(
-                      value: isChecked, // Use the local variable to track state
-                      onChanged: (bool? value) {
-                        setState(() {
-                          isChecked = value ?? false; // Update the checkbox state
-                        });
-                      },
-                    ),
-
-                    // Clickable text
-                    GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          isChecked = !isChecked; // Toggle the checkbox state when the text is tapped
-                        });
-                      },
-                      child: const Text(
-                        'SpareParts',
-                        style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
-                      ),
+                    Row(
+                      children: [
+                        Checkbox(
+                          value: isChecked,
+                          onChanged: (bool? value) async {
+                            setState(() {
+                              isChecked = value ?? false;
+                            });
+                          },
+                        ),
+                        // Clickable Text to toggle checkbox state
+                        GestureDetector(
+                          onTap: () {
+                            setState(() {
+                              isChecked = !isChecked; // Toggle the checkbox state
+                            });
+                          },
+                          child: const Text(
+                            'SpareParts',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+                          ),
+                        ),
+                      ],
                     ),
                   ],
                 ),
+                const SizedBox(height: 16),
 
+                // Conditionally show the Dropdown when checkbox is checked
+                if (isChecked)
+                  DropdownButton<String>(
+                    value: selectedProduct,
+                    hint: const Text("Select a Product"),
+                    isExpanded: true,
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedProduct = newValue;
+                      });
+                    },
+                    items: productState.map<DropdownMenuItem<String>>((product) {
+                      return DropdownMenuItem<String>(
+                        // value: product[''], // Assuming `product` has a 'name' field
+                        // child: Text(product['name']), 
+                        value: product.productName, // The entire Data object is passed as the value
+                       child:  Text('${product.productName}'), // Display the name of the product// Display name of product
+                      );
+                    }).toList(),
+                  ),
+                const SizedBox(height: 16),
+
+                // Image Picker Section
+                GestureDetector(
+                  onTap: _showImagePickerOptions, // Open popup when tapped
+                  child: Container(
+                    height: 180,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey),
+                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.grey[200],
+                    ),
+                    child: _image != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: Image.file(_image!, fit: BoxFit.cover),
+                          )
+                        : const Center(
+                            child: Icon(Icons.add_a_photo,
+                                size: 40, color: Colors.grey),
+                          ),
+                  ),
+                ),
+                
                 const SizedBox(height: 16),
                 _buildTextField(
                   controller: productNameController,
@@ -173,7 +306,8 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                         descriptionController.text,
                                         parsedPrice,
                                         categoryController.text,
-                                        productId);
+                                        productId,
+                                        _image);
 
                                 // Clear form fields
                                 productNameController.clear();
@@ -196,6 +330,8 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                       descriptionController.text,
                                       parsedPrice,
                                       categoryController.text,
+                                      _image,
+                                      SparePartsContoller.text // Pass the image path
                                     );
 
                                 // Clear form fields
