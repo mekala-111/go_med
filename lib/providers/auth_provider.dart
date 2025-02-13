@@ -75,8 +75,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           json.decode(prefs.getString('userData')!) as Map<String, dynamic>;
 
       // Validate that all necessary keys exist in the extracted data
-      if (
-        extractedData.containsKey('statusCode') &&
+      if (extractedData.containsKey('statusCode') &&
           extractedData.containsKey('success') &&
           extractedData.containsKey('messages') &&
           extractedData.containsKey('data')) {
@@ -88,7 +87,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         if (userModel.data != null && userModel.data!.isNotEmpty) {
           final firstData =
               userModel.data![0]; // Access the first element in the list
-          if (firstData.user == null || firstData.accessToken == null) {
+          if (firstData.distributor == null || firstData.accessToken == null) {
             print('Invalid user data structure inside SharedPreferences.');
             return false;
           }
@@ -103,7 +102,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         );
 
         print(
-            'User ID from auto-login: ${state.data?[0].user?.sId}'); // Accessing User ID from the first Data object
+            'User ID from auto-login: ${state.data?[0].distributor?.firmName}'); // Accessing User ID from the first Data object
         return true;
       } else {
         print('Necessary fields are missing in SharedPreferences.');
@@ -183,7 +182,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           // Send phone number and role to API
           await sendPhoneNumberAndRoleToAPI(
             phoneNumber: value.user!.phoneNumber!,
-            role: "user", // Assign the role as needed
+            // Assign the role as needed
           );
 
           print("User data stored locally and sent to API.");
@@ -201,14 +200,13 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
 
   Future<void> sendPhoneNumberAndRoleToAPI({
     required String phoneNumber,
-    required String role,
   }) async {
-    const String apiUrl = Bbapi.login; // Replace with your API URL
-
+    const String apiUrl = Bbapi.login;
     final prefs = await SharedPreferences.getInstance();
-    print('phone number$phoneNumber,role$role');
+    print('Phone number: $phoneNumber');
 
     try {
+      // Send the phone number as JSON data
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
@@ -217,42 +215,42 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         },
         body: json.encode({
           "mobile": phoneNumber.toString(),
-          "role": role.toString(),
+          // You can add additional data here like role if needed
+          // "role": "distributor",
         }),
       );
 
-      if (response.statusCode == 201 || response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         print("Data successfully sent to the API.");
         var userDetails = json.decode(response.body);
+        print('userdetails.................${response.body}');
+        // Create a UserModel instance from the response
         UserModel user = UserModel.fromJson(userDetails);
         print("Response: ${response.body}");
 
         // Debug: Print the user data to check if it's correct
         print("User Data to Save: ${user.toJson()}");
 
-        //state=state.copyWith(messages:userDetails['message'],
-
-        //data: [Data.fromJson(userDetails['user'])],); // Assuming userDetails['user'] maps to the Data model
-        state = user;
+        // Save the user data in SharedPreferences
         final userData = json.encode({
-          // 'accessToken': user.data?[0].accessToken,
-          'statusCode':user.statusCode,
-          'success':user.success,
+          'statusCode': user.statusCode ?? 0,
+          'success': user.success,
           'messages': user.messages,
-          'data': user.data
-              ?.map((data) => data.toJson())
-              .toList(), // Serialize all Data objects
+          'data': user.data?.map((data) => data.toJson()).toList(),
         });
+
         // Debug: Print userData before saving
         print("User Data to Save in SharedPreferences: $userData");
 
         await prefs.setString('userData', userData);
       } else {
+        // Handle failure responses
         print(
             "Failed to send data to the API. Status code: ${response.statusCode}");
         print("Response: ${response.body}");
       }
     } catch (e) {
+      // Handle errors
       print("Error while sending data to the API: $e");
     }
   }
@@ -269,13 +267,14 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     return uniqueUid;
   }
 
-  Future<void> deleteAccount(String?userId, String?token) async {
-  final String apiUrl = "${Bbapi.deleteAccount}/$userId"; // Replace with your API URL for delete account
-  final loadingState = ref.read(loadingProvider.notifier);
+  Future<void> deleteAccount(String? userId, String? token) async {
+    final String apiUrl =
+        "${Bbapi.deleteAccount}/$userId"; // Replace with your API URL for delete account
+    final loadingState = ref.read(loadingProvider.notifier);
 
-  try {
-    loadingState.state = true; // Show loading state
-final client = RetryClient(
+    try {
+      loadingState.state = true; // Show loading state
+      final client = RetryClient(
         http.Client(),
         retries: 4,
         when: (response) {
@@ -292,36 +291,37 @@ final client = RetryClient(
           }
         },
       );
-    final response = await client.delete(
-      Uri.parse(apiUrl),
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": "Bearer $token", // Include the token
-      },
-    //   body: json.encode({
-    //     "userId": userId, // Send the user ID to the API
-    //   }),
-    );
+      final response = await client.delete(
+        Uri.parse(apiUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token", // Include the token
+        },
+        //   body: json.encode({
+        //     "userId": userId, // Send the user ID to the API
+        //   }),
+      );
 
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      print("Account successfully deleted.");
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Account successfully deleted.");
 
-      // Optionally, clear local user data (e.g., shared preferences)
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.clear();
+        // Optionally, clear local user data (e.g., shared preferences)
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
 
-      // Navigate to a different screen (e.g., login or onboarding)
-      print("Navigating to login screen after account deletion.");
-    } else {
-      print("Failed to delete account. Status code: ${response.statusCode}");
-      print("Response: ${response.body}");
+        // Navigate to a different screen (e.g., login or onboarding)
+        print("Navigating to login screen after account deletion.");
+      } else {
+        print("Failed to delete account. Status code: ${response.statusCode}");
+        print("Response: ${response.body}");
+      }
+    } catch (e) {
+      print("Error while deleting account: $e");
+    } finally {
+      loadingState.state = false; // Hide loading state
     }
-  } catch (e) {
-    print("Error while deleting account: $e");
-  } finally {
-    loadingState.state = false; // Hide loading state
   }
-}
+
   Future<String> restoreAccessToken() async {
     final url = Bbapi.refreshToken;
 
@@ -347,33 +347,82 @@ final client = RetryClient(
           print("shared preferance ${prefs.getString('userTokens')}");
 
           break;
-        case 200:
-          print("refresh access token success");
-          final newAccessToken = userDetails['data']['access_token'];
+        // case 200:
+        //   print("refresh access token success");
+        //   final newAccessToken = userDetails['data']['access_token'];
 
+        //   final newRefreshToken = userDetails['data']['refresh_token'];
+
+        //   print('new accesstoken :$newAccessToken');
+        //   // Update state
+        //   state = state.copyWith(data: [
+        //     state.data![0].copyWith(
+        //       accessToken: newAccessToken,
+        //       refreshToken: newRefreshToken,
+        //     )
+        //   ]);
+
+        //   final userTokens = json.encode({
+        //     'accessToken': newAccessToken,
+        //     'refresh_token': newRefreshToken
+        //   });
+
+        //   prefs.setString(
+        //     'userTokens',
+        //     userTokens,
+        //   );
+        //   print(
+        //       "shared preferance after success  ${prefs.getString('userData')}");
+        // // loading(false); // Update loading state
+        case 200:
+          print("Refresh access token success");
+
+          // Extract the new access token and refresh token
+          final newAccessToken = userDetails['data']['access_token'];
           final newRefreshToken = userDetails['data']['refresh_token'];
 
-          print('new accesstoken :$newAccessToken');
-          // Update state
-          state = state.copyWith(data: [
-            state.data![0].copyWith(
-              accessToken: newAccessToken,
-              refreshToken: newRefreshToken,
-            )
-          ]);
+          print('New access token: $newAccessToken');
+          print('New refresh token: $newRefreshToken');
 
-          final userTokens = json.encode({
-            'accessToken': newAccessToken,
-            'refresh_token': newRefreshToken
-          });
+          // Retrieve existing user data from SharedPreferences
+          String? storedUserData = prefs.getString('userData');
 
-          prefs.setString(
-            'userTokens',
-            userTokens,
-          );
-          print(
-              "shared preferance after success  ${prefs.getString('userData')}");
-        // loading(false); // Update loading state
+          if (storedUserData != null) {
+            // Parse the stored user data into a UserModel object
+            UserModel user = UserModel.fromJson(json.decode(storedUserData));
+
+            // Update the accessToken and refreshToken in the existing data model
+            user = user.copyWith(
+              data: [
+                user.data![0].copyWith(
+                  accessToken: newAccessToken,
+                  refreshToken: newRefreshToken,
+                ),
+              ],
+            );
+
+            // Convert the updated UserModel back to JSON
+            final updatedUserData = json.encode({
+              'statusCode': user.statusCode,
+              'success': user.success,
+              'messages': user.messages,
+              'data': user.data?.map((data) => data.toJson()).toList(),
+            });
+
+            // Debug: Print updated user data before saving
+            print(
+                "Updated User Data to Save in SharedPreferences: $updatedUserData");
+
+            // Save the updated user data in SharedPreferences
+            await prefs.setString('userData', updatedUserData);
+
+            // Debug: Print user data after saving
+            print(
+                "User Data saved in SharedPreferences: ${prefs.getString('userData')}");
+          } else {
+            // Handle the case where there is no existing user data in SharedPreferences
+            print("No user data found in SharedPreferences.");
+          }
       }
     } on FormatException catch (formatException) {
       print('Format Exception: ${formatException.message}');
@@ -399,8 +448,8 @@ final client = RetryClient(
     final prefs = await SharedPreferences.getInstance();
     final userModel =
         ref.read(loginProvider); // Retrieve UserModel from the provider
-    final userId = userModel
-        .data?[0].user!.sId; // Get user ID, default to empty string if null
+    final userId = userModel.data?[0].distributor
+        ?.firmName; // Get user ID, default to empty string if null
     final token = userModel
         .data?[0].accessToken; // Get token, default to empty string if null
     final loadingState = ref.read(loadingProvider.notifier);
@@ -483,7 +532,7 @@ final client = RetryClient(
 
         // // Optionally, update the local storage
         // await prefs.setString('userData', json.encode(updatedUser));
-         var userDetails = json.decode(response.body);
+        var userDetails = json.decode(response.body);
         UserModel user = UserModel.fromJson(userDetails);
         print(" updated Response: ${response.body}");
 
@@ -496,8 +545,8 @@ final client = RetryClient(
         state = user;
         final userData = json.encode({
           // 'accessToken': user.data?[0].accessToken,
-           'statusCode':user.statusCode,
-          'success':user.success,
+          'statusCode': user.statusCode,
+          'success': user.success,
           'messages': user.messages,
           'data': user.data
               ?.map((data) => data.toJson())

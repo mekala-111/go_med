@@ -43,7 +43,7 @@ class RegistrationNotifier extends StateNotifier<RegistrationState> {
           'gstNumber': state.gstNumber,
           'mobile': state.contactNumber,
           'address': state.address,
-          "activity":"zero"
+          "status":"active"
         }),
         headers: {'Content-Type': 'application/json'},
       );

@@ -19,7 +19,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
   // final TextEditingController _emailController = TextEditingController();
   final TextEditingController _firmNameController = TextEditingController();
   final TextEditingController _gstNumberController = TextEditingController();
-  final TextEditingController _contactNumberController = TextEditingController();
+  final TextEditingController _contactNumberController = TextEditingController(text: "+91");
   final TextEditingController _addressController = TextEditingController();
    final TextEditingController _ownerNameController = TextEditingController();
 
@@ -124,17 +124,28 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
                   return null;
                 },
               ),
+
+
               const SizedBox(height: 16.0),
-              TextFormField(
-                controller: _contactNumberController,
-                decoration: const InputDecoration(labelText: 'Contact Number'),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a contact number';
-                  }
-                  return null;
-                },
-              ),
+               TextField(
+                    controller: _contactNumberController,
+                    // decoration: InputDecoration(
+                    //   hintText: 'Enter your phone number',
+                    //   filled: true,
+                    //   // fillColor: Colors.grey[200],
+                     
+                    // ),
+                     decoration: const InputDecoration(labelText: 'phone Number'),
+                    keyboardType: TextInputType.phone,
+                    onChanged: (value) {
+                      if (!value.startsWith("+91")) {
+                        _contactNumberController.text = "+91";
+                        _contactNumberController.selection = TextSelection.fromPosition(
+                          TextPosition(offset: _contactNumberController.text.length),
+                        );
+                      }
+                    },
+                  ),
               const SizedBox(height: 16.0),
               TextFormField(
                 controller: _addressController,

@@ -1,46 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:multi_select_flutter/multi_select_flutter.dart';
+import '../providers/products.dart';
+import '../providers/serviceProvider.dart';
 
-class ServicesPageEdit extends StatefulWidget {
+class ServicesPageEdit extends ConsumerStatefulWidget {
   const ServicesPageEdit({super.key});
 
   @override
   _ServicesPageEditState createState() => _ServicesPageEditState();
 }
 
-class _ServicesPageEditState extends State<ServicesPageEdit> {
-  final TextEditingController serviceController = TextEditingController(text: "Full PBody Checkup");
-  final TextEditingController durationController = TextEditingController(text: "60");
-  final TextEditingController priceController = TextEditingController(text: "₹1500");
-  final TextEditingController amTimeController = TextEditingController(text: "00");
-  final TextEditingController pmTimeController = TextEditingController(text: "00");
-  final TextEditingController dateController = TextEditingController();
+class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
+  final TextEditingController serviceController = TextEditingController();
+  final TextEditingController priceController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
-  String selectedStatus = "Active";
-  String selectedFrequency = "Daily";
+  final _formKey = GlobalKey<FormState>();
 
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime.now(),
-      firstDate: DateTime(2020),
-      lastDate: DateTime(2100),
-    );
-    if (picked != null) {
-      setState(() {
-        dateController.text = DateFormat('EEEE, MMM d, yyyy').format(picked);
-      });
-    }
-  }
+  List<String> selectedProducts = []; // Stores selected product names
+  Map<String, String> productMap = {}; // Stores {productName: productId}
 
   @override
   Widget build(BuildContext context) {
+    final products = ref.watch(productProvider).data ?? [];
+
+    // Map product names to product IDs
+    productMap = {
+      for (var p in products) p.productName ?? "Unknown": p.productId ?? ""
+    };
+
+    List<String> productNames =
+        productMap.keys.toList(); // Show only names in dropdown
+
     return Scaffold(
-      backgroundColor:  const Color(0xFFE8F7F2),
+      backgroundColor: const Color(0xFFE8F7F2),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
         title: const Text("Services"),
-        leading: const Icon(Icons.arrow_back),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
         actions: const [
           Icon(Icons.notifications),
         ],
@@ -49,148 +52,165 @@ class _ServicesPageEditState extends State<ServicesPageEdit> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Form(
+            key: _formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Text(
-                  "Add/ Edit services",
+                  "Add/Edit Services",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                buildLabel("Service : "),
+                buildLabel("Select Products"),
+
+                // Multi-Select Dropdown (Displays and Stores Only Names)
+                MultiSelectDialogField(
+                  items: productNames
+                      .map((name) => MultiSelectItem<String>(name, name))
+                      .toList(),
+                  title: const Text("Select Products"),
+                  buttonText: Text(
+                    selectedProducts.isEmpty
+                        ? "Choose Products"
+                        : selectedProducts.join(", "),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  searchable: true,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey),
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  initialValue: selectedProducts,
+                  chipDisplay: MultiSelectChipDisplay.none(),
+                  onConfirm: (values) {
+                    setState(() {
+                      selectedProducts =
+                          values.cast<String>(); // Store only names
+                    });
+
+                    print("Selected Product Names: $selectedProducts");
+                    print(
+                        "Corresponding Product IDs: ${selectedProducts.map((name) => productMap[name]).toList()}");
+                  },
+                ),
+
+                const SizedBox(height: 10),
+
+                // Display Selected Products as Chips (Only Names)
+                Wrap(
+                  spacing: 8,
+                  children: selectedProducts.map((name) {
+                    return Chip(
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(name,
+                              style: const TextStyle(color: Colors.white)),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedProducts
+                                    .remove(name); // Remove name only
+                              });
+                            },
+                            child: const Icon(Icons.close,
+                                size: 16, color: Colors.white),
+                          ),
+                        ],
+                      ),
+                      backgroundColor: Colors.green,
+                    );
+                  }).toList(),
+                ),
+
+                const SizedBox(height: 16),
+                buildLabel("Service Name"),
                 TextFormField(
                   controller: serviceController,
                   decoration: buildInputDecoration(),
+                  validator: (value) =>
+                      value!.isEmpty ? 'Service name is required' : null,
                 ),
                 const SizedBox(height: 10),
-                buildLabel("Duration : "),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: durationController,
-                        decoration: buildInputDecoration(),
-                        keyboardType: TextInputType.number,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text("mins"),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                buildLabel("Price : "),
+                buildLabel("Price"),
                 TextFormField(
                   controller: priceController,
                   decoration: buildInputDecoration(),
                   keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 20),
-                buildLabel("Time"),
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: amTimeController,
-                        decoration: buildInputDecoration(),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text("AM"),
-                    const Spacer(),
-                    Expanded(
-                      child: TextFormField(
-                        controller: pmTimeController,
-                        decoration: buildInputDecoration(),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text("PM"),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                buildLabel("Date"),
-                TextFormField(
-                  controller: dateController,
-                  readOnly: true,
-                  onTap: () => _selectDate(context),
-                  decoration: buildInputDecoration().copyWith(
-                    hintText: 'Select Date',
-                    suffixIcon: const Icon(Icons.calendar_today, color: Colors.grey),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                buildLabel("Frequency"),
-                Wrap(
-                  spacing: 10,
-                  children: [
-                    buildFrequencyButton("Daily"),
-                    buildFrequencyButton("Alternate"),
-                    buildFrequencyButton("Weekly"),
-                    buildFrequencyButton("Custom"),
-                  ],
+                  validator: (value) {
+                    if (value!.isEmpty) return 'Price is required';
+                    if (double.tryParse(value) == null)
+                      return 'Enter a valid number';
+                    return null;
+                  },
                 ),
                 const SizedBox(height: 10),
-                buildLabel("Status : "),
-                DropdownButtonFormField<String>(
-                  value: selectedStatus,
-                  items: <String>['Active', 'Inactive']
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedStatus = newValue ?? selectedStatus;
-                    });
-                  },
+                buildLabel("Description"),
+                TextFormField(
+                  controller: descriptionController,
                   decoration: buildInputDecoration(),
+                  keyboardType: TextInputType.text,
+                  validator: (value) =>
+                      value!.isEmpty ? 'Description is required' : null,
                 ),
                 const SizedBox(height: 20),
                 Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      // Submit form data
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1BA4CA),
-                      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () async {
+                        if (_formKey.currentState!.validate()) {
+                          List<String> productIds = selectedProducts
+                              .map((name) => productMap[name]!)
+                              .toList();
+                          print(
+                              "Final Selected Product Names: $selectedProducts");
+                          print("Final Product IDs: $productIds");
+
+                          // ScaffoldMessenger.of(context).showSnackBar(
+                          //   // const SnackBar(content: Text("Service Added")),
+                          // );
+                          final double? parsedPrice =
+                              double.tryParse(priceController.text);
+
+                          try {
+                            await ref.read(serviceProvider.notifier).addService(
+                                  serviceController.text,
+                                  descriptionController.text,
+                                  parsedPrice,
+                                  productIds 
+
+
+                                  // productIds
+                                );
+                            serviceController.clear();
+                            descriptionController.clear();
+                            priceController.clear();
+                            _showSnackBar(
+                                context, "Service added successfully!");
+                            Navigator.of(context).pop();
+                          } catch (e) {
+                            print('Error: $e');
+                          }
+                        }else{
+                          _showSnackBar(
+                                        context, "Please fill all fields.");
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF6BC37A),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 50, vertical: 15),
+                      ),
+                      child: const Text("Add Service"),
                     ),
-                    child: const Text("Submit"),
                   ),
                 ),
               ],
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_bag),
-            label: 'Product',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.build),
-            label: 'Services',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        selectedItemColor: Colors.brown[300],
       ),
     );
   }
@@ -203,30 +223,22 @@ class _ServicesPageEditState extends State<ServicesPageEdit> {
   }
 
   InputDecoration buildInputDecoration() {
-    return InputDecoration(
-      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+    return const InputDecoration(
+      contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(5),
+        borderRadius: BorderRadius.all(Radius.circular(5)),
       ),
     );
   }
 
-  Widget buildFrequencyButton(String text) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          selectedFrequency = text;
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: selectedFrequency == text ? const Color(0xFF1BA4CA) : Colors.grey[200],
-        foregroundColor: selectedFrequency == text ? Colors.white : Colors.black,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-        ),
-        padding: const EdgeInsets.symmetric(horizontal: 10),
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            message == "Please fill all fields." ? Colors.red : Colors.blue,
+        behavior: SnackBarBehavior.floating,
       ),
-      child: Text(text),
     );
   }
 }

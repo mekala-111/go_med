@@ -6,6 +6,7 @@ import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/product_edit.dart';
 import 'Bookings.dart';
 import '../model/product_state.dart';
+import '../screens/product_edit.dart';
 
 class ProductScreen extends ConsumerStatefulWidget {
   const ProductScreen({super.key});
@@ -15,13 +16,7 @@ class ProductScreen extends ConsumerStatefulWidget {
 }
 
 class _ProductScreenState extends ConsumerState<ProductScreen> {
-  //  @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   // Fetch products after the build process is complete
-  //   Future.microtask(() => ref.read(productProvider.notifier).getProducts());
-  //   print('products loaded============================');
-  // }
+  
 
   @override
   void initState() {
