@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 // import '../model/product_state.dart';
 import '../providers/loader.dart';
 import 'package:http/retry.dart';
+import 'package:http_parser/http_parser.dart';
 
 class ProductProvider extends StateNotifier<ProductModel> {
   final Ref ref; // To access other providers
@@ -77,7 +78,7 @@ class ProductProvider extends StateNotifier<ProductModel> {
             // Handle token restoration logic on the first retry
             String? newAccessToken =
                 await ref.read(loginProvider.notifier).restoreAccessToken();
-            // print('Restored Token: $newAccessToken');
+            print('Restored Token:++++++++++ $newAccessToken');
             req.headers['Authorization'] = 'Bearer $newAccessToken';
           }
         },
@@ -98,10 +99,14 @@ class ProductProvider extends StateNotifier<ProductModel> {
       // Adding Image File if Present
       if (image != null && image.isNotEmpty) {
         for (var img in image) {
+           final fileExtension = img.path.split('.').last.toLowerCase();
+
+           final contentType = MediaType('image', fileExtension);
+
           request.files.add(await http.MultipartFile.fromPath(
             'productImages[]', // Ensure this matches the expected field name
             img.path,
-            // contentType: MediaType('image', 'jpeg'), // Adjust for actual file type
+            contentType: contentType, // Adjust for actual file type
           ));
         }
       }
@@ -114,6 +119,13 @@ class ProductProvider extends StateNotifier<ProductModel> {
       // final responseBody = await response.stream.bytesToString();
       print('Response Status Code: ${response.statusCode}');
       print('Response Body: ${response.body}');
+      try {
+         final Map<String, dynamic> responseBody = jsonDecode(response.body);
+  // Continue with the usual process
+         } catch (e) {
+            print('Error decoding response body: $e');
+  // Handle error or throw an exception
+          }
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         print("Product added successfully!");
@@ -390,18 +402,26 @@ class ProductProvider extends StateNotifier<ProductModel> {
     List<File>? image,
   ) async {
     final loadingState = ref.read(loadingProvider.notifier);
-    // final productState = ref.read(productProvider).data ?? [];
+    final productState = state.data ??[];
     print(
         'spareparts data--name:$productName,price:$price,description:$description,productname:$selectedProduct,image:${image?.length}');
-    // final filteredProducts = productState
-    //     .where((product) => product.productName == selectedProduct)
-    //     .toList();
-//         if (filteredProducts.isEmpty) {
-//   throw Exception("No product found with the selected name: $selectedProduct");
-// }
+    final filteredProducts = productState
+        .where((product) => product.productName == selectedProduct)
+        .toList();
+        if (filteredProducts.isEmpty) {
+  throw Exception("No product found with the selected name: $selectedProduct");
+}
 
     try {
       loadingState.state = true;
+      if (image != null && image.isNotEmpty) {
+      print("Images:");
+      for (var i = 0; i < image.length; i++) {
+        print("Image ${i + 1}: Path = ${image[i].path}");
+      }
+    } else {
+      print("No images available.");
+    }
 
       final prefs = await SharedPreferences.getInstance();
       String? userDataString = prefs.getString('userData');
@@ -453,24 +473,40 @@ class ProductProvider extends StateNotifier<ProductModel> {
         ..fields['sparepartName'] = productName ?? ''
         ..fields['productDescription'] = description ?? ''
         ..fields['price'] = price.toString()
-        ..fields['productName'] = selectedProduct ?? '';
-      // ..fields['productId'] = filteredProducts[0].productId ?? '';
+        ..fields['productName'] = selectedProduct ?? ''
+      ..fields['productId'] = filteredProducts[0].productId ?? '';
 
       // Adding Image File if Present
-      if (image != null) {
-        for (var image in image) {
+      // if (image != null) {
+      //   for (var image in image) {
+      //     request.files.add(await http.MultipartFile.fromPath(
+      //       'sparePartImage', // Ensure this matches the expected field name
+      //       image.path,
+      //       // contentType: MediaType('image', 'jpeg'), // Adjust for actual file type
+      //     ));
+      //   }
+      // }
+       if (image != null && image.isNotEmpty) {
+        for (var img in image) {
+           final fileExtension = img.path.split('.').last.toLowerCase();
+
+           final contentType = MediaType('image', fileExtension);
+
           request.files.add(await http.MultipartFile.fromPath(
-            'sparePartImage', // Ensure this matches the expected field name
-            image.path,
-            // contentType: MediaType('image', 'jpeg'), // Adjust for actual file type
+            'sparePartImages[]', // Ensure this matches the expected field name
+            img.path,
+            contentType: contentType, // Adjust for actual file type
           ));
         }
       }
+
 
       // Sending Request
 
       final streamedResponse = await client.send(request);
       final response = await http.Response.fromStream(streamedResponse);
+      print('Response Status Code: ${response.statusCode}');
+      print('Response Body: ${response.body}');
       // Reading Response
 
       if (response.statusCode == 201 || response.statusCode == 200) {

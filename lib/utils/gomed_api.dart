@@ -12,4 +12,5 @@ class Bbapi {
   static const String deleteAccount = "$baseUrl/user/deleteProfile";
   static const String sparepartAdd = "$baseUrl/spareparts/add";
   static const String serviceAdd = "$baseUrl/services/createservice";
+   static const String getService = "$baseUrl/services/getservices";
 }

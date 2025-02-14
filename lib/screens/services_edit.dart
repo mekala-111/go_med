@@ -19,7 +19,40 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
   final _formKey = GlobalKey<FormState>();
 
   List<String> selectedProducts = []; // Stores selected product names
-  Map<String, String> productMap = {}; // Stores {productName: productId}
+  Map<String, String> productMap = {}; 
+  // Stores {productName: productId}
+   List filteredProductsList = [];
+   String? type;
+   String? productId;
+
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final serviceState = ref.watch(serviceProvider).data ?? [];
+    filteredProductsList = serviceState;
+
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args != null) {
+      setState(() {
+        serviceController.text = args['name'] ?? '';
+        priceController.text = args['price'] ?? '';
+        descriptionController.text = args['details'] ?? '';
+        productId = args['productIds'] ?? '';
+        type = args['type'] ?? '';
+        
+      });
+    }
+
+   
+      
+  
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -69,11 +102,13 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                       .map((name) => MultiSelectItem<String>(name, name))
                       .toList(),
                   title: const Text("Select Products"),
-                  buttonText: Text(
-                    selectedProducts.isEmpty
-                        ? "Choose Products"
-                        : selectedProducts.join(", "),
-                    overflow: TextOverflow.ellipsis,
+                  buttonText: const Text(
+                    // selectedProducts.isEmpty
+                        // ?
+                         "Choose Products"
+                        
+                        // : selectedProducts.join(", "),
+                    // overflow: TextOverflow.ellipsis,
                   ),
                   searchable: true,
                   decoration: BoxDecoration(
@@ -95,7 +130,6 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                 ),
 
                 const SizedBox(height: 10),
-
                 // Display Selected Products as Chips (Only Names)
                 Wrap(
                   spacing: 8,
@@ -113,6 +147,8 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                                 selectedProducts
                                     .remove(name); // Remove name only
                               });
+                               print("Product removed: $name");
+              print("Updated Selected Products: $selectedProducts");
                             },
                             child: const Icon(Icons.close,
                                 size: 16, color: Colors.white),
@@ -187,8 +223,8 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                             serviceController.clear();
                             descriptionController.clear();
                             priceController.clear();
-                            _showSnackBar(
-                                context, "Service added successfully!");
+                            // _showSnackBar(
+                            //     context, "Service added successfully!");
                             Navigator.of(context).pop();
                           } catch (e) {
                             print('Error: $e');

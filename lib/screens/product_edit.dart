@@ -192,7 +192,7 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
   Widget build(BuildContext context) {
     final productState = ref.watch(productProvider).data ?? [];
     final filteredProducts =
-        productState.where((product) => product.spareParts == true).toList();
+        productState.where((product) => product.spareParts == false).toList();
 
 
     return Scaffold(
@@ -280,12 +280,22 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                     if (selectedProduct != null)
                                       Padding(
                                         padding: const EdgeInsets.all(8.0),
-                                        child: Text(selectedProduct!),
+                                        child: Text("selectedProduct!: $selectedProduct"),
                                       ),
                                     Padding(
                                       padding: const EdgeInsets.all(8.0),
                                       child: TextField(
                                         controller: _searchController,
+                                    //     onChanged: (query) {
+                                    //    setState(() {
+                                    //   filteredProducts = allProducts
+                                    //  .where((product) => product.productName!
+                                    //   .toLowerCase()
+                                    //   .contains(query.toLowerCase()))
+                                    //   .toList();
+                                    //        });
+                                    //        },
+                                       
                                         decoration: InputDecoration(
                                           labelText: "Search Products",
                                           filled: true,
@@ -295,35 +305,36 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                       ),
                                     ),
                                     // Added scrollable section here
-                                    ListView.builder(
-                                      shrinkWrap: true,
-                                      physics:
-                                          const NeverScrollableScrollPhysics(),
-                                      itemCount: filteredProducts.isEmpty
-                                          ? 1
-                                          : filteredProducts.length,
-                                      itemBuilder: (context, index) {
-                                        if (filteredProducts.isEmpty) {
-                                          return const Center(
-                                              child:
-                                                  Text('No products found.'));
-                                        } else {
-                                          final product =
-                                              filteredProducts[index];
-                                          return ListTile(
-                                            title: Text(product.productName!),
-                                            onTap: () {
-                                              setState(() {
-                                                selectedProduct =
-                                                    product.productName;
-                                                sparePartsContoller.text =
-                                                    product.productName!;
-                                              });
-                                              Navigator.pop(context);
-                                            },
-                                          );
-                                        }
-                                      },
+                                    Expanded(
+                                      
+                                      child: ListView.builder(
+                                        
+                                        itemCount: filteredProducts.isEmpty
+                                            ? 1
+                                            : filteredProducts.length,
+                                        itemBuilder: (context, index) {
+                                          if (filteredProducts.isEmpty) {
+                                            return const Center(
+                                                child:
+                                                    Text('No products found.'));
+                                          } else {
+                                            final product =
+                                                filteredProducts[index];
+                                            return ListTile(
+                                              title: Text(product.productName!),
+                                              onTap: () {
+                                                setState(() {
+                                                  selectedProduct =
+                                                      product.productName;
+                                                  sparePartsContoller.text =
+                                                      product.productName!;
+                                                });
+                                                Navigator.pop(context);
+                                              },
+                                            );
+                                          }
+                                        },
+                                      ),
                                     ),
                                   ],
                                 ),
