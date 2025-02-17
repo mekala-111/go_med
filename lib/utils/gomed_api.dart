@@ -13,4 +13,6 @@ class Bbapi {
   static const String sparepartAdd = "$baseUrl/spareparts/add";
   static const String serviceAdd = "$baseUrl/services/createservice";
    static const String getService = "$baseUrl/services/getservices";
+    static const String ServiceUpdate= "$baseUrl/services/updateservice";
+     static const String deleteService = "$baseUrl/services/deleteservice";
 }

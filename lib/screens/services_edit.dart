@@ -17,14 +17,15 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
   final TextEditingController descriptionController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
+  bool isLoading = false;
 
   List<String> selectedProducts = []; // Stores selected product names
-  Map<String, String> productMap = {}; 
+  Map<String, String> productMap = {};
   // Stores {productName: productId}
-   List filteredProductsList = [];
-   String? type;
-   String? productId;
-
+  List filteredProductsList = [];
+  String? type;
+  List<String>? productId;
+  String? serviceId;
 
   @override
   void didChangeDependencies() {
@@ -42,17 +43,13 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
         descriptionController.text = args['details'] ?? '';
         productId = args['productIds'] ?? '';
         type = args['type'] ?? '';
-        
+        serviceId = args['serviceId'] ?? '';
       });
     }
-
-   
-      
-  
+    print('description---------------------$descriptionController');
+    print('  productId--------------------$productId');
+    print('serviceId--------------------$serviceId');
   }
-
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -89,8 +86,8 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Add/Edit Services",
+                Text(
+                  type == 'edit' ? 'Edit service' : 'Add service',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
@@ -103,13 +100,13 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                       .toList(),
                   title: const Text("Select Products"),
                   buttonText: const Text(
-                    // selectedProducts.isEmpty
-                        // ?
-                         "Choose Products"
-                        
-                        // : selectedProducts.join(", "),
-                    // overflow: TextOverflow.ellipsis,
-                  ),
+                      // selectedProducts.isEmpty
+                      // ?
+                      "Choose Products"
+
+                      // : selectedProducts.join(", "),
+                      // overflow: TextOverflow.ellipsis,
+                      ),
                   searchable: true,
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
@@ -147,8 +144,9 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                                 selectedProducts
                                     .remove(name); // Remove name only
                               });
-                               print("Product removed: $name");
-              print("Updated Selected Products: $selectedProducts");
+                              print("Product removed: $name");
+                              print(
+                                  "Updated Selected Products: $selectedProducts");
                             },
                             child: const Icon(Icons.close,
                                 size: 16, color: Colors.white),
@@ -210,28 +208,47 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                           final double? parsedPrice =
                               double.tryParse(priceController.text);
 
-                          try {
-                            await ref.read(serviceProvider.notifier).addService(
-                                  serviceController.text,
-                                  descriptionController.text,
-                                  parsedPrice,
-                                  productIds 
+                          if (type == 'edit') {
+                            try {
+                              await ref
+                                  .read(serviceProvider.notifier)
+                                  .updateService(
+                                    serviceController.text,
+                                    descriptionController.text,
+                                    parsedPrice,
+                                    productIds,
+                                    serviceId,
+                                  );
+                              serviceController.clear();
+                              descriptionController.clear();
+                              priceController.clear();
+                            } catch (e) {
+                              print('catch exicuted..$e');
+                            }
+                          } else {
+                            try {
+                              await ref
+                                  .read(serviceProvider.notifier)
+                                  .addService(
+                                      serviceController.text,
+                                      descriptionController.text,
+                                      parsedPrice,
+                                      productIds
 
-
-                                  // productIds
-                                );
-                            serviceController.clear();
-                            descriptionController.clear();
-                            priceController.clear();
-                            // _showSnackBar(
-                            //     context, "Service added successfully!");
-                            Navigator.of(context).pop();
-                          } catch (e) {
-                            print('Error: $e');
+                                      // productIds
+                                      );
+                              serviceController.clear();
+                              descriptionController.clear();
+                              priceController.clear();
+                              // _showSnackBar(
+                              //     context, "Service added successfully!");
+                              Navigator.of(context).pop();
+                            } catch (e) {
+                              print('Error: $e');
+                            }
                           }
-                        }else{
-                          _showSnackBar(
-                                        context, "Please fill all fields.");
+                        } else {
+                          _showSnackBar(context, "Please fill all fields.");
                         }
                       },
                       style: ElevatedButton.styleFrom(
@@ -239,7 +256,8 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 50, vertical: 15),
                       ),
-                      child: const Text("Add Service"),
+                      child: Text(
+                          type == 'edit' ? 'Update Srvice' : 'Add Service'),
                     ),
                   ),
                 ),

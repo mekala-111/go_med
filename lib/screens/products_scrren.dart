@@ -123,29 +123,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
     );
   }
 
-  // Widget _buildSubmitButton() {
-  //   return Center(
-  //     child: ElevatedButton(
-  //       onPressed: () {
-  //         // Handle submit action here
-  //       },
-  //       style: ElevatedButton.styleFrom(
-  //         backgroundColor: const Color(0x801BA4CA),
-  //         shape: RoundedRectangleBorder(
-  //           borderRadius: BorderRadius.circular(8),
-  //         ),
-  //         padding: const EdgeInsets.symmetric(
-  //           vertical: 12,
-  //           horizontal: 40,
-  //         ),
-  //       ),
-  //       child: const Text(
-  //         'Submit',
-  //         style: TextStyle(fontSize: 16, color: Colors.black),
-  //       ),
-  //     ),
-  //   );
-  // }
+  
 
   Widget _buildActionButton(BuildContext context, String label, Widget page) {
     return ElevatedButton(
