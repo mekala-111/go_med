@@ -87,7 +87,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         if (userModel.data != null && userModel.data!.isNotEmpty) {
           final firstData =
               userModel.data![0]; // Access the first element in the list
-          if (firstData.distributor == null || firstData.accessToken == null) {
+          if (firstData.details  == null || firstData.accessToken == null) {
             print('Invalid user data structure inside SharedPreferences.');
             return false;
           }
@@ -102,7 +102,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         );
 
         print(
-            'User ID from auto-login: ${state.data?[0].distributor?.firmName}'); // Accessing User ID from the first Data object
+            'User ID from auto-login: ${state.data?[0].details ?.firmName}'); // Accessing User ID from the first Data object
         return true;
       } else {
         print('Necessary fields are missing in SharedPreferences.');
@@ -216,7 +216,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         body: json.encode({
           "mobile": phoneNumber.toString(),
           // You can add additional data here like role if needed
-          // "role": "distributor",
+          // "role": "details ",
         }),
       );
 
@@ -448,7 +448,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     final prefs = await SharedPreferences.getInstance();
     final userModel =
         ref.read(loginProvider); // Retrieve UserModel from the provider
-    final userId = userModel.data?[0].distributor
+    final userId = userModel.data?[0].details 
         ?.firmName; // Get user ID, default to empty string if null
     final token = userModel
         .data?[0].accessToken; // Get token, default to empty string if null

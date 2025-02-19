@@ -30,9 +30,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   void _loadUserData() {
     final userModel = ref.read(loginProvider);
     if (userModel.data != null && userModel.data!.isNotEmpty) {
-      final user = userModel.data![0].distributor;
-      nameController.text = user?.ownerName ?? "";
-      emailController.text = user?.ownerName ?? "";
+      final user = userModel.data![0].details;
+      nameController.text = user?.name ?? "";
+      emailController.text = user?.email ?? "";
       phoneController.text = user?.mobile ??"";
     }
   }

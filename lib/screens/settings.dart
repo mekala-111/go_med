@@ -224,7 +224,7 @@ class SettingsPage extends ConsumerWidget {
   }
   void _showDeleteAccountDialog(BuildContext context, WidgetRef ref) {
   final userModel = ref.read(loginProvider); // Retrieve UserModel from the provider
-  final userId = userModel.data?[0].distributor?.firmName; // Get user ID, default to empty string if null
+  final userId = userModel.data?[0].details?.firmName; // Get user ID, default to empty string if null
   final token = userModel.data?[0].accessToken; // Get token, default to empty string if null
 
 

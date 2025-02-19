@@ -96,6 +96,7 @@ class ServiceProvider extends StateNotifier<ServiceModel> {
     try {
       loadingState.state = true;
       // Retrieve the token from SharedPreferences
+      print('geet srvice');
       final pref = await SharedPreferences.getInstance();
       String? userDataString = pref.getString('userData');
       if (userDataString == null || userDataString.isEmpty) {

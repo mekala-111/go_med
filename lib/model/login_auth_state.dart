@@ -19,17 +19,16 @@ class UserModel {
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data ={};
-    data['statusCode'] = statusCode;
-    data['success'] = success;
-    data['messages'] = messages;
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['statusCode'] = this.statusCode;
+    data['success'] = this.success;
+    data['messages'] = this.messages;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
     return data;
   }
 
-  // CopyWith method to create a modified copy of the object
   UserModel copyWith({
     int? statusCode,
     bool? success,
@@ -44,7 +43,6 @@ class UserModel {
     );
   }
 
-  // Initial method to create an initial empty state
   static UserModel initial() {
     return UserModel(
       statusCode: 0,
@@ -58,129 +56,157 @@ class UserModel {
 class Data {
   String? accessToken;
   String? refreshToken;
-  Distributor? distributor;
+  Details? details;
 
-  Data({this.accessToken, this.refreshToken, this.distributor});
+  Data({this.accessToken, this.refreshToken, this.details});
 
   Data.fromJson(Map<String, dynamic> json) {
     accessToken = json['access_token'];
     refreshToken = json['refresh_token'];
-    distributor = json['distributor'] != null
-        ?  Distributor.fromJson(json['distributor'])
-        : null;
+    details =
+        json['details'] != null ? Details.fromJson(json['details']) : null;
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['access_token'] = accessToken;
-    data['refresh_token'] =refreshToken;
-    if (distributor != null) {
-      data['distributor'] = distributor!.toJson();
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['access_token'] = this.accessToken;
+    data['refresh_token'] = this.refreshToken;
+    if (this.details != null) {
+      data['details'] = this.details!.toJson();
     }
     return data;
   }
 
-  // CopyWith method for Data class
   Data copyWith({
     String? accessToken,
     String? refreshToken,
-    Distributor? distributor,
+    Details? details,
   }) {
     return Data(
       accessToken: accessToken ?? this.accessToken,
       refreshToken: refreshToken ?? this.refreshToken,
-      distributor: distributor ?? this.distributor,
+      details: details ?? this.details,
     );
   }
 
-  // Initial method to create an initial empty state for Data
   static Data initial() {
     return Data(
       accessToken: '',
       refreshToken: '',
-      distributor: Distributor.initial(),
+      details: Details.initial(),
     );
   }
 }
 
-class Distributor {
+class Details {
   String? sId;
+  String? name;  // Changed from Null to String?
   String? mobile;
   String? role;
-  String? ownerName;
+  String? email;  // Changed from Null to String?
   String? firmName;
   String? gstNumber;
   String? status;
   String? address;
+  List<dynamic>? distributorImage;  // Changed from Null to dynamic
+  String? experience;  // Changed from Null to String?
+  String? certificate;  // Changed from Null to String?
 
-  Distributor(
-      {this.sId,
-      this.mobile,
-      this.role,
-      this.ownerName,
-      this.firmName,
-      this.gstNumber,
-      this.status,
-      this.address});
+  Details({
+    this.sId,
+    this.name,
+    this.mobile,
+    this.role,
+    this.email,
+    this.firmName,
+    this.gstNumber,
+    this.status,
+    this.address,
+    this.distributorImage,
+    this.experience,
+    this.certificate,
+  });
 
-  Distributor.fromJson(Map<String, dynamic> json) {
+  Details.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
+    name = json['name'];
     mobile = json['mobile'];
     role = json['role'];
-    ownerName = json['ownerName'];
+    email = json['email'];
     firmName = json['firmName'];
     gstNumber = json['gstNumber'];
     status = json['status'];
     address = json['address'];
+    if (json['distributorImage'] != null) {
+      distributorImage = json['distributorImage']; // List<dynamic> instead of Null
+    }
+    experience = json['experience'];
+    certificate = json['certificate'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['_id'] = sId;
-    data['mobile'] = mobile;
-    data['role'] = role;
-    data['ownerName'] = ownerName;
-    data['firmName'] = firmName;
-    data['gstNumber'] = gstNumber;
-    data['status'] = status;
-    data['address'] = address;
+    final Map<String, dynamic> data = Map<String, dynamic>();
+    data['_id'] = this.sId;
+    data['name'] = this.name;
+    data['mobile'] = this.mobile;
+    data['role'] = this.role;
+    data['email'] = this.email;
+    data['firmName'] = this.firmName;
+    data['gstNumber'] = this.gstNumber;
+    data['status'] = this.status;
+    data['address'] = this.address;
+    if (this.distributorImage != null) {
+      data['distributorImage'] = this.distributorImage; // No null check needed, it's dynamic
+    }
+    data['experience'] = this.experience;
+    data['certificate'] = this.certificate;
     return data;
   }
 
-  // CopyWith method for Distributor class
-  Distributor copyWith({
+  Details copyWith({
     String? sId,
+    String? name,
     String? mobile,
     String? role,
-    String? ownerName,
+    String? email,
     String? firmName,
     String? gstNumber,
     String? status,
     String? address,
+    List<dynamic>? distributorImage,
+    String? experience,
+    String? certificate,
   }) {
-    return Distributor(
+    return Details(
       sId: sId ?? this.sId,
+      name: name ?? this.name,
       mobile: mobile ?? this.mobile,
       role: role ?? this.role,
-      ownerName: ownerName ?? this.ownerName,
+      email: email ?? this.email,
       firmName: firmName ?? this.firmName,
       gstNumber: gstNumber ?? this.gstNumber,
       status: status ?? this.status,
       address: address ?? this.address,
+      distributorImage: distributorImage ?? this.distributorImage,
+      experience: experience ?? this.experience,
+      certificate: certificate ?? this.certificate,
     );
   }
 
-  // Initial method to create an initial empty state for Distributor
-  static Distributor initial() {
-    return Distributor(
+  static Details initial() {
+    return Details(
       sId: '',
+      name: '',
       mobile: '',
       role: '',
-      ownerName: '',
+      email: '',
       firmName: '',
       gstNumber: '',
       status: '',
       address: '',
+      distributorImage: [],
+      experience: '',
+      certificate: '',
     );
   }
 }
