@@ -17,29 +17,24 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
   final TextEditingController descriptionController = TextEditingController();
 
   final _formKey = GlobalKey<FormState>();
-  bool isLoading = false;
 
   List<String> selectedProducts = [];
   Map<String, String> productMap = {};
   List<String> productNames = [];
-  List filteredProductsList = [];
   String? type;
-  List<String>? productId;
+  List<String> productId = [];
   String? serviceId;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    final serviceState = ref.watch(serviceProvider).data ?? [];
-    filteredProductsList = serviceState;
-
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
 
-    if (args != null) {
+    if (args != null && productId.isEmpty) { // Prevent overwriting selected products
       setState(() {
         serviceController.text = args['name'] ?? '';
-        priceController.text = args['price'] ?? '';
+        priceController.text = args['price']?.toString() ?? '';
         descriptionController.text = args['details'] ?? '';
         productId = List<String>.from(args['productIds'] ?? []);
         type = args['type'] ?? '';
@@ -52,18 +47,17 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
   Widget build(BuildContext context) {
     final products = ref.watch(productProvider).data ?? [];
 
+    // Map product ID to Name
     productMap = {
       for (var p in products) p.productId ?? "": p.productName ?? "Unknown"
     };
-
     productNames = productMap.values.toList();
 
-    if (productId != null) {
-      selectedProducts = productId!
-          .map((id) => productMap[id] ?? "Unknown")
-          .where((name) => name != "Unknown")
-          .toList();
-    }
+    //  Ensure pre-selected products appear in dropdown
+    selectedProducts = productId
+        .map((id) => productMap[id] ?? "")
+        .where((name) => name.isNotEmpty)
+        .toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
@@ -72,9 +66,7 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
         title: const Text("Services"),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
+          onPressed: () => Navigator.pop(context),
         ),
       ),
       body: Padding(
@@ -86,12 +78,14 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  type == 'edit' ? 'Edit service' : 'Add service',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  type == 'edit' ? 'Edit Service' : 'Add Service',
+                  style: const TextStyle(
+                      fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                buildLabel("Select Products"),
 
+                // Select Products
+                buildLabel("Select Products"),
                 MultiSelectDialogField(
                   items: productNames
                       .map((name) => MultiSelectItem<String>(name, name))
@@ -103,11 +97,20 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(5),
                   ),
-                  initialValue: selectedProducts,
+                  initialValue: selectedProducts, // ✅ Pre-selection works
                   chipDisplay: MultiSelectChipDisplay.none(),
                   onConfirm: (values) {
                     setState(() {
                       selectedProducts = values.cast<String>();
+
+                      // ✅ Ensure productId updates based on selectedProducts
+                      productId = selectedProducts
+                          .map((name) => productMap.entries
+                              .firstWhere((entry) => entry.value == name,
+                                  orElse: () => MapEntry("", ""))
+                              .key)
+                          .where((id) => id.isNotEmpty)
+                          .toList();
                     });
                   },
                 ),
@@ -120,15 +123,22 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                       label: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Text(name, style: const TextStyle(color: Colors.white)),
+                          Text(name,
+                              style: const TextStyle(color: Colors.white)),
                           const SizedBox(width: 4),
                           GestureDetector(
                             onTap: () {
                               setState(() {
-                                selectedProducts.remove(name);
+                                selectedProducts = List.from(selectedProducts)
+                                  ..remove(name);
+                                productId = productId.where((id) {
+                                  final product = productMap[id];
+                                  return product != name;
+                                }).toList();
                               });
                             },
-                            child: const Icon(Icons.close, size: 16, color: Colors.white),
+                            child: const Icon(Icons.close,
+                                size: 16, color: Colors.white),
                           ),
                         ],
                       ),
@@ -136,45 +146,83 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
                     );
                   }).toList(),
                 ),
-                
+
                 const SizedBox(height: 16),
                 buildLabel("Service Name"),
-                TextFormField(controller: serviceController, decoration: buildInputDecoration()),
+                TextFormField(
+                    controller: serviceController,
+                    decoration: buildInputDecoration()),
                 const SizedBox(height: 10),
+
                 buildLabel("Price"),
-                TextFormField(controller: priceController, decoration: buildInputDecoration(), keyboardType: TextInputType.number),
+                TextFormField(
+                  controller: priceController,
+                  decoration: buildInputDecoration(),
+                  keyboardType: TextInputType.number,
+                ),
                 const SizedBox(height: 10),
+
                 buildLabel("Description"),
-                TextFormField(controller: descriptionController, decoration: buildInputDecoration()),
+                TextFormField(
+                    controller: descriptionController,
+                    decoration: buildInputDecoration()),
                 const SizedBox(height: 20),
+
+                // Submit Button
                 Center(
                   child: SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          List<String> productIds = selectedProducts
+                          List<String> updatedProductIds = selectedProducts
                               .map((name) => productMap.entries
-                                  .firstWhere((entry) => entry.value == name, orElse: () => MapEntry("", ""))
+                                  .firstWhere((entry) => entry.value == name,
+                                      orElse: () => MapEntry("", ""))
                                   .key)
+                              .where((id) => id.isNotEmpty)
                               .toList();
 
-                          final double? parsedPrice = double.tryParse(priceController.text);
+                          final double? parsedPrice =
+                              double.tryParse(priceController.text);
 
                           if (type == 'edit') {
-                            await ref.read(serviceProvider.notifier).updateService(
-                              serviceController.text, descriptionController.text, parsedPrice, productIds, serviceId,
-                            );
+                            bool success = await ref
+                                .read(serviceProvider.notifier)
+                                .updateService(
+                                  serviceController.text,
+                                  descriptionController.text,
+                                  parsedPrice,
+                                  updatedProductIds, // ✅ Use the updated product list
+                                  serviceId,
+                                );
+
+                            if (success) {
+                              setState(() {
+                                productId = updatedProductIds;
+                              });
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content:
+                                        Text("Service updated successfully!")),
+                              );
+                            }
                           } else {
                             await ref.read(serviceProvider.notifier).addService(
-                              serviceController.text, descriptionController.text, parsedPrice, productIds,
-                            );
+                                  serviceController.text,
+                                  descriptionController.text,
+                                  parsedPrice,
+                                  updatedProductIds,
+                                );
                             Navigator.of(context).pop();
                           }
                         }
                       },
-                      style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFF6BC37A)),
-                      child: Text(type == 'edit' ? 'Update Service' : 'Add Service'),
+                      style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF6BC37A)),
+                      child: Text(
+                          type == 'edit' ? 'Update Service' : 'Add Service'),
                     ),
                   ),
                 ),
@@ -193,7 +241,8 @@ class _ServicesPageEditState extends ConsumerState<ServicesPageEdit> {
   InputDecoration buildInputDecoration() {
     return const InputDecoration(
       contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-      border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(5))),
+      border: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(5))),
     );
   }
 }

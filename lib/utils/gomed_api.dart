@@ -8,11 +8,11 @@ class Bbapi {
   static const String update = "$baseUrl/products/updateproduct";
   static const String delete = "$baseUrl/products/deleteproduct";
   static const String refreshToken = "$baseUrl/refresh-token";
-  static const String updateProfile = "$baseUrl/user/updateProfile";
-  static const String deleteAccount = "$baseUrl/user/deleteProfile";
+  static const String updateProfile = "$baseUrl/distributor/update";
+  static const String deleteAccount = "$baseUrl/distributor/delete";
   static const String sparepartAdd = "$baseUrl/spareparts/add";
   static const String serviceAdd = "$baseUrl/services/createservice";
    static const String getService = "$baseUrl/services/getservices";
-    static const String ServiceUpdate= "$baseUrl/services/updateservice";
+    static const String serviceupdate= "$baseUrl/services/updateservice";
      static const String deleteService = "$baseUrl/services/deleteservice";
 }

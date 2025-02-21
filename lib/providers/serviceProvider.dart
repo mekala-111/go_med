@@ -165,6 +165,7 @@ class ServiceProvider extends StateNotifier<ServiceModel> {
     loadingState.state = true;
 
     try {
+      print('service update....................');
       // Retrieve the token from SharedPreferences
       final prefs = await SharedPreferences.getInstance();
       String? userDataString = prefs.getString('userData');
@@ -189,6 +190,10 @@ class ServiceProvider extends StateNotifier<ServiceModel> {
       }
 
       print('Retrieved Token: $token');
+      // ✅ Validate Service ID
+      if (serviceId == null || serviceId.isEmpty) {
+        throw Exception("Service ID is missing. Cannot update.");
+      }
 
       // Initialize RetryClient for handling retries
       final client = RetryClient(
@@ -205,20 +210,23 @@ class ServiceProvider extends StateNotifier<ServiceModel> {
           }
         },
       );
-      final response = await client.post(Uri.parse(Bbapi.ServiceUpdate),
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer $token",
-          },
-          body: jsonEncode({
-            "name": name,
-            "details": details,
-            "price": price,
-            "productIds": productIds,
-            "serviceId": serviceId
-          }));
+      print('retryclient....');
+      final response =
+          await client.put(Uri.parse("${Bbapi.serviceupdate}/$serviceId"),
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer $token",
+              },
+              body: jsonEncode({
+                "name": name,
+                "details": details,
+                "price": price,
+                "productIds": productIds,
+                "serviceId": serviceId
+              }));
 
       print("Response Body: ${response.body}");
+      print("Response Status: ${response.statusCode}");
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("Services updated successfully!");
@@ -239,62 +247,68 @@ class ServiceProvider extends StateNotifier<ServiceModel> {
   }
 
   Future<bool> deleteService(String? serviceId) async {
-    print('delete serviceid........$serviceId');
+    if (serviceId == null || serviceId.isEmpty) {
+      throw Exception("Invalid service ID.");
+    }
+
+    print('Deleting service ID: $serviceId');
+
     final loadingState = ref.read(loadingProvider.notifier);
     const String apiUrl = Bbapi.deleteService;
-    final loginmodel = ref.read(loginProvider);
-    final token = loginmodel.data![0].accessToken;
+    final loginModel = ref.read(loginProvider);
+    final token = loginModel.data![0].accessToken;
+
+    if (token == null || token.isEmpty) {
+      throw Exception("User token is missing. Please log in again.");
+    }
+
+    loadingState.state = true; // Show loading state
+
+    final client = RetryClient(
+      http.Client(),
+      retries: 4,
+      when: (response) {
+        return response.statusCode == 401 || response.statusCode == 400;
+      },
+      onRetry: (req, res, retryCount) async {
+        if (retryCount == 0 && res?.statusCode == 401) {
+          var accessToken =
+              await ref.watch(loginProvider.notifier).restoreAccessToken();
+          req.headers['Authorization'] = 'Bearer $accessToken';
+        }
+      },
+    );
 
     try {
-      // final prefs = await SharedPreferences.getInstance();
-      // String? token = prefs.getString('authToken');
-      print('delete try executes');
+      print('Sending DELETE request...');
 
-      if (token == null || token.isEmpty) {
-        throw Exception("User token is missing. Please log in again.");
-      }
-      loadingState.state = true; // Show loading state
-      final client = RetryClient(
-        http.Client(),
-        retries: 4,
-        when: (response) {
-          return response.statusCode == 401 || response.statusCode == 400
-              ? true
-              : false;
-        },
-        onRetry: (req, res, retryCount) async {
-          if (retryCount == 0 && res?.statusCode == 401 ||
-              res?.statusCode == 400) {
-            // Here, handle your token restoration logic
-            // You can access other providers using ref.read if needed
-            var accessToken =
-                await ref.watch(loginProvider.notifier).restoreAccessToken();
-
-            //print(accessToken); // Replace with actual token restoration logic
-            req.headers['Authorization'] = 'Bearer $accessToken';
-          }
-        },
-      );
-      print('delete function..............');
       final response = await client.delete(
         Uri.parse("$apiUrl/$serviceId"),
-        headers: {
-          "Authorization": "Bearer $token",
-        },
+        headers: {"Authorization": "Bearer $token"},
       );
-      print('deleteresponse$response');
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print("Service deleted successfully!");
+      print('Delete response: ${response.statusCode}');
+
+      if (response.statusCode == 200 ||
+          response.statusCode == 201 ||
+          response.statusCode == 204) {
+        print("✅ Service deleted successfully!");
         getSevices();
         return true;
       } else {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(
-            "Error deleting Service: ${errorBody['message'] ?? 'Unexpected error occurred.'}");
+        try {
+          final errorBody = jsonDecode(response.body);
+          throw Exception(
+              "Error deleting service: ${errorBody['message'] ?? 'Unexpected error.'}");
+        } catch (e) {
+          throw Exception("Error deleting service: ${response.body}");
+        }
       }
     } catch (error) {
-      throw Exception("Error deleting Service: $error");
+      print("❌ Error deleting service: $error");
+      throw Exception("Error deleting service: $error");
+    } finally {
+      loadingState.state = false; // Hide loading state
     }
   }
 }
