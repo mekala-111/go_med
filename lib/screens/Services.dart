@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/providers/serviceProvider.dart';
 import 'package:go_med/providers/products.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
@@ -30,7 +31,22 @@ class ServiceScreenState extends ConsumerState<ServicesPage> {
 
   @override
   Widget build(BuildContext context) {
-    final servicestate = ref.watch(serviceProvider).data ?? [];
+    final loginData=ref.watch(loginProvider).data ??[];
+   
+    final String? userId = loginData.isNotEmpty 
+    ? loginData[0].details?.sId 
+    : null;
+    print('userid..................$userId');
+    final serviceData = ref.watch(serviceProvider).data ?? [];
+    
+    // Filter services where distributorId matches userId
+     final List<Data> servicestate = serviceData
+    .where((service) => service.distributorId == userId)
+    .toList();
+
+         print('Filtered Services: ${servicestate.length}');
+
+
     final products = ref.watch(productProvider).data ?? [];
 
     // Create a product map (ID -> Name)

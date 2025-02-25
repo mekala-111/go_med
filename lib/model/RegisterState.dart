@@ -11,6 +11,8 @@ class RegistrationState {
   final bool isSubmitting;
   final String? errorMessage;
 
+  var selectedImage;
+
   RegistrationState({
     this.ownerName = '',
     this.email = '',
@@ -33,6 +35,7 @@ class RegistrationState {
     bool? isSubmitting,
     String? errorMessage,
      String? ownerName,
+     
     //  String? role,
   }) {
     return RegistrationState(

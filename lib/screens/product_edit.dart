@@ -195,6 +195,78 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
         productState.where((product) => product.spareParts == false).toList();
 
 
+
+
+ void _showProductSelection(BuildContext context) {
+  TextEditingController searchController = TextEditingController();
+  List filteredList = List.from(filteredProducts);
+
+  showDialog(
+    context: context,
+    builder: (context) {
+      return StatefulBuilder(
+        builder: (context, setModalState) {
+          return AlertDialog(
+            title: const Text("Select Product"),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Search Field
+                  TextField(
+                    controller: searchController,
+                    onChanged: (value) {
+                      setModalState(() {
+                        filteredList = filteredProducts
+                            .where((product) => product.productName!
+                                .toLowerCase()
+                                .contains(value.toLowerCase()))
+                            .toList();
+                      });
+                    },
+                    decoration: InputDecoration(
+                      labelText: "Search Product",
+                      prefixIcon: const Icon(Icons.search),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  // List of Products
+                  SizedBox(
+                    height: 400,
+                    width: 500,
+                    child: ListView.builder(
+                      itemCount: filteredList.length,
+                      itemBuilder: (context, index) {
+                        final product = filteredList[index];
+                        return ListTile(
+                          title: Text(product.productName!),
+                          onTap: () {
+                            setState(() {
+                              selectedProduct = product.productName;
+                              sparePartsContoller.text = product.productName!;
+                            });
+                            Navigator.pop(context);
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      );
+    },
+  );
+}
+
+
+
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
@@ -258,106 +330,29 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                 ),
                 const SizedBox(height: 0),
                 if (isChecked && filteredProducts.isNotEmpty)
-                  Column(
-                    children: [
+                  // Column(
+                    // children: [
                       // Display selected product above the search bar
-                      GestureDetector(
-                        onTap: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return Container(
-                                padding: const EdgeInsets.all(8),
-                                decoration: const BoxDecoration(
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(16),
-                                    topRight: Radius.circular(16),
-                                  ),
-                                  color: Colors.white,
-                                ),
-                                child: Column(
-                                  children: [
-                                    if (selectedProduct != null)
-                                      Padding(
-                                        padding: const EdgeInsets.all(8.0),
-                                        child: Text("selectedProduct!: $selectedProduct"),
-                                      ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: TextField(
-                                        controller: _searchController,
-                                    //     onChanged: (query) {
-                                    //    setState(() {
-                                    //   filteredProducts = allProducts
-                                    //  .where((product) => product.productName!
-                                    //   .toLowerCase()
-                                    //   .contains(query.toLowerCase()))
-                                    //   .toList();
-                                    //        });
-                                    //        },
-                                       
-                                        decoration: InputDecoration(
-                                          labelText: "Search Products",
-                                          filled: true,
-                                          fillColor: Colors.grey[200],
-                                          prefixIcon: const Icon(Icons.search),
-                                        ),
-                                      ),
-                                    ),
-                                    // Added scrollable section here
-                                    Expanded(
-                                      
-                                      child: ListView.builder(
-                                        
-                                        itemCount: filteredProducts.isEmpty
-                                            ? 1
-                                            : filteredProducts.length,
-                                        itemBuilder: (context, index) {
-                                          if (filteredProducts.isEmpty) {
-                                            return const Center(
-                                                child:
-                                                    Text('No products found.'));
-                                          } else {
-                                            final product =
-                                                filteredProducts[index];
-                                            return ListTile(
-                                              title: Text(product.productName!),
-                                              onTap: () {
-                                                setState(() {
-                                                  selectedProduct =
-                                                      product.productName;
-                                                  sparePartsContoller.text =
-                                                      product.productName!;
-                                                });
-                                                Navigator.pop(context);
-                                              },
-                                            );
-                                          }
-                                        },
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(vertical: 5),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.grey),
-                            borderRadius: BorderRadius.circular(5),
-                          ),
-                          child: ListTile(
-                            title: Text(
-                              selectedProduct ?? 'Select Product',
-                              style: const TextStyle(fontSize: 16),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                     GestureDetector(
+  onTap: () {
+    _showProductSelection(context);
+  },
+  child: Container(
+    padding: const EdgeInsets.all(10),
+    decoration: BoxDecoration(
+      border: Border.all(color: Colors.grey),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    child: ListTile(
+      title: Text(selectedProduct ?? 'Select Product'),
+      trailing: const Icon(Icons.arrow_drop_down),
+    ),
+  ),
+),
+
+
+                    // ],
+                  // ),
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: _showImagePickerOptions,
@@ -381,6 +376,8 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                   ),
                 ),
                 const SizedBox(height: 8),
+
+
                 _buildTextField(
                   controller: productNameController,
                   labelText: "Product Name",
@@ -410,10 +407,22 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                   maxLines: 3,
                 ),
                 const SizedBox(height: 8),
-                _buildTextField(
+
+               if (isChecked || type == 'edit')
+                 TextField(
+                   decoration: InputDecoration(
+                   border: const OutlineInputBorder(),
+                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                   hintText: categoryController.text.isNotEmpty ? categoryController.text : 'N/A',
+                   ),
+                   readOnly: true,
+                  )
+                   else
+                 _buildTextField(
                   controller: categoryController,
                   labelText: "Category",
-                ),
+                  ),
+
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -567,6 +576,7 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
       ),
     );
   }
+  
 
   Widget _buildTextField({
     required TextEditingController controller,

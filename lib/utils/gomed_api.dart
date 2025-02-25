@@ -2,7 +2,7 @@ class Bbapi {
   static const String baseUrl = "http://97.74.93.26:3000";
 
   static const String login = "$baseUrl/distributor/login";
-  static const String signup = "$baseUrl/distributor/distributor/signup";
+  static const String signup = "$baseUrl/distributor/signup";
   static const String add = "$baseUrl/products/create/product";
   static const String getProduct = "$baseUrl/products/products";
   static const String update = "$baseUrl/products/updateproduct";

@@ -87,7 +87,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         if (userModel.data != null && userModel.data!.isNotEmpty) {
           final firstData =
               userModel.data![0]; // Access the first element in the list
-          if (firstData.details  == null || firstData.accessToken == null) {
+          if (firstData.details == null || firstData.accessToken == null) {
             print('Invalid user data structure inside SharedPreferences.');
             return false;
           }
@@ -102,7 +102,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         );
 
         print(
-            'User ID from auto-login: ${state.data?[0].details ?.firmName}'); // Accessing User ID from the first Data object
+            'User ID from auto-login: ${state.data?[0].details?.firmName}'); // Accessing User ID from the first Data object
         return true;
       } else {
         print('Necessary fields are missing in SharedPreferences.');
@@ -448,8 +448,8 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     final prefs = await SharedPreferences.getInstance();
     final userModel =
         ref.read(loginProvider); // Retrieve UserModel from the provider
-    final userId = userModel.data?[0].details 
-        ?.firmName; // Get user ID, default to empty string if null
+    final userId = userModel.data?[0].details?.sId;
+    // Get user ID, default to empty string if null
     final token = userModel
         .data?[0].accessToken; // Get token, default to empty string if null
     final loadingState = ref.read(loadingProvider.notifier);
@@ -494,14 +494,14 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           "Authorization": "Bearer $token",
           "Content-Type": "multipart/form-data",
         })
-        ..fields['ownerName'] = name ?? ''
+        ..fields['name'] = name ?? ''
         ..fields['email'] = email ?? ''
         ..fields['mobile'] = phone ?? '';
 
       if (selectedImage != null) {
         if (await selectedImage.exists()) {
           request.files.add(await http.MultipartFile.fromPath(
-            'photo',
+            'profileImage',
             selectedImage.path,
           ));
         } else {
@@ -512,12 +512,14 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
 
       print("Request Fields: ${request.fields}");
       print("Request Headers: ${request.headers}");
+      print('profile is there');
 
       //final response = await request.send();
       //final response = await http.Response.fromStream(response);
       // Send the request using the inner client of RetryClient
       final streamedResponse = await retryClient.send(request);
       final response = await http.Response.fromStream(streamedResponse);
+      print('profile is there');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("Profile updated successfully.");

@@ -18,9 +18,16 @@ import 'package:go_med/screens/products_scrren.dart';
 import 'package:go_med/screens/services_edit.dart';
 
 import 'package:go_med/screens/settings.dart';
+import 'package:flutter/services.dart'; // Required for screen orientation
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await SystemChrome.setPreferredOrientations([
+  DeviceOrientation.portraitUp,
+  DeviceOrientation.portraitDown, 
+]);
+
   await Firebase.initializeApp();
   options:
   DefaultFirebaseOptions.currentPlatform;
@@ -51,7 +58,7 @@ class MyApp extends StatelessWidget {
             
              print('token/main $accessToken');
             // Check if the user has a valid refresh token
-            if (accessToken != null && accessToken.isNotEmpty) {
+            if (accessToken != null && accessToken.isNotEmpty&&(authState.data![0].details!.role=="distributor"||authState.data![0].details!.role=="serviceEngineer")) {
               return const DashboardPage(); // User is authenticated, redirect to Home
             } else {
               print('No valid refresh token, trying auto-login');
@@ -77,6 +84,7 @@ class MyApp extends StatelessWidget {
                 } else if (snapshot.hasData &&
                     snapshot.data == true &&
                      ( accessToken != null && accessToken.isNotEmpty)
+                     &&(authState.data![0].details!.role=="distributor"||authState.data![0].details!.role=="serviceEngineer")
                      ) {
                   // If auto-login is successful and refresh token is available, go to Dashboard
                   return const DashboardPage();
