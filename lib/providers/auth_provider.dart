@@ -200,60 +200,62 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
 
   Future<void> sendPhoneNumberAndRoleToAPI({
     required String phoneNumber,
-  }) async {
+}) async {
     const String apiUrl = Bbapi.login;
     final prefs = await SharedPreferences.getInstance();
     print('Phone number: $phoneNumber');
 
     try {
-      // Send the phone number as JSON data
       final response = await http.post(
         Uri.parse(apiUrl),
         headers: {
           "Content-Type": "application/json",
-          "Authorization": "Bearer YOUR_API_TOKEN", // Add token if needed
+          "Authorization": "Bearer YOUR_API_TOKEN",
         },
         body: json.encode({
           "mobile": phoneNumber.toString(),
-          // You can add additional data here like role if needed
-          // "role": "details ",
         }),
       );
 
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print("Data successfully sent to the API.");
+      print("Raw API Response: ${response.body}"); // Debugging
+
+      if (response.statusCode >= 200 && response.statusCode < 300) {
         var userDetails = json.decode(response.body);
-        print('userdetails.................${response.body}');
-        // Create a UserModel instance from the response
-        UserModel user = UserModel.fromJson(userDetails);
-        print("Response: ${response.body}");
 
-        // Debug: Print the user data to check if it's correct
-        print("User Data to Save: ${user.toJson()}");
+        if (userDetails != null && userDetails['data'] != null && userDetails['data'].isNotEmpty) {
+          UserModel user = UserModel.fromJson(userDetails);
+          state = user;
+          
+          print('login model...${state.data![0].accessToken}');
+          print("User Data to Save: ${user.toJson()}");
 
-        // Save the user data in SharedPreferences
-        final userData = json.encode({
-          'statusCode': user.statusCode ?? 0,
-          'success': user.success,
-          'messages': user.messages,
-          'data': user.data?.map((data) => data.toJson()).toList(),
-        });
+          final userData = json.encode({
+            'statusCode': user.statusCode ?? 0,
+            'success': user.success,
+            'messages': user.messages,
+            'data': user.data?.map((data) => data.toJson()).toList(),
+          });
 
-        // Debug: Print userData before saving
-        print("User Data to Save in SharedPreferences: $userData");
+          print("User Data to Save in SharedPreferences: $userData");
 
-        await prefs.setString('userData', userData);
+          try {
+            await prefs.setString('userData', userData);
+          } catch (e) {
+            print("Error saving user data: $e");
+          }
+
+        } else {
+          print('Error: API response does not contain valid data');
+        }
+
       } else {
-        // Handle failure responses
-        print(
-            "Failed to send data to the API. Status code: ${response.statusCode}");
+        print("Failed to send data to the API. Status code: ${response.statusCode}");
         print("Response: ${response.body}");
       }
     } catch (e) {
-      // Handle errors
       print("Error while sending data to the API: $e");
     }
-  }
+}
 
   Future<String> generateUniqueUid() async {
     Random random = Random();
@@ -328,13 +330,23 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     final prefs = await SharedPreferences.getInstance();
 
     try {
+      String? currentAccessToken = state.data != null && state.data!.isNotEmpty
+        ? state.data![0].refreshToken
+        : null;
+
+        if (currentAccessToken == null || currentAccessToken.isEmpty) {
+          throw Exception("No valid access token found to refresh.");
+        }
+
       var response = await http.patch(
         Uri.parse(url),
         headers: {
-          'Authorization': state.data![0].accessToken!,
+          // 'Authorization': state.data![0].accessToken!,
+            'Authorization': 'Bearer $currentAccessToken',
+
           'Content-Type': 'application/json; charset=UTF-8'
         },
-        body: json.encode({"refresh_token": state.data![0].accessToken}),
+        body: json.encode({"refresh_token": currentAccessToken}),
       );
 
       var userDetails = json.decode(response.body);
@@ -378,8 +390,8 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           print("Refresh access token success");
 
           // Extract the new access token and refresh token
-          final newAccessToken = userDetails['data']['access_token'];
-          final newRefreshToken = userDetails['data']['refresh_token'];
+          final newAccessToken = userDetails['access_token'];
+          final newRefreshToken = userDetails['refresh_token'];
 
           print('New access token: $newAccessToken');
           print('New refresh token: $newRefreshToken');
@@ -437,6 +449,129 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     }
     return state.data![0].accessToken!;
   }
+
+  Future<void> updateServiceProfile(
+    String? name,
+    String? email,
+    String? phone,
+    File? selectedImage,
+    WidgetRef ref,
+   
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final userModel =
+        ref.read(loginProvider); // Retrieve UserModel from the provider
+    final userId = userModel.data?[0].details?.sId;
+    // Get user ID, default to empty string if null
+    final token = userModel
+        .data?[0].accessToken; // Get token, default to empty string if null
+    final loadingState = ref.read(loadingProvider.notifier);
+
+    // final userId = prefs.getString('userId');
+    // final token = prefs.getString('firebaseToken');
+
+    print(
+        'name--$name, email--$email, mobile--$phone, photo--${selectedImage?.path}');
+
+    if (userId == null || token == null) {
+      print('User ID or Firebase token is missing.');
+      return;
+    }
+
+    final apiUrl = "${Bbapi.serviceEngineerupdate}/$userId";
+
+    try {
+      loadingState.state = true; // Show loading state
+      final retryClient = RetryClient(
+        http.Client(),
+        retries: 4,
+        when: (response) {
+          return response.statusCode == 404 || response.statusCode == 401
+              ? true
+              : false;
+        },
+        onRetry: (req, res, retryCount) async {
+          if (retryCount == 0 && res?.statusCode == 404 ||
+              res?.statusCode == 401) {
+            // Here, handle your token restoration logic
+            // You can access other providers using ref.read if needed
+            var accessToken = await restoreAccessToken();
+
+            //print(accessToken); // Replace with actual token restoration logic
+            req.headers['Authorization'] = "Bearer ${accessToken.toString()}";
+          }
+        },
+      );
+      final request = http.MultipartRequest('PUT', Uri.parse(apiUrl))
+        ..headers.addAll({
+          "Authorization": "Bearer $token",
+          "Content-Type": "multipart/form-data",
+        })
+        ..fields['name'] = name ?? ''
+        ..fields['email'] = email ?? ''
+        ..fields['mobile'] = phone ?? ''
+        //  ..fields['experience'] = phone ?? ''
+         ;
+
+      if (selectedImage != null) {
+        if (await selectedImage.exists()) {
+          request.files.add(await http.MultipartFile.fromPath(
+            'serviceEngineerImage',
+            selectedImage.path,
+          ));
+        } else {
+          print("serviceengineerProfile image file does not exist: ${selectedImage.path}");
+          throw Exception("serviceengineerProfile image file not found");
+        }
+      }
+
+      print("Request Fields: ${request.fields}");
+      print("Request Headers: ${request.headers}");
+      print('profile is there');
+
+      //final response = await request.send();
+      //final response = await http.Response.fromStream(response);
+      // Send the request using the inner client of RetryClient
+      final streamedResponse = await retryClient.send(request);
+      final response = await http.Response.fromStream(streamedResponse);
+      print('profile is there');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("serviceengineerProfile updated successfully.");
+
+        
+        var userDetails = json.decode(response.body);
+        UserModel user = UserModel.fromJson(userDetails);
+        print(" updated Response: ${response.body}");
+
+        // Debug: Print the user data to check if it's correct
+        print("updated User Data to Save: ${user.toJson()}");
+
+             state = user;
+        final userData = json.encode({
+          // 'accessToken': user.data?[0].accessToken,
+          'statusCode': user.statusCode,
+          'success': user.success,
+          'messages': user.messages,
+          'data': user.data
+              ?.map((data) => data.toJson())
+              .toList(), // Serialize all Data objects
+        });
+        
+
+        await prefs.setString('userData', userData);
+      } else {
+        print("Failed to update profile. Status code: ${response.statusCode}");
+        print("Response: ${response.body}");
+      }
+    } catch (e) {
+      print("Error while updating profile: $e");
+    } finally {
+      loadingState.state = false; // Hide loading state
+    }
+  }
+
+
 
   Future<void> updateProfile(
     String? name,

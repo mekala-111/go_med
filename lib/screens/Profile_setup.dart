@@ -6,6 +6,7 @@ class ProfileSetupPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var role;
     return Scaffold(
       backgroundColor:  const Color(0xFFE8F7F2),
       appBar: AppBar(
@@ -249,7 +250,7 @@ class ProfileSetupPage extends StatelessWidget {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 1),
+      // bottomNavigationBar:  BottomNavBar(currentIndex: (role == "serviceEngineer") ? 3 : 1,),
     );
   }
 }

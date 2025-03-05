@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_med/providers/sparepartProvider.dart';
 import 'package:image_picker/image_picker.dart';
-import 'BottomNavBar.dart';
+
 import '../providers/products.dart';
-import '../providers/loader.dart';
+import '../providers/serviceProvider.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AddProductScreen extends ConsumerStatefulWidget {
@@ -20,17 +22,20 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
   final TextEditingController descriptionController = TextEditingController();
   final TextEditingController categoryController = TextEditingController();
   final TextEditingController sparePartsContoller = TextEditingController();
+  final TextEditingController sparePartNameController = TextEditingController();
   bool isLoading = false;
   List filteredProductsList = [];
   final TextEditingController _searchController = TextEditingController();
   String? productId;
   String? type;
+  String? sparePartId;
+  String? sparePartName;
 
   // Local variable for selected dropdown item
   String? selectedProduct;
 
   // Image Picker variables
-  List<File> _image=[];
+  List<File> _image = [];
   final ImagePicker _picker = ImagePicker();
 
   // Track checkbox state
@@ -61,8 +66,13 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
         priceController.text = args['price'] ?? '';
         descriptionController.text = args['description'] ?? '';
         categoryController.text = args['category'] ?? '';
+        sparePartNameController.text = args['sparepartName'] ?? '';
         type = args['type'] ?? '';
         productId = args['productId'] ?? '';
+        sparePartId = args['sparepartId'] ?? '';
+        isChecked = args['isChecked'] ?? false;
+        // productNameController.text = args['sparepartName'] ?? '';
+        selectedProduct = args['selectedProduct'] ?? '';
       });
     }
 
@@ -194,78 +204,73 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
     final filteredProducts =
         productState.where((product) => product.spareParts == false).toList();
 
+    void _showProductSelection(BuildContext context) {
+      TextEditingController searchController = TextEditingController();
+      List filteredList = List.from(filteredProducts);
 
-
-
- void _showProductSelection(BuildContext context) {
-  TextEditingController searchController = TextEditingController();
-  List filteredList = List.from(filteredProducts);
-
-  showDialog(
-    context: context,
-    builder: (context) {
-      return StatefulBuilder(
-        builder: (context, setModalState) {
-          return AlertDialog(
-            title: const Text("Select Product"),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Search Field
-                  TextField(
-                    controller: searchController,
-                    onChanged: (value) {
-                      setModalState(() {
-                        filteredList = filteredProducts
-                            .where((product) => product.productName!
-                                .toLowerCase()
-                                .contains(value.toLowerCase()))
-                            .toList();
-                      });
-                    },
-                    decoration: InputDecoration(
-                      labelText: "Search Product",
-                      prefixIcon: const Icon(Icons.search),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(8),
+      showDialog(
+        context: context,
+        builder: (context) {
+          return StatefulBuilder(
+            builder: (context, setModalState) {
+              return AlertDialog(
+                title: const Text("Select Product"),
+                content: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Search Field
+                      TextField(
+                        controller: searchController,
+                        onChanged: (value) {
+                          setModalState(() {
+                            filteredList = filteredProducts
+                                .where((product) => product.productName!
+                                    .toLowerCase()
+                                    .contains(value.toLowerCase()))
+                                .toList();
+                          });
+                        },
+                        decoration: InputDecoration(
+                          labelText: "Search Product",
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  // List of Products
-                  SizedBox(
-                    height: 400,
-                    width: 500,
-                    child: ListView.builder(
-                      itemCount: filteredList.length,
-                      itemBuilder: (context, index) {
-                        final product = filteredList[index];
-                        return ListTile(
-                          title: Text(product.productName!),
-                          onTap: () {
-                            setState(() {
-                              selectedProduct = product.productName;
-                              sparePartsContoller.text = product.productName!;
-                            });
-                            Navigator.pop(context);
+                      const SizedBox(height: 10),
+                      // List of Products
+                      SizedBox(
+                        height: 400,
+                        width: 500,
+                        child: ListView.builder(
+                          itemCount: filteredList.length,
+                          itemBuilder: (context, index) {
+                            final product = filteredList[index];
+                            return ListTile(
+                              title: Text(product.productName!),
+                              onTap: () {
+                                setState(() {
+                                  selectedProduct = product.productName;
+                                  sparePartsContoller.text =
+                                      product.productName!;
+                                });
+                                Navigator.pop(context);
+                              },
+                            );
                           },
-                        );
-                      },
-                    ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-            ),
+                ),
+              );
+            },
           );
         },
       );
-    },
-  );
-}
-
-
-
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -331,28 +336,27 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                 const SizedBox(height: 0),
                 if (isChecked && filteredProducts.isNotEmpty)
                   // Column(
-                    // children: [
-                      // Display selected product above the search bar
-                     GestureDetector(
-  onTap: () {
-    _showProductSelection(context);
-  },
-  child: Container(
-    padding: const EdgeInsets.all(10),
-    decoration: BoxDecoration(
-      border: Border.all(color: Colors.grey),
-      borderRadius: BorderRadius.circular(8),
-    ),
-    child: ListTile(
-      title: Text(selectedProduct ?? 'Select Product'),
-      trailing: const Icon(Icons.arrow_drop_down),
-    ),
-  ),
-),
+                  // children: [
+                  // Display selected product above the search bar
+                  GestureDetector(
+                    onTap: () {
+                      _showProductSelection(context);
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ListTile(
+                        title: Text(selectedProduct ?? 'Select Product'),
+                        trailing: const Icon(Icons.arrow_drop_down),
+                      ),
+                    ),
+                  ),
 
-
-                    // ],
-                  // ),
+                // ],
+                // ),
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: _showImagePickerOptions,
@@ -364,7 +368,7 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                       borderRadius: BorderRadius.circular(10),
                       color: Colors.grey[200],
                     ),
-                    child:  _image.isNotEmpty
+                    child: _image.isNotEmpty
                         ? ClipRRect(
                             borderRadius: BorderRadius.circular(10),
                             child: Image.file(_image.first, fit: BoxFit.cover),
@@ -377,18 +381,60 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                 ),
                 const SizedBox(height: 8),
 
-
-                _buildTextField(
-                  controller: productNameController,
-                  labelText: "Product Name",
+              if(isChecked&&type=='edit')
+               _buildTextField(
+                  controller: sparePartNameController,
+                  labelText: isChecked ? "Spare Part Name" : "Product Name",
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return "Product name is required.";
+                      return isChecked
+                          ? "Spare part name is required."
+                          : "Product name is required.";
                     }
                     return null;
                   },
                 ),
-                const SizedBox(height: 8),
+                if(isChecked == false && type!='edit')
+                 _buildTextField(
+                  controller: productNameController,
+                  labelText: isChecked ? "Spare Part Name" : "Product Name",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return isChecked
+                          ? "Spare part name is required."
+                          : "Product name is required.";
+                    }
+                    return null;
+                  },
+                ),
+                if(isChecked==true&&type!='edit')
+               _buildTextField(
+                  controller: sparePartNameController,
+                  labelText: isChecked ? "Spare Part Name" : "Product Name",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return isChecked
+                          ? "Spare part name is required."
+                          : "Product name is required.";
+                    }
+                    return null;
+                  },
+                ),
+                if(isChecked==false&&type=='edit')
+               _buildTextField(
+                  controller: productNameController,
+                  labelText: isChecked ? "Spare Part Name" : "Product Name",
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return isChecked
+                          ? "Spare part name is required."
+                          : "Product name is required.";
+                    }
+                    return null;
+                  },
+                ),
+
+            const SizedBox(height: 8),
                 _buildTextField(
                   controller: priceController,
                   labelText: "Price",
@@ -408,19 +454,22 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                 ),
                 const SizedBox(height: 8),
 
-               if (isChecked || type == 'edit')
-                 TextField(
-                   decoration: InputDecoration(
-                   border: const OutlineInputBorder(),
-                   contentPadding: const EdgeInsets.symmetric(horizontal: 12),
-                   hintText: categoryController.text.isNotEmpty ? categoryController.text : 'N/A',
-                   ),
-                   readOnly: true,
+                if (isChecked || type == 'edit')
+                  TextField(
+                    decoration: InputDecoration(
+                      border: const OutlineInputBorder(),
+                      contentPadding:
+                          const EdgeInsets.symmetric(horizontal: 12),
+                      hintText: categoryController.text.isNotEmpty
+                          ? categoryController.text
+                          : 'N/A',
+                    ),
+                    readOnly: true,
                   )
-                   else
-                 _buildTextField(
-                  controller: categoryController,
-                  labelText: "Category",
+                else
+                  _buildTextField(
+                    controller: categoryController,
+                    labelText: "Category",
                   ),
 
                 const SizedBox(height: 8),
@@ -516,44 +565,74 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                     final double? parsedPrice =
                                         double.tryParse(priceController.text);
                                     print('printed...........');
+
                                     if (parsedPrice == null) {
                                       _showSnackBar(context,
                                           "Please enter a valid price.");
                                       print('printes.................');
                                       return;
                                     }
+                                    if (type == 'edit') {
+                                      try {
+                                        await ref
+                                            .read(sparepartProvider.notifier)
+                                            .updateSparePart(
+                                                sparePartNameController.text,
+                                                descriptionController.text,
+                                                parsedPrice,
+                                                _image,
+                                                sparePartId,
+                                                // productNameController.text,
+                                                productId
+                                                );
 
-                                    try {
-                                      print('Parsed price: $parsedPrice');
-                                      print('Product Name: ${productNameController.text}');
-                                      print('Description: ${descriptionController.text}');
-                                      print('Selected Product: $selectedProduct');
-                                      print('Image: $_image');
+                                        // Clear form fields
+                                        productNameController.clear();
+                                        priceController.clear();
+                                        descriptionController.clear();
 
-                                      await ref
-                                          .read(productProvider.notifier)
-                                          .addSpareParts(
-                                              productNameController.text,
-                                              descriptionController.text,
-                                              parsedPrice,
-                                              selectedProduct,
-                                              _image);
-                                      print('try exicuted==========');
+                                        _showSnackBar(context,
+                                            "Product updated successfully!");
+                                        Navigator.of(context).pop();
+                                      } catch (e) {
+                                        _showSnackBar(context, e.toString());
+                                      }
+                                    } else {
+                                      try {
+                                        print('Parsed price: $parsedPrice');
+                                        print(
+                                            'Product Name: ${sparePartNameController.text}');
+                                        print(
+                                            'Description: ${descriptionController.text}');
+                                        print(
+                                            'Selected Product: $selectedProduct');
+                                        print('Image: $_image');
 
-                                      // Clear form fields
-                                      productNameController.clear();
-                                      priceController.clear();
-                                      descriptionController.clear();
+                                        await ref
+                                            .read(sparepartProvider.notifier)
+                                            .addSpareParts(
+                                                sparePartNameController.text,
+                                                descriptionController.text,
+                                                parsedPrice,
+                                                selectedProduct,
+                                                _image,
+                                                );
+                                        print('try exicuted==========');
 
-                                      _showSnackBar(context,
-                                          "Sparepart added successfully!");
-                                      Navigator.of(context).pop();
-                                    } catch (e, stackTrace) {
-                                      print('Error: $e');
-                                      print('Stack Trace: $stackTrace');
-                                      _showSnackBar(context, e.toString());
-                                       }
+                                        // Clear form fields
+                                        productNameController.clear();
+                                        priceController.clear();
+                                        descriptionController.clear();
 
+                                        _showSnackBar(context,
+                                            "Sparepart added successfully!");
+                                        Navigator.of(context).pop();
+                                      } catch (e, stackTrace) {
+                                        print('Error: $e');
+                                        print('Stack Trace: $stackTrace');
+                                        _showSnackBar(context, e.toString());
+                                      }
+                                    }
                                   } else {
                                     _showSnackBar(
                                         context, "Please fill all fields.");
@@ -564,7 +643,9 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                             backgroundColor: const Color(0x801BA4CA),
                             padding: const EdgeInsets.symmetric(vertical: 15),
                           ),
-                          child: const Text('Add SparePart'),
+                          child: Text(type == 'edit'
+                              ? 'update Sparepart'
+                              : 'Add SparePart'),
                         ),
                       ),
                   ],
@@ -576,7 +657,6 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
       ),
     );
   }
-  
 
   Widget _buildTextField({
     required TextEditingController controller,

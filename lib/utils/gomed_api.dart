@@ -7,10 +7,14 @@ class Bbapi {
   static const String getProduct = "$baseUrl/products/products";
   static const String update = "$baseUrl/products/updateproduct";
   static const String delete = "$baseUrl/products/deleteproduct";
-  static const String refreshToken = "$baseUrl/refresh-token";
+  static const String serviceEngineerupdate = "$baseUrl/distributor/updateServiceEngineer";
+  static const String refreshToken = "$baseUrl/auth/refresh-token";
   static const String updateProfile = "$baseUrl/distributor/update";
   static const String deleteAccount = "$baseUrl/distributor/delete";
   static const String sparepartAdd = "$baseUrl/spareparts/add";
+  static const String sparepartGet = "$baseUrl/spareparts/list";
+  static const String sparepartupdate = "$baseUrl/spareparts/update";
+  static const String sparepartdelete = "$baseUrl/spareparts/delete";
   static const String serviceAdd = "$baseUrl/services/createservice";
    static const String getService = "$baseUrl/services/getservices";
     static const String serviceupdate= "$baseUrl/services/updateservice";

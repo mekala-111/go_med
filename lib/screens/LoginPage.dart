@@ -20,6 +20,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   bool isSendingOtp = false; // Loading state for "Send OTP" button
   bool isLoggingIn = false; // Loading state for "Verify" button
   bool isOtpEntered = false; // Tracks if OTP is entered
+  String lastPhoneNumber = ""; // Store the last sent phone number
 
   int countdown = 0; // Countdown timer for OTP
   Timer? _timer; // Timer object
@@ -150,16 +151,22 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         onPressed: countdown > 0 || isSendingOtp
                             ? null
                             : () async {
+                              
                                 setState(() {
                                   isSendingOtp = true;
-                                });
+                     });
+                               
 
                                 final phoneNumber = phoneController.text.trim();
                                 final isValid = phoneNumber.startsWith("+91") &&
+
                                     phoneNumber.length == 13 &&
                                     RegExp(r'^[6-9]\d{9}$').hasMatch(phoneNumber.substring(3));
 
                                 if (isValid) {
+                                   setState(() {
+                                                     lastPhoneNumber = phoneNumber;
+                                          });
                                   try {
                                     await authNotifier.verifyPhoneNumber(phoneNumber, ref);
                                     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('OTP sent successfully!')));
@@ -182,7 +189,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         ),
                         child: isSendingOtp
                             ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
-                            : Text(countdown > 0 ? '$countdown sec' : 'Send OTP', style: const TextStyle(color: Colors.white, fontSize: 16)),
+                            : Text(countdown > 0 ? '$countdown sec'  : (lastPhoneNumber == phoneController.text.trim() ? 'Resend OTP' : 'Send OTP'),
+                            style: const TextStyle(color: Colors.white, fontSize: 16),
+                                        ),
                       ),
                     ],
                   ),
@@ -194,12 +203,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     child: ElevatedButton(
                       onPressed: isOtpEntered && !isLoggingIn
                           ? () async {
+
                               setState(() {
                                 isLoggingIn = true;
                               });
 
                               try {
-                                await ref.read(loginProvider.notifier).signInWithPhoneNumber(otpController.text.trim(), ref);
+                                await 
+                                ref.read(loginProvider.notifier).signInWithPhoneNumber(otpController.text.trim(), ref);
+                                // ✅ Stop the Timer
+                                     if (_timer!.isActive) {
+                                            _timer!.cancel();
+                                      }
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP Verified Successfully!")));
                                 Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
                               } catch (e) {

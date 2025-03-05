@@ -8,6 +8,7 @@ class BookingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var role;
     return WillPopScope(
       onWillPop: () async {
         // Navigate to DashboardPage when back button is pressed
@@ -20,6 +21,15 @@ class BookingsPage extends StatelessWidget {
       child: Scaffold(
          backgroundColor:  const Color(0xFFE8F7F2), 
         appBar: AppBar(
+          leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pop(
+              context,
+              MaterialPageRoute(builder: (context) => const DashboardPage()),
+            );
+          },
+        ),
           title: const Text("Bookings",
           style: TextStyle(color: Colors.white,
         
@@ -210,7 +220,7 @@ class BookingsPage extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar: const BottomNavBar(currentIndex: 2),
+        bottomNavigationBar:  const BottomNavBar(currentIndex: 2,),
       ),
     );
   }

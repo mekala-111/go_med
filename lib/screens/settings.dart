@@ -15,6 +15,7 @@ class SettingsPage extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final logoutNotifier = ref.read(logoutProvider.notifier);
 
+    var role;
     return 
     // WillPopScope(
     //   onWillPop: () async {
@@ -51,12 +52,12 @@ class SettingsPage extends ConsumerWidget {
                 // Handle notification press
               },
             ),
-            IconButton(
-              icon: const Icon(Icons.menu, color: Colors.black),
-              onPressed: () {
-                // Handle menu press
-              },
-            ),
+            // IconButton(
+            //   icon: const Icon(Icons.menu, color: Colors.black),
+            //   onPressed: () {
+            //     // Handle menu press
+            //   },
+            // ),
           ],
         ),
         body: SingleChildScrollView( // Make the body scrollable
@@ -218,7 +219,7 @@ class SettingsPage extends ConsumerWidget {
 
 
         
-        bottomNavigationBar: const BottomNavBar(currentIndex: 5),
+        bottomNavigationBar:  BottomNavBar(currentIndex: 5,),
       
     );
   }

@@ -18,6 +18,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
+  final TextEditingController experienceController = TextEditingController();
 
   File? _selectedImage;
   final double maxImageSize = 5 * 1024 * 1024; // 5 MB in bytes
@@ -29,11 +30,13 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
 
   void _loadUserData() {
     final userModel = ref.read(loginProvider);
+    // ✅ Fetch user data
+
     if (userModel.data != null && userModel.data!.isNotEmpty) {
       final user = userModel.data![0].details;
       nameController.text = user?.name ?? "";
       emailController.text = user?.email ?? "";
-      phoneController.text = user?.mobile ??"";
+      phoneController.text = user?.mobile ?? "";
     }
   }
 
@@ -60,7 +63,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text("Image Too Large"),
-        content: const Text("The selected image exceeds the size limit of 5 MB. Please choose a smaller image."),
+        content: const Text(
+            "The selected image exceeds the size limit of 5 MB. Please choose a smaller image."),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -75,6 +79,9 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
     double screenHeight = MediaQuery.of(context).size.height;
+    // String? role;
+    final userModel = ref.read(loginProvider);
+    final role = userModel.data?.first.details?.role ?? '';
 
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
@@ -85,7 +92,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           children: [
             const Text(
               "Profile",
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style:
+                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
             ),
             const Spacer(),
             IconButton(
@@ -102,7 +110,8 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
         ),
       ),
-      body: SingleChildScrollView( // Prevents pixel overflow
+      body: SingleChildScrollView(
+        // Prevents pixel overflow
         child: Padding(
           padding: EdgeInsets.all(screenWidth * 0.05),
           child: Column(
@@ -129,9 +138,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     ),
                     SizedBox(height: screenHeight * 0.02),
                     Text(
-                     nameController.text.isNotEmpty ? nameController.text : "User Name",
-                    style: TextStyle(fontSize: screenWidth * 0.06, fontWeight: FontWeight.bold),
-    
+                      nameController.text.isNotEmpty
+                          ? nameController.text
+                          : "User Name",
+                      style: TextStyle(
+                          fontSize: screenWidth * 0.06,
+                          fontWeight: FontWeight.bold),
                     ),
                   ],
                 ),
@@ -147,22 +159,52 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (isEditing) {
-                      try {
-                        // Call the updateProfile function
-                        await ref.read(loginProvider.notifier).updateProfile(
-                          nameController.text,
-                          emailController.text,
-                          phoneController.text,
-                          _selectedImage,
-                          ref
-                        );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text("Profile updated successfully!")),
-                        );
-                      } catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text("Error updating profile: $e")),
-                        );
+                      if (role == 'distributor') {
+                        try {
+                          // Call the updateProfile function
+                          await ref.read(loginProvider.notifier).updateProfile(
+                              nameController.text,
+                              emailController.text,
+                              phoneController.text,
+                              _selectedImage,
+                              ref);
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text("Profile updated successfully!")),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text("Error updating profile: $e")),
+                          );
+                        }
+                      } else if (role == 'serviceEngineer') {
+                        try {
+                          // Call the updateProfile function
+                          await ref
+                              .read(loginProvider.notifier)
+                              .updateServiceProfile(
+                                nameController.text,
+                                emailController.text,
+                                phoneController.text,
+                                _selectedImage,
+                                ref,
+                                // experienceController.text
+                              );
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    "serviceEnginner Profile updated successfully!")),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content:
+                                    Text("Error updating service profile: $e")),
+                          );
+                        }
+                      } else {
+                        print('else part executes');
                       }
                     }
 
@@ -194,11 +236,12 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 1),
+      // bottomNavigationBar: const BottomNavBar(),
     );
   }
 
-  Widget _buildProfileField(String label, TextEditingController controller, bool isEditing) {
+  Widget _buildProfileField(
+      String label, TextEditingController controller, bool isEditing) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -250,164 +293,3 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// class ProfileHeader extends StatelessWidget {
-//   const ProfileHeader({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Row(
-//       mainAxisAlignment: MainAxisAlignment.center,
-//       children: [
-//         IconButton(
-//           onPressed: () {
-//             // Action for Hide button
-//           },
-//           icon: const Icon(Icons.visibility_off, color: Colors.black),
-//           iconSize: 30,
-//         ),
-//         const SizedBox(width: 10), // Space between Hide button and name
-//         const Column(
-//           crossAxisAlignment: CrossAxisAlignment.center,
-//           children: [
-//             Text("Go Code Designers", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20)),
-//             Text("@gocodedesigner", style: TextStyle(color: Colors.grey)),
-//           ],
-//         ),
-//         const SizedBox(width: 20),
-//         IconButton(
-//           icon: const Icon(Icons.settings, color: Colors.black),
-//           iconSize: 30,
-//           onPressed: () {
-//                Navigator.push(
-//               context,
-//               MaterialPageRoute(builder: (context) => const ProfileSetupPage()),
-//             );
-//             // Settings action
-//           },
-//         ),
-//       ],
-//     );
-//   }
-// }
-
-// class BusinessDetailsSection extends StatelessWidget {
-//   const BusinessDetailsSection({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return const Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text("Business Details", style: TextStyle(fontWeight: FontWeight.bold)),
-//         SizedBox(height: 10),
-//         DetailItem(label: "Phone Number", value: "+91 9502105833"),
-//         DetailItem(label: "Email", value: "gocode@gocodecreations.com"),
-//         DetailItem(label: "Delivery Address", value: "GoCode Designers Private limited, DD Colony, Hyderabad, Telangana - 500044"),
-//       ],
-//     );
-//   }
-// }
-
-// class DetailItem extends StatelessWidget {
-//   final String label;
-//   final String value;
-
-//   const DetailItem({super.key, required this.label, required this.value});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 4.0),
-//       child: Row(
-//         crossAxisAlignment: CrossAxisAlignment.start,
-//         children: [
-//           Expanded(child: Text(label, style: const TextStyle(color: Colors.black54))),
-//           Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.bold))),
-//           const Icon(Icons.edit, color: Colors.grey, size: 16),
-//         ],
-//       ),
-//     );
-//   }
-// }
-
-// class VerificationSection extends StatelessWidget {
-//   const VerificationSection({super.key});
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         const Text("Verification Section :", style: TextStyle(fontWeight: FontWeight.bold)),
-//         const SizedBox(height: 10),
-//         const Row(
-//           children: [
-//             Text("Verification Status:", style: TextStyle(color: Colors.black54)),
-//             SizedBox(width: 8),
-//             Text("Pending/Verified", style: TextStyle(color: Colors.orange)),
-//           ],
-//         ),
-//         const SizedBox(height: 10),
-//         Row(
-//           children: [
-//             const Text("Submit ID Proof for Verification:", style: TextStyle(color: Colors.black54)),
-//             const SizedBox(width: 8),
-//             GestureDetector(
-//               onTap: () {
-//                 // Upload function
-//               },
-//               child: const Text("upload", style: TextStyle(color: Colors.blue, decoration: TextDecoration.underline)),
-//             ),
-//           ],
-//         ),
-//         const SizedBox(height: 10),
-//         const Text(
-//           "Please upload a government-issued ID for verification.\nVerification will take 24-48 hours.",
-//           style: TextStyle(color: Colors.grey, fontSize: 12),
-//         ),
-//       ],
-//     );
-//   }
-// }

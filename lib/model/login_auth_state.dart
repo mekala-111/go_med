@@ -1,32 +1,21 @@
+// import 'package:flutter/material.dart';
+
 class UserModel {
-  int? statusCode;
-  bool? success;
-  List<String>? messages;
-  List<Data>? data;
+  final int? statusCode;
+  final bool? success;
+  final List<String>? messages;
+  final List<Data>? data;
 
   UserModel({this.statusCode, this.success, this.messages, this.data});
 
-  UserModel.fromJson(Map<String, dynamic> json) {
-    statusCode = json['statusCode'];
-    success = json['success'];
-    messages = json['messages'].cast<String>();
-    if (json['data'] != null) {
-      data = <Data>[];
-      json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
-      });
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['statusCode'] = this.statusCode;
-    data['success'] = this.success;
-    data['messages'] = this.messages;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
+  // Factory method for an initial empty instance
+  factory UserModel.initial() {
+    return UserModel(
+      statusCode: 0,
+      success: false,
+      messages: [],
+      data: [],
+    );
   }
 
   UserModel copyWith({
@@ -43,38 +32,41 @@ class UserModel {
     );
   }
 
-  static UserModel initial() {
+  factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      statusCode: 0,
-      success: false,
-      messages: [],
-      data: [],
+      statusCode: json['statusCode'],
+      success: json['success'],
+      messages: List<String>.from(json['messages'] ?? []),
+      data: json['data'] != null
+          ? List<Data>.from(json['data'].map((v) => Data.fromJson(v)))
+          : [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'statusCode': statusCode,
+      'success': success,
+      'messages': messages,
+      'data': data?.map((v) => v.toJson()).toList(),
+    };
   }
 }
 
 class Data {
-  String? accessToken;
-  String? refreshToken;
-  Details? details;
+  final String? accessToken;
+  final String? refreshToken;
+  final Details? details;
 
   Data({this.accessToken, this.refreshToken, this.details});
 
-  Data.fromJson(Map<String, dynamic> json) {
-    accessToken = json['access_token'];
-    refreshToken = json['refresh_token'];
-    details =
-        json['details'] != null ? Details.fromJson(json['details']) : null;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['access_token'] = this.accessToken;
-    data['refresh_token'] = this.refreshToken;
-    if (this.details != null) {
-      data['details'] = this.details!.toJson();
-    }
-    return data;
+  // Factory method for an initial empty instance
+  factory Data.initial() {
+    return Data(
+      accessToken: '',
+      refreshToken: '',
+      details: Details.initial(),
+    );
   }
 
   Data copyWith({
@@ -89,28 +81,37 @@ class Data {
     );
   }
 
-  static Data initial() {
+  factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      accessToken: '',
-      refreshToken: '',
-      details: Details.initial(),
+      accessToken: json['access_token'],
+      refreshToken: json['refresh_token'],
+      details: json['details'] != null ? Details.fromJson(json['details']) : null,
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'access_token': accessToken,
+      'refresh_token': refreshToken,
+      'details': details?.toJson(),
+    };
   }
 }
 
 class Details {
-  String? sId;
-  String? name;  // Changed from Null to String?
-  String? mobile;
-  String? role;
-  String? email;  // Changed from Null to String?
-  String? firmName;
-  String? gstNumber;
-  String? status;
-  String? address;
-  List<dynamic>? distributorImage;  // Changed from Null to dynamic
-  String? experience;  // Changed from Null to String?
-  String? certificate;  // Changed from Null to String?
+  final String? sId;
+  final String? name;
+  final String? mobile;
+  final String? role;
+  final String? email;
+  final String? firmName;
+  final String? gstNumber;
+  final String? status;
+  final String? address;
+  final List<String>? distributorImage;
+  final List<String>? serviceEngineerImage;
+  final int? experience;
+  final String? certificate;
 
   Details({
     this.sId,
@@ -123,44 +124,28 @@ class Details {
     this.status,
     this.address,
     this.distributorImage,
+    this.serviceEngineerImage,
     this.experience,
     this.certificate,
   });
 
-  Details.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    name = json['name'];
-    mobile = json['mobile'];
-    role = json['role'];
-    email = json['email'];
-    firmName = json['firmName'];
-    gstNumber = json['gstNumber'];
-    status = json['status'];
-    address = json['address'];
-    if (json['distributorImage'] != null) {
-      distributorImage = json['distributorImage']; // List<dynamic> instead of Null
-    }
-    experience = json['experience'];
-    certificate = json['certificate'];
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['_id'] = this.sId;
-    data['name'] = this.name;
-    data['mobile'] = this.mobile;
-    data['role'] = this.role;
-    data['email'] = this.email;
-    data['firmName'] = this.firmName;
-    data['gstNumber'] = this.gstNumber;
-    data['status'] = this.status;
-    data['address'] = this.address;
-    if (this.distributorImage != null) {
-      data['distributorImage'] = this.distributorImage; // No null check needed, it's dynamic
-    }
-    data['experience'] = this.experience;
-    data['certificate'] = this.certificate;
-    return data;
+  // Factory method for an initial empty instance
+  factory Details.initial() {
+    return Details(
+      sId: '',
+      name: '',
+      mobile: '',
+      role: '',
+      email: '',
+      firmName: '',
+      gstNumber: '',
+      status: '',
+      address: '',
+      distributorImage: [],
+      serviceEngineerImage: [],
+      experience: 0,
+      certificate: '',
+    );
   }
 
   Details copyWith({
@@ -173,7 +158,8 @@ class Details {
     String? gstNumber,
     String? status,
     String? address,
-    List<dynamic>? distributorImage,
+    List<String>? distributorImage,
+    List<String>? serviceEngineerImage,
     String? experience,
     String? certificate,
   }) {
@@ -188,25 +174,45 @@ class Details {
       status: status ?? this.status,
       address: address ?? this.address,
       distributorImage: distributorImage ?? this.distributorImage,
-      experience: experience ?? this.experience,
+      serviceEngineerImage: serviceEngineerImage ?? this.serviceEngineerImage,
+      experience: 0,
       certificate: certificate ?? this.certificate,
     );
   }
 
-  static Details initial() {
+  factory Details.fromJson(Map<String, dynamic> json) {
     return Details(
-      sId: '',
-      name: '',
-      mobile: '',
-      role: '',
-      email: '',
-      firmName: '',
-      gstNumber: '',
-      status: '',
-      address: '',
-      distributorImage: [],
-      experience: '',
-      certificate: '',
+      sId: json['_id'],
+      name: json['name'],
+      mobile: json['mobile'],
+      role: json['role'],
+      email: json['email'],
+      firmName: json['firmName'],
+      gstNumber: json['gstNumber'],
+      status: json['status'],
+      address: json['address'],
+      distributorImage: List<String>.from(json['distributorImage'] ?? []),
+      serviceEngineerImage: List<String>.from(json['serviceEngineerImage'] ?? []),
+      experience: json['experience'],
+      certificate: json['certificate'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      '_id': sId,
+      'name': name,
+      'mobile': mobile,
+      'role': role,
+      'email': email,
+      'firmName': firmName,
+      'gstNumber': gstNumber,
+      'status': status,
+      'address': address,
+      'distributorImage': distributorImage,
+      'serviceEngineerImage': serviceEngineerImage,
+      'experience': experience,
+      'certificate': certificate,
+    };
   }
 }

@@ -9,6 +9,7 @@ class DashboardPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var role;
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2), // Background color
       appBar: AppBar(
@@ -91,7 +92,7 @@ class DashboardPage extends StatelessWidget {
           ),
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 0),
+      bottomNavigationBar: const  BottomNavBar(currentIndex: 1,),
     );
   }
 }

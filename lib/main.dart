@@ -20,13 +20,12 @@ import 'package:go_med/screens/services_edit.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:flutter/services.dart'; // Required for screen orientation
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([
-  DeviceOrientation.portraitUp,
-  DeviceOrientation.portraitDown, 
-]);
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
 
   await Firebase.initializeApp();
   options:
@@ -50,22 +49,21 @@ class MyApp extends StatelessWidget {
           builder: (context, ref, child) {
             print("build main.dart");
 
-            final authState =
-                ref.watch(loginProvider); 
-                // Watch the authentication state
-                  // Check for a valid access token
-             final accessToken = authState.data?.isNotEmpty == true ? authState.data![0].accessToken : null;
-            
-             print('token/main $accessToken');
+            final authState = ref.watch(loginProvider);
+            // Watch the authentication state
+            // Check for a valid access token
+            final accessToken = authState.data?.isNotEmpty == true
+                ? authState.data![0].accessToken
+                : null;
+
+            print('token/main $accessToken');
             // Check if the user has a valid refresh token
-            if (accessToken != null && accessToken.isNotEmpty&&(authState.data![0].details!.role=="distributor"||authState.data![0].details!.role=="serviceEngineer")) {
+            if (accessToken != null && accessToken.isNotEmpty) {
+               print('navigate dashboard....................');
               return const DashboardPage(); // User is authenticated, redirect to Home
             } else {
               print('No valid refresh token, trying auto-login');
             }
-
-
-            
 
             // Attempt auto-login if refresh token is not available
             return FutureBuilder<bool>(
@@ -73,8 +71,7 @@ class MyApp extends StatelessWidget {
                   .read(loginProvider.notifier)
                   .tryAutoLogin(), // Attempt auto-login
               builder: (context, snapshot) {
-                print(
-                    'Token after auto-login attempt: $accessToken');
+                print('Token after auto-login attempt: $accessToken');
 
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   // While waiting for auto-login to finish, show loading indicator
@@ -82,10 +79,11 @@ class MyApp extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasData &&
-                    snapshot.data == true &&
-                     ( accessToken != null && accessToken.isNotEmpty)
+                        snapshot.data == true &&
+                        (accessToken != null && accessToken.isNotEmpty)
                      &&(authState.data![0].details!.role=="distributor"||authState.data![0].details!.role=="serviceEngineer")
-                     ) {
+                    ) {
+                 
                   // If auto-login is successful and refresh token is available, go to Dashboard
                   return const DashboardPage();
                 } else {
@@ -97,19 +95,18 @@ class MyApp extends StatelessWidget {
           },
         ),
         routes: {
-          "addproductscreen":(context)=>const AddProductScreen(), 
-          "productscreen":(context)=>const ProductScreen(),
-          "loginscreen":(context)=>LoginScreen(),
-          "dashboardpage":(context)=>const DashboardPage (),
-           "bookingpage":(context)=>const BookingsPage(),      
-          "profilesetuppage":(context)=>const ProfileSetupPage(),
-          "profilepage":(context)=>const  ProfilePage(),
-          "registrationpage":(context)=>const RegistrationPage(),
-          "servicepageedit":(context)=>const ServicesPageEdit(),
-          "servicepage":(context)=>const ServicesPage(),
-          "settingspage":(context)=>const SettingsPage(),
-           }
-        );
+          "addproductscreen": (context) => const AddProductScreen(),
+          "productscreen": (context) => const ProductScreen(),
+          "loginscreen": (context) => LoginScreen(),
+          "dashboardpage": (context) => const DashboardPage(),
+          "bookingpage": (context) => const BookingsPage(),
+          "profilesetuppage": (context) => const ProfileSetupPage(),
+          "profilepage": (context) => const ProfilePage(),
+          "registrationpage": (context) => const RegistrationPage(),
+          "servicepageedit": (context) => const ServicesPageEdit(),
+          "servicepage": (context) => const ServicesPage(),
+          "settingspage": (context) => const SettingsPage(),
+        });
     // This trailing comma makes auto-formatting nicer for build methods.
   }
 }

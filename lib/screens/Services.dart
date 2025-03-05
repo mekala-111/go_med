@@ -54,13 +54,14 @@ class ServiceScreenState extends ConsumerState<ServicesPage> {
       for (var p in products) p.productId ?? "": p.productName ?? "Unknown"
     };
 
+    var role;
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.pushReplacement(
+            Navigator.pop(
               context,
               MaterialPageRoute(builder: (context) => const DashboardPage()),
             );
@@ -103,7 +104,7 @@ class ServiceScreenState extends ConsumerState<ServicesPage> {
             ),
             Expanded(
               child: servicestate.isEmpty
-                  ? const Center(child: Text("No services available"))
+                  ? const Center( child: CircularProgressIndicator())
                   : ListView.builder(
                       itemCount: servicestate.length,
                       itemBuilder: (context, index) {
@@ -115,7 +116,7 @@ class ServiceScreenState extends ConsumerState<ServicesPage> {
           ],
         ),
       ),
-      bottomNavigationBar: const BottomNavBar(currentIndex: 4),
+      bottomNavigationBar:  BottomNavBar(currentIndex: 4,),
     );
   }
 
