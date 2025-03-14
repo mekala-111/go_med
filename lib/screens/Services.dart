@@ -116,7 +116,7 @@ class ServiceScreenState extends ConsumerState<ServicesPage> {
           ],
         ),
       ),
-      bottomNavigationBar:  BottomNavBar(currentIndex: 4,),
+      bottomNavigationBar:  BottomNavBar(),
     );
   }
 

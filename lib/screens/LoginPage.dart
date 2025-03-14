@@ -216,7 +216,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                             _timer!.cancel();
                                       }
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP Verified Successfully!")));
-                                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
+                                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to verify OTP: $e")));
                               }

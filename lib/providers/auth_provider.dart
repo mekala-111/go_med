@@ -12,6 +12,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../utils/gomed_api.dart';
 import '../model/login_auth_state.dart';
+// import 'package:http/retry.dart';
+import 'package:http_parser/http_parser.dart';
 
 class PhoneAuthNotifier extends StateNotifier<UserModel> {
   final Ref ref;
@@ -120,6 +122,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     String phoneNumber,
     WidgetRef ref,
   ) async {
+    print('phone number.....$phoneNumber');
     final auth = ref.read(firebaseAuthProvider);
     var loader = ref.read(loadingProvider.notifier);
     var codeSentNotifier = ref.read(codeSentProvider.notifier);
@@ -130,6 +133,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       await auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
+          print('try.///////////////////');
           // loader.state = false;
           await auth.signInWithCredential(credential);
         },
@@ -144,6 +148,17 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           pref.setString("verificationid", verificationId);
           codeSentNotifier.state = true; // Update the codeSentProvider
         },
+        // codeSent: (String verificationId, int? resendToken) {
+        //   print('code send succssfully');
+        //   if (verificationId.isNotEmpty) {
+        //     print("Verification code sent: $verificationId");
+        //     pref.setString("verificationid", verificationId);
+        //     codeSentNotifier.state = true; // Update the codeSentProvider
+        //   } else {
+        //     print("Received a null or empty verification ID.");
+        //   }
+        // },
+
         codeAutoRetrievalTimeout: (String verificationId) {
           // loader.state = false;
           print("Auto-retrieval timeout. Verification ID: $verificationId");
@@ -151,56 +166,53 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       );
     } catch (e) {
       loader.state = false;
-      print("Error during phone verification: $e");
+      print("Error during phone verification....: $e");
     }
   }
 
-  Future<void> signInWithPhoneNumber(String smsCode, WidgetRef ref) async {
-    final authState = ref.watch(firebaseAuthProvider);
-    final loadingState = ref.watch(loadingProvider.notifier);
-    var pref = await SharedPreferences.getInstance();
-    String? verificationid = pref.getString('verificationid');
-    print('verificatiomid...$verificationid ');
+ Future<void> signInWithPhoneNumber(String smsCode, WidgetRef ref) async {
+  final authState = ref.read(firebaseAuthProvider);
+  final loadingState = ref.read(loadingProvider.notifier);
+  SharedPreferences pref = await SharedPreferences.getInstance();
+  String? verificationid = pref.getString('verificationid');
 
-    try {
-      loadingState.state = true;
-
-      AuthCredential credential = PhoneAuthProvider.credential(
-          verificationId: verificationid!, smsCode: smsCode);
-
-      await authState.signInWithCredential(credential).then((value) async {
-        if (value.user != null) {
-          print("Phone verification successful.");
-
-          // Generate a custom UID
-          String customUid =
-              "#${(100000 + DateTime.now().millisecondsSinceEpoch % 900000)}";
-          String? firebaseToken = await value.user?.getIdToken();
-          SharedPreferences prefs = await SharedPreferences.getInstance();
-          await prefs.setString('firebaseToken', firebaseToken!);
-
-          // Send phone number and role to API
-          await sendPhoneNumberAndRoleToAPI(
-            phoneNumber: value.user!.phoneNumber!,
-            // Assign the role as needed
-          );
-
-          print("User data stored locally and sent to API.");
-        }
-      });
-
-      loadingState.state = false;
-    } catch (e) {
-      loadingState.state = false;
-      print("Error during phone verification: $e");
-    } finally {
-      loadingState.state = false;
-    }
+  if (verificationid == null || verificationid.isEmpty) {
+    print("No verification ID found.");
+    return;
   }
 
+  try {
+    loadingState.state = true;
+    AuthCredential credential = PhoneAuthProvider.credential(
+      verificationId: verificationid,
+      smsCode: smsCode,
+    );
+
+    UserCredential userCredential = await authState.signInWithCredential(credential);
+    
+    if (userCredential.user != null) {
+      print("Phone verification successful.");
+
+      String? firebaseToken = await userCredential.user?.getIdToken();
+      if (firebaseToken != null) {
+        await pref.setString('firebaseToken', firebaseToken);
+      }
+
+      await sendPhoneNumberAndRoleToAPI(
+        phoneNumber: userCredential.user!.phoneNumber!,
+      );
+
+      await ref.read(loginProvider.notifier).tryAutoLogin();
+    }
+  } catch (e) {
+    print("Error during phone verification: $e");
+  } finally {
+    loadingState.state = false;
+  }
+}
   Future<void> sendPhoneNumberAndRoleToAPI({
     required String phoneNumber,
-}) async {
+  }) async {
     const String apiUrl = Bbapi.login;
     final prefs = await SharedPreferences.getInstance();
     print('Phone number: $phoneNumber');
@@ -222,10 +234,12 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         var userDetails = json.decode(response.body);
 
-        if (userDetails != null && userDetails['data'] != null && userDetails['data'].isNotEmpty) {
+        if (userDetails != null &&
+            userDetails['data'] != null &&
+            userDetails['data'].isNotEmpty) {
           UserModel user = UserModel.fromJson(userDetails);
           state = user;
-          
+
           print('login model...${state.data![0].accessToken}');
           print("User Data to Save: ${user.toJson()}");
 
@@ -243,19 +257,18 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           } catch (e) {
             print("Error saving user data: $e");
           }
-
         } else {
           print('Error: API response does not contain valid data');
         }
-
       } else {
-        print("Failed to send data to the API. Status code: ${response.statusCode}");
+        print(
+            "Failed to send data to the API. Status code: ${response.statusCode}");
         print("Response: ${response.body}");
       }
     } catch (e) {
       print("Error while sending data to the API: $e");
     }
-}
+  }
 
   Future<String> generateUniqueUid() async {
     Random random = Random();
@@ -331,18 +344,18 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
 
     try {
       String? currentAccessToken = state.data != null && state.data!.isNotEmpty
-        ? state.data![0].refreshToken
-        : null;
+          ? state.data![0].refreshToken
+          : null;
 
-        if (currentAccessToken == null || currentAccessToken.isEmpty) {
-          throw Exception("No valid access token found to refresh.");
-        }
+      if (currentAccessToken == null || currentAccessToken.isEmpty) {
+        throw Exception("No valid access token found to refresh.");
+      }
 
       var response = await http.patch(
         Uri.parse(url),
         headers: {
           // 'Authorization': state.data![0].accessToken!,
-            'Authorization': 'Bearer $currentAccessToken',
+          'Authorization': 'Bearer $currentAccessToken',
 
           'Content-Type': 'application/json; charset=UTF-8'
         },
@@ -456,7 +469,6 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     String? phone,
     File? selectedImage,
     WidgetRef ref,
-   
   ) async {
     final prefs = await SharedPreferences.getInstance();
     final userModel =
@@ -503,24 +515,30 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         },
       );
       final request = http.MultipartRequest('PUT', Uri.parse(apiUrl))
-        ..headers.addAll({
-          "Authorization": "Bearer $token",
-          "Content-Type": "multipart/form-data",
-        })
-        ..fields['name'] = name ?? ''
-        ..fields['email'] = email ?? ''
-        ..fields['mobile'] = phone ?? ''
-        //  ..fields['experience'] = phone ?? ''
-         ;
+            ..headers.addAll({
+              "Authorization": "Bearer $token",
+              "Content-Type": "multipart/form-data",
+            })
+            ..fields['name'] = name ?? ''
+            ..fields['email'] = email ?? ''
+            ..fields['mobile'] = phone ?? ''
+          //  ..fields['experience'] = phone ?? ''
+          ;
 
       if (selectedImage != null) {
         if (await selectedImage.exists()) {
+          final fileExtension =
+              selectedImage.path.split('.').last.toLowerCase();
+          final contentType = MediaType('image', fileExtension);
+
           request.files.add(await http.MultipartFile.fromPath(
             'serviceEngineerImage',
             selectedImage.path,
+            contentType: contentType,
           ));
         } else {
-          print("serviceengineerProfile image file does not exist: ${selectedImage.path}");
+          print(
+              "serviceengineerProfile image file does not exist: ${selectedImage.path}");
           throw Exception("serviceengineerProfile image file not found");
         }
       }
@@ -539,7 +557,6 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("serviceengineerProfile updated successfully.");
 
-        
         var userDetails = json.decode(response.body);
         UserModel user = UserModel.fromJson(userDetails);
         print(" updated Response: ${response.body}");
@@ -547,7 +564,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         // Debug: Print the user data to check if it's correct
         print("updated User Data to Save: ${user.toJson()}");
 
-             state = user;
+        state = user;
         final userData = json.encode({
           // 'accessToken': user.data?[0].accessToken,
           'statusCode': user.statusCode,
@@ -557,7 +574,6 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
               ?.map((data) => data.toJson())
               .toList(), // Serialize all Data objects
         });
-        
 
         await prefs.setString('userData', userData);
       } else {
@@ -571,7 +587,59 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     }
   }
 
+  Future<void> deleteServiceEngineerAccount(
+      String? userId, String? token) async {
+    // if (userId == null || token == null) {
+    print("Error: userId or token is null.$userId,$token");
+    //   return; // Prevent API call if userId or token is missing
+    // }
 
+    final String apiUrl = "${Bbapi.serviceEngineerdelete}/$userId";
+    final loadingState = ref.read(loadingProvider.notifier);
+
+    try {
+      loadingState.state = true; // Show loading state
+      final client = RetryClient(
+        http.Client(),
+        retries: 4,
+        when: (response) => response.statusCode == 401,
+        onRetry: (req, res, retryCount) async {
+          if (retryCount == 0 && res?.statusCode == 401) {
+            var accessToken = await restoreAccessToken();
+            req.headers['Authorization'] = accessToken.toString();
+          }
+        },
+      );
+
+      print("Sending delete request for userId: $userId");
+
+      final response = await client.delete(
+        Uri.parse(apiUrl),
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer $token",
+        },
+      );
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Account successfully deleted.");
+
+        // Clear local user data
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.clear();
+
+        // Navigate to login screen
+        print("Navigating to login screen after account deletion.");
+      } else {
+        print("Failed to delete account. Status code: ${response.statusCode}");
+        print("Response: ${response.body}");
+      }
+    } catch (e) {
+      print("Error while deleting account: $e");
+    } finally {
+      loadingState.state = false; // Hide loading state
+    }
+  }
 
   Future<void> updateProfile(
     String? name,

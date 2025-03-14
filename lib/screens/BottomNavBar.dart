@@ -7,19 +7,23 @@ import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/Bookings.dart';
 import 'package:go_med/screens/products_scrren.dart';
 import 'package:go_med/screens/settings.dart';
-
-import 'package:go_med/model/login_auth_state.dart';
+import 'package:go_med/screens/engineerProductsscreen.dart';
 
 class BottomNavBar extends ConsumerWidget {
-  final int currentIndex;
-
-  const BottomNavBar({super.key, required this.currentIndex});
+  const BottomNavBar({super.key});
 
   void navigateTo(BuildContext context, int index, String role) {
-    if (index == currentIndex) return; // ✅ Prevents infinite navigation loop
+    final routes = [
+      "/dashboard",
+      "/bookings",
+      "/products",
+      "/services",
+      "/settings"
+    ];
+
+    if (ModalRoute.of(context)?.settings.name == routes[index]) return;
 
     Widget page;
-
     switch (index) {
       case 0:
         page = const DashboardPage();
@@ -28,12 +32,15 @@ class BottomNavBar extends ConsumerWidget {
         page = const BookingsPage();
         break;
       case 2:
-        page = const ProductScreen();
+      page = (role == 'serviceEngineer') 
+          ? const ServiceEngineerProductsPage()
+          
+        : const ProductScreen();
         break;
       case 3:
         page = (role == 'serviceEngineer') 
-          ? const ServicesEngineerPage() // ✅ Go to ServiceEngineerPage
-          : const ServicesPage(); // ✅ Go to ServicesPage for other roles
+          ? const ServicesEngineerPage()
+          : const ServicesPage();
         break;
       case 4:
         page = const SettingsPage();
@@ -44,45 +51,50 @@ class BottomNavBar extends ConsumerWidget {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => page),
+      MaterialPageRoute(builder: (context) => page, settings: RouteSettings(name: routes[index])),
     );
   }
 
-  int _getCurrentIndex(BuildContext context, String role) {
+  int _getCurrentIndex(BuildContext context) {
     final route = ModalRoute.of(context)?.settings.name;
-    
-    if (route == "/dashboard") return 0;
-    if (route == "/bookings") return 1;
-    if (route == "/products") return 2;
-    if (route == "/services") return 3;
-    if (route == "/settings") return 4;
 
-    return 0; // Default to Home if no match
+    switch (route) {
+      case "/dashboard":
+        return 0;
+      case "/bookings":
+        return 1;
+      case "/products":
+        return 2;
+      case "/services":
+        return 3;
+      case "/settings":
+        return 4;
+      default:
+        return 0; // Default to Home
+    }
   }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final userModel = ref.watch(loginProvider); // ✅ Fetch user data
+    final userModel = ref.watch(loginProvider);
     final role = userModel.data?.first.details?.role ?? '';
 
-    List<BottomNavigationBarItem> items = [
-      const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-      const BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
-      const BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Product'),
-      const BottomNavigationBarItem(
-          icon: Icon(Icons.miscellaneous_services), label: 'Services'),
-      const BottomNavigationBarItem(
-          icon: Icon(Icons.settings), label: 'Settings'),
-    ];
-
     return BottomNavigationBar(
-      currentIndex: _getCurrentIndex(context, role),
+      currentIndex: _getCurrentIndex(context),
       backgroundColor: const Color(0xFF6BC37A),
       type: BottomNavigationBarType.fixed,
       selectedItemColor: Colors.black,
       unselectedItemColor: Colors.white,
+      selectedIconTheme: const IconThemeData(color: Colors.black, size: 28),
+      unselectedIconTheme: const IconThemeData(color: Colors.white, size: 24),
       onTap: (index) => navigateTo(context, index, role),
-      items: items,
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+        BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
+        BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Product'),
+        BottomNavigationBarItem(icon: Icon(Icons.miscellaneous_services), label: 'Services'),
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
+      ],
     );
   }
 }

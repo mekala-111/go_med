@@ -17,7 +17,7 @@ class ServiceScreenState extends ConsumerState<ServicesEngineerPage> {
       body: const Center(
         child: Text("Welcome to the Service Engineer Page"),
       ),
-      bottomNavigationBar:  const BottomNavBar(currentIndex: 4,),
+      bottomNavigationBar:  const BottomNavBar(),
     );
   }
 }

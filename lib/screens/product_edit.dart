@@ -585,6 +585,9 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                                 // productNameController.text,
                                                 productId
                                                 );
+                                                 // Fetch updated spare parts to refresh the UI
+  await ref.read(sparepartProvider.notifier).getSpareParts();
+
 
                                         // Clear form fields
                                         productNameController.clear();
@@ -592,8 +595,9 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                         descriptionController.clear();
 
                                         _showSnackBar(context,
-                                            "Product updated successfully!");
+                                            "sparepart updated successfully!");
                                         Navigator.of(context).pop();
+                                        
                                       } catch (e) {
                                         _showSnackBar(context, e.toString());
                                       }
@@ -618,6 +622,9 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                                 _image,
                                                 );
                                         print('try exicuted==========');
+                                         // Fetch updated spare parts to refresh the UI
+  await ref.read(sparepartProvider.notifier).getSpareParts();
+
 
                                         // Clear form fields
                                         productNameController.clear();
@@ -626,7 +633,11 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
 
                                         _showSnackBar(context,
                                             "Sparepart added successfully!");
+                                            await ref.read(sparepartProvider.notifier).getSpareParts();
+
                                         Navigator.of(context).pop();
+                                        await ref.read(sparepartProvider.notifier).getSpareParts();
+
                                       } catch (e, stackTrace) {
                                         print('Error: $e');
                                         print('Stack Trace: $stackTrace');

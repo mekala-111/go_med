@@ -20,13 +20,23 @@ import 'package:go_med/screens/services_edit.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:flutter/services.dart'; // Required for screen orientation
 
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   await SystemChrome.setPreferredOrientations([
+//     DeviceOrientation.portraitUp,
+//     DeviceOrientation.portraitDown,
+//   ]);
+
+//   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+//   runApp(
+//     const ProviderScope(
+//       // Wrap your app with ProviderScope
+//       child: MyApp(),
+//     ),
+//   );
+// }
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await SystemChrome.setPreferredOrientations([
-    DeviceOrientation.portraitUp,
-    DeviceOrientation.portraitDown,
-  ]);
-
   await Firebase.initializeApp();
   options:
   DefaultFirebaseOptions.currentPlatform;
@@ -37,6 +47,7 @@ void main() async {
     ),
   );
 }
+
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
@@ -59,7 +70,7 @@ class MyApp extends StatelessWidget {
             print('token/main $accessToken');
             // Check if the user has a valid refresh token
             if (accessToken != null && accessToken.isNotEmpty) {
-               print('navigate dashboard....................');
+              print('navigate dashboard....................');
               return const DashboardPage(); // User is authenticated, redirect to Home
             } else {
               print('No valid refresh token, trying auto-login');
@@ -79,11 +90,11 @@ class MyApp extends StatelessWidget {
                     child: CircularProgressIndicator(),
                   );
                 } else if (snapshot.hasData &&
-                        snapshot.data == true &&
-                        (accessToken != null && accessToken.isNotEmpty)
-                     &&(authState.data![0].details!.role=="distributor"||authState.data![0].details!.role=="serviceEngineer")
-                    ) {
-                 
+                    snapshot.data == true &&
+                    (accessToken != null && accessToken.isNotEmpty) &&
+                    (authState.data![0].details!.role == "distributor" ||
+                        authState.data![0].details!.role ==
+                            "serviceEngineer")) {
                   // If auto-login is successful and refresh token is available, go to Dashboard
                   return const DashboardPage();
                 } else {

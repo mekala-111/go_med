@@ -220,7 +220,7 @@ class BookingsPage extends StatelessWidget {
             ],
           ),
         ),
-        bottomNavigationBar:  const BottomNavBar(currentIndex: 2,),
+        bottomNavigationBar:  const BottomNavBar(),
       ),
     );
   }

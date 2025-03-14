@@ -8,6 +8,8 @@ class Bbapi {
   static const String update = "$baseUrl/products/updateproduct";
   static const String delete = "$baseUrl/products/deleteproduct";
   static const String serviceEngineerupdate = "$baseUrl/distributor/updateServiceEngineer";
+  static const String serviceEngineerdelete = "$baseUrl/distributor/deleteServiceEngineer";
+     static const String serviceEngineerProducts= "$baseUrl/products/user/products";
   static const String refreshToken = "$baseUrl/auth/refresh-token";
   static const String updateProfile = "$baseUrl/distributor/update";
   static const String deleteAccount = "$baseUrl/distributor/delete";

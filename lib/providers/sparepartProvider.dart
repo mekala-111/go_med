@@ -28,10 +28,13 @@ class Sparepartprovider extends StateNotifier<SparePartModel> {
     List<File>? image,
   ) async {
     final loadingState = ref.read(loadingProvider.notifier);
-    final productState = ref.read(productProvider).data ?? [];
+    // final productState = ref.read(productProvider).data ?? [];
 
     print(
         'Spare parts data: sparepartName: $sparepartName, price: $price, description: $description, productName: $selectedProduct, image count: ${image?.length},');
+try {
+  loadingState.state = true;
+   final productState = ref.read(productProvider).data ?? [];
 
     // Debugging: Print all available products before filtering
     print(
@@ -53,7 +56,7 @@ class Sparepartprovider extends StateNotifier<SparePartModel> {
     final selectedProductId = filteredProducts[0].productId;
     print('Selected Product ID: $selectedProductId');
 
-    try {
+    
       loadingState.state = true;
 
       // Print images if available
@@ -255,7 +258,7 @@ class Sparepartprovider extends StateNotifier<SparePartModel> {
     // String? productName,
     String? productId,
   ) async {
-    final loadingState = ref.read(loadingProvider.notifier);
+    final loadingState = ref.watch(loadingProvider.notifier);
     loadingState.state = true;
     print(
         'sparepartupdate data sparepartname:$sparePartName,description:$description,price:$price,image:${images!.length},spareparId:$sparePartId,productId:$productId');
@@ -304,7 +307,7 @@ class Sparepartprovider extends StateNotifier<SparePartModel> {
           if (retryCount == 0 &&
               (res?.statusCode == 401 || res?.statusCode == 404)) {
             String? newAccessToken =
-                await ref.read(loginProvider.notifier).restoreAccessToken();
+                await ref.watch(loginProvider.notifier).restoreAccessToken();
             req.headers['Authorization'] = 'Bearer $newAccessToken';
           }
         },
@@ -344,10 +347,27 @@ class Sparepartprovider extends StateNotifier<SparePartModel> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("Spare part updated successfully!");
-        await  // Refresh spare parts list
-        ref.read(productProvider.notifier).getProducts();
-        await getSpareParts();
-        return true;
+      // Refresh spare parts list
+         // Manually update state before fetching new data
+        // state = state.copyWith(
+        //   data: state.data!.map((sp) {
+        //     if (sp.sparepartId == sparePartId) {
+        //       return sp.copyWith(
+        //         sparepartName: sparePartName,
+        //         description: description,
+        //         price: price.toString(),
+        //         // update other fields as needed
+        //       );
+        //     }
+        //     return sp;
+        //   }).toList(),
+        // );
+        // await getSpareParts();
+        // return true;
+         await getSpareParts(); // Refresh Spare Parts
+      state = SparePartModel(data: [...state.data!]); // Force State Change
+      return true;
+      
       } else {
         final errorBody = jsonDecode(responseBody);
         final errorMessage =
@@ -409,6 +429,10 @@ class Sparepartprovider extends StateNotifier<SparePartModel> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("sparepart deleted successfully!");
+         // Remove item from local state before fetching new data
+        state = state.copyWith(
+          data: state.data!.where((sp) => sp.sparepartId != sparepartId).toList(),
+        );
         getSpareParts();
         return true;
       } else {

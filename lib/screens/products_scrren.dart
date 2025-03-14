@@ -78,7 +78,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavBar(currentIndex: 3),
+      bottomNavigationBar:const  BottomNavBar(),
     );
   }
 
