@@ -403,8 +403,8 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           print("Refresh access token success");
 
           // Extract the new access token and refresh token
-          final newAccessToken = userDetails['access_token'];
-          final newRefreshToken = userDetails['refresh_token'];
+          final newAccessToken = userDetails['data']['access_token'];
+          final newRefreshToken = userDetails['data']['refresh_token'];
 
           print('New access token: $newAccessToken');
           print('New refresh token: $newRefreshToken');
