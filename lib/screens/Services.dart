@@ -175,6 +175,10 @@ class ServiceScreenState extends ConsumerState<ServicesPage> {
           ),
 
           const SizedBox(height: 8),
+          Text('Status: ${service.activated == true ? "Active" : "Inactive"}', style: TextStyle(
+    color: service.activated == true ? Colors.green : Colors.red, // ✅ Green for Active, Red for Inactive
+    fontWeight: FontWeight.bold,
+  ),),
 
           // Product Names (Initially show one, expand on click)
           if (productNames.isNotEmpty) ...[
@@ -229,19 +233,19 @@ class ServiceScreenState extends ConsumerState<ServicesPage> {
                   );
                 },
               ),
-              IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                onPressed: () {
-                  _showConfirmationDialog(
-                    context,
-                    'Delete',
-                    'Are you sure you want to delete this service?',
-                    () {
-                      ref.read(serviceProvider.notifier).deleteService(service.sId);
-                    },
-                  );
-                },
-              ),
+              // IconButton(
+              //   icon: const Icon(Icons.delete, color: Colors.red),
+              //   onPressed: () {
+              //     _showConfirmationDialog(
+              //       context,
+              //       'Delete',
+              //       'Are you sure you want to delete this service?',
+              //       () {
+              //         ref.read(serviceProvider.notifier).deleteService(service.sId);
+              //       },
+              //     );
+              //   },
+              // ),
             ],
           ),
         ],

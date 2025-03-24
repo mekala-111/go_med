@@ -132,7 +132,7 @@ class DashboardButtonRow extends StatelessWidget {
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const BookingsPage()),
+                MaterialPageRoute(builder: (context) => const BookingsScreen()),
               );
             },
           ),

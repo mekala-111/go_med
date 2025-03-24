@@ -28,20 +28,25 @@ class BottomNavBar extends ConsumerWidget {
       case 0:
         page = const DashboardPage();
         break;
+
       case 1:
-        page = const BookingsPage();
+      page =  (role == 'serviceEngineer') 
+          ? const ServiceEngineerProductsPage()
+         : const BookingsScreen();
         break;
+
       case 2:
       page = (role == 'serviceEngineer') 
           ? const ServiceEngineerProductsPage()
-          
-        : const ProductScreen();
+         : const ProductScreen();
         break;
+
       case 3:
         page = (role == 'serviceEngineer') 
           ? const ServicesEngineerPage()
           : const ServicesPage();
         break;
+        
       case 4:
         page = const SettingsPage();
         break;

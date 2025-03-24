@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -28,15 +25,9 @@ class DefaultFirebaseOptions {
       case TargetPlatform.iOS:
         return ios;
       case TargetPlatform.macOS:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for macos - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return macos;
       case TargetPlatform.windows:
-        throw UnsupportedError(
-          'DefaultFirebaseOptions have not been configured for windows - '
-          'you can reconfigure this by running the FlutterFire CLI again.',
-        );
+        return windows;
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
@@ -51,7 +42,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBCQI-bNCFSenC7rsyc8NHZVxtoUfSH1O8',
-    appId: '1:942219741281:android:de407f3b3ec65011624220',
+    appId: '1:942219741281:android:05890adb481d01d7624220',
     messagingSenderId: '942219741281',
     projectId: 'go-med-serve',
     storageBucket: 'go-med-serve.firebasestorage.app',
@@ -59,10 +50,40 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyDCoPoASlRloT-sHluzDk1xMn8iJeZLD6c',
-    appId: '1:942219741281:ios:46c77309232a436d624220',
+    appId: '1:942219741281:ios:78ea95a9f41e0d25624220',
     messagingSenderId: '942219741281',
     projectId: 'go-med-serve',
     storageBucket: 'go-med-serve.firebasestorage.app',
-    iosBundleId: 'com.example.goMed',
+    iosBundleId: 'com.vendor.goMed',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyBDsnIu_TrR3VnGcu3DQLZCOjprsV7VqhA',
+    appId: '1:942219741281:web:98f68c57cb114357624220',
+    messagingSenderId: '942219741281',
+    projectId: 'go-med-serve',
+    authDomain: 'go-med-serve.firebaseapp.com',
+    storageBucket: 'go-med-serve.firebasestorage.app',
+    measurementId: 'G-2T02FSJBXQ',
+  );
+
+  static const FirebaseOptions macos = FirebaseOptions(
+    apiKey: 'AIzaSyDCoPoASlRloT-sHluzDk1xMn8iJeZLD6c',
+    appId: '1:942219741281:ios:78ea95a9f41e0d25624220',
+    messagingSenderId: '942219741281',
+    projectId: 'go-med-serve',
+    storageBucket: 'go-med-serve.firebasestorage.app',
+    iosBundleId: 'com.vendor.goMed',
+  );
+
+  static const FirebaseOptions windows = FirebaseOptions(
+    apiKey: 'AIzaSyBDsnIu_TrR3VnGcu3DQLZCOjprsV7VqhA',
+    appId: '1:942219741281:web:5184d430f0bc75d1624220',
+    messagingSenderId: '942219741281',
+    projectId: 'go-med-serve',
+    authDomain: 'go-med-serve.firebaseapp.com',
+    storageBucket: 'go-med-serve.firebasestorage.app',
+    measurementId: 'G-F7SN99V4WR',
+  );
+
 }

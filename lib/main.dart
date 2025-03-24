@@ -110,7 +110,7 @@ class MyApp extends StatelessWidget {
           "productscreen": (context) => const ProductScreen(),
           "loginscreen": (context) => LoginScreen(),
           "dashboardpage": (context) => const DashboardPage(),
-          "bookingpage": (context) => const BookingsPage(),
+          "bookingpage": (context) => const BookingsScreen(),
           "profilesetuppage": (context) => const ProfileSetupPage(),
           "profilepage": (context) => const ProfilePage(),
           "registrationpage": (context) => const RegistrationPage(),

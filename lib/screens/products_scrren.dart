@@ -88,7 +88,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
       children: [
         _buildActionButton(
             context, 'Add New \nProducts', const AddProductScreen()),
-        _buildActionButton(context, 'Manage \nInventory', const BookingsPage()),
+        _buildActionButton(context, 'Manage \nInventory', const BookingsScreen()),
       ],
     );
   }
@@ -166,6 +166,11 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
             style: const TextStyle(fontSize: 14)),
         Text('Description: ${product.productDescription ?? ''}',
             style: const TextStyle(fontSize: 14)),
+            // Text('status:${product.activated}'),
+            Text('Status: ${product.activated == true ? "Active" : "Inactive"}', style: TextStyle(color: product.activated == true ? Colors.green : Colors.red, // ✅ Green for Active, Red for Inactive
+    fontWeight: FontWeight.bold,
+  ),),
+
         const SizedBox(height: 16),
 
         /// **Row to Align Buttons Side by Side**
@@ -189,15 +194,15 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                 },
               );
             }),
-            _buildActionButtonCard(context, 'Delete', Colors.red, () {
-              _showConfirmationDialog(
-                context,
-                'Delete',
-                'Are you sure you want to delete this product?',
-                () => ref
-                    .read(productProvider.notifier)
-                    .deleteProduct(product.productId),
-              );
+            _buildActionButtonCard(context, 'Refund', Colors.red, () {
+              // _showConfirmationDialog(
+                // context,
+                // 'Delete',
+                // 'Are you sure you want to delete this product?',
+                // () => ref
+                    // .read(productProvider.notifier)
+                    // .deleteProduct(product.productId),
+              // );
             }),
           ],
         ),

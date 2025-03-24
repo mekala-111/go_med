@@ -1,46 +1,34 @@
-class ServiceModel
- {
-  int? statusCode;
-  bool? success;
-  List<String>? messages;
-  List<Data>? data;
+class ServiceModel {
+  final int? statusCode;
+  final bool? success;
+  final List<String>? messages;
+  final List<Data>? data;
 
-  ServiceModel
-  ({this.statusCode, this.success, this.messages, this.data});
+  ServiceModel({
+    this.statusCode,
+    this.success,
+    this.messages,
+    this.data,
+  });
 
-  ServiceModel
-  .fromJson(Map<String, dynamic> json) {
-    statusCode = json['statusCode'];
-    success = json['success'];
-    messages = json['messages'].cast<String>();
-    if (json['data'] != null) {
-      data = <Data>[];
-      json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
-      });
-    }
+  // Initial values
+  factory ServiceModel.initial() {
+    return ServiceModel(
+      statusCode: 0,
+      success: false,
+      messages: [],
+      data: [],
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['statusCode'] = statusCode;
-    data['success'] = success;
-    data['messages'] = messages;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
-
-  ServiceModel
-   copyWith({
+  // CopyWith method
+  ServiceModel copyWith({
     int? statusCode,
     bool? success,
     List<String>? messages,
     List<Data>? data,
   }) {
-    return ServiceModel
-    (
+    return ServiceModel(
       statusCode: statusCode ?? this.statusCode,
       success: success ?? this.success,
       messages: messages ?? this.messages,
@@ -48,30 +36,44 @@ class ServiceModel
     );
   }
 
-  factory ServiceModel
-  .initial() {
-    return ServiceModel
-    (
-      statusCode: 0,
-      success: false,
-      messages: [],
-      data: [],
+  // JSON Serialization
+  factory ServiceModel.fromJson(Map<String, dynamic> json) {
+    return ServiceModel(
+      statusCode: json['statusCode'],
+      success: json['success'],
+      messages: List<String>.from(json['messages'] ?? []),
+      data: json['data'] != null
+          ? List<Data>.from(json['data'].map((v) => Data.fromJson(v)))
+          : [],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'statusCode': statusCode,
+      'success': success,
+      'messages': messages,
+      'data': data?.map((v) => v.toJson()).toList(),
+    };
   }
 }
 
 class Data {
-  String? sId;
-  String? name;
-  String? details;
-  int? price;
-  String? distributorId;
-  List<String>? productIds;
-  String? createdAt;
-  String? updatedAt;
-  int? iV;
+  final bool? activated;
+  final String? adminApproval;
+  final String? sId;
+  final String? name;
+  final String? details;
+  final int? price;
+  final String? distributorId;
+  final List<String>? productIds;
+  final String? createdAt;
+  final String? updatedAt;
+  final int? iV;
 
   Data({
+    this.activated,
+    this.adminApproval,
     this.sId,
     this.name,
     this.details,
@@ -83,33 +85,27 @@ class Data {
     this.iV,
   });
 
-  Data.fromJson(Map<String, dynamic> json) {
-    sId = json['_id'];
-    name = json['name'];
-    details = json['details'];
-    price = json['price'];
-    distributorId = json['distributorId'];
-    productIds = json['productIds'].cast<String>();
-    createdAt = json['createdAt'];
-    updatedAt = json['updatedAt'];
-    iV = json['__v'];
+  // Initial values
+  factory Data.initial() {
+    return Data(
+      activated: false,
+      adminApproval: "",
+      sId: "",
+      name: "",
+      details: "",
+      price: 0,
+      distributorId: "",
+      productIds: [],
+      createdAt: "",
+      updatedAt: "",
+      iV: 0,
+    );
   }
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = {};
-    data['_id'] = sId;
-    data['name'] = name;
-    data['details'] = details;
-    data['price'] = price;
-    data['distributorId'] = distributorId;
-    data['productIds'] = productIds;
-    data['createdAt'] = createdAt;
-    data['updatedAt'] = updatedAt;
-    data['__v'] = iV;
-    return data;
-  }
-
+  // CopyWith method
   Data copyWith({
+    bool? activated,
+    String? adminApproval,
     String? sId,
     String? name,
     String? details,
@@ -121,6 +117,8 @@ class Data {
     int? iV,
   }) {
     return Data(
+      activated: activated ?? this.activated,
+      adminApproval: adminApproval ?? this.adminApproval,
       sId: sId ?? this.sId,
       name: name ?? this.name,
       details: details ?? this.details,
@@ -133,17 +131,36 @@ class Data {
     );
   }
 
-  factory Data.initial() {
+  // JSON Serialization
+  factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      sId: '',
-      name: '',
-      details: '',
-      price: 0,
-      distributorId: '',
-      productIds: [],
-      createdAt: '',
-      updatedAt: '',
-      iV: 0,
+      activated: json['activated'],
+      adminApproval: json['adminApproval'],
+      sId: json['_id'],
+      name: json['name'],
+      details: json['details'],
+      price: json['price'],
+      distributorId: json['distributorId'],
+      productIds: List<String>.from(json['productIds'] ?? []),
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
+      iV: json['__v'],
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'activated': activated,
+      'adminApproval': adminApproval,
+      '_id': sId,
+      'name': name,
+      'details': details,
+      'price': price,
+      'distributorId': distributorId,
+      'productIds': productIds,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      '__v': iV,
+    };
   }
 }

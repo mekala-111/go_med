@@ -1,227 +1,255 @@
 import 'package:flutter/material.dart';
-import 'package:go_med/screens/BottomNavBar.dart';
-import 'package:go_med/screens/dashboard.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/bookings_provider.dart';
+import '../screens/BottomNavBar.dart';
 
+class BookingsScreen extends ConsumerStatefulWidget {
+  const BookingsScreen({super.key});
 
-class BookingsPage extends StatelessWidget {
-  const BookingsPage({super.key});
+  @override
+  _BookingsScreenState createState() => _BookingsScreenState();
+}
+
+class _BookingsScreenState extends ConsumerState<BookingsScreen> {
+  final TextEditingController statusController = TextEditingController();
+  String? bookingId;
+  int selectedIndex = 0;
+  final List<String> filterOptions = ["All", "Upcoming", "Past"];
+
+  @override
+  void initState() {
+    super.initState();
+    Future.microtask(() {
+      ref.read(bookingProvider.notifier).getBookings();
+    });
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args != null) {
+      setState(() {
+        // statusController.text = args['status'] ?? '';
+        bookingId = args['_id'] ?? '';
+        print('booking id.........$bookingId');
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    var role;
-    return WillPopScope(
-      onWillPop: () async {
-        // Navigate to DashboardPage when back button is pressed
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const DashboardPage()),
-        );
-        return false; // Prevent default back navigation
-      },
-      child: Scaffold(
-         backgroundColor:  const Color(0xFFE8F7F2), 
-        appBar: AppBar(
-          leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(
-              context,
-              MaterialPageRoute(builder: (context) => const DashboardPage()),
-            );
-          },
-        ),
-          title: const Text("Bookings",
-          style: TextStyle(color: Colors.white,
-        
+    final bookingState = ref.watch(bookingProvider);
+
+    final distributorBookings = bookingState.data ?? [];
+
+    print('Total Filtered Bookings: ${distributorBookings.length}');
+
+    // Filter bookings based on status selection
+    var filteredBookings = distributorBookings;
+    // final createAt= filteredBookings.;
+    if (selectedIndex == 1) {
+      filteredBookings = distributorBookings
+          .where((booking) => booking.status == "Upcoming")
+          .toList();
+    } else if (selectedIndex == 2) {
+      filteredBookings = distributorBookings
+          .where((booking) => booking.status == "Past")
+          .toList();
+    }
+
+    return Scaffold(
+      backgroundColor: const Color(0xFFE8F7F2),
+      appBar: AppBar(
+        title: const Text("Bookings", style: TextStyle(color: Colors.white)),
+        backgroundColor: const Color(0xFF6BC37A),
+      ),
+      body: Column(
+        children: [
+          // Toggle buttons for filtering bookings
+          ToggleButtons(
+            isSelected: List.generate(
+                filterOptions.length, (index) => index == selectedIndex),
+            selectedColor: Colors.white,
+            fillColor: Colors.green,
+            borderRadius: BorderRadius.circular(20),
+            children: filterOptions
+                .map((option) => Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Text(option),
+                    ))
+                .toList(),
+            onPressed: (index) {
+              setState(() => selectedIndex = index);
+            },
           ),
-          ),
-          backgroundColor: const Color(0xFF6BC37A),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.notifications),
-              onPressed: () {},
-            ),
-          ],
-        ),
-        body: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ToggleButtons(
-                isSelected: const [true, false, false],
-                selectedColor: const Color(0x802E3236),
-                fillColor: Colors.grey.shade200,
-                borderRadius: BorderRadius.circular(20),
-                children: const [
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('All'),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('Upcoming'),
-                  ),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 16),
-                    child: Text('Past'),
-                  ),
-                ],
-                onPressed: (index) {
-                  // Handle toggle button selection here
-                },
-              ),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Upcoming Bookings',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  TextButton(
-                    onPressed: () {},
-                    child: const Text("View All Bookings"),
-                  ),
-                ],
-              ),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: 3, // Adjust based on data
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
-                      child: Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0x401BA4CA),
+          const SizedBox(height: 20),
+          Text("Total Bookings: ${distributorBookings.length}",
+              style:
+                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+
+          // Bookings List
+          Expanded(
+            child: filteredBookings.isEmpty
+                ? const Center(child: Text("No bookings available"))
+                : ListView.builder(
+                    itemCount: filteredBookings.length,
+                    itemBuilder: (context, index) {
+                      final booking = filteredBookings[index];
+
+                      return Card(
+                        elevation: 4,
+                        margin: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              "Albert Flores",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                              color: Colors.white,
+                        child: Padding(
+                          padding: const EdgeInsets.all(12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // User Information
+                              Text("User: ${booking.userId.name}",
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold)),
+                              Text("Email: ${booking.userId.email}"),
+                              Text("Location: ${booking.location?.toString()}"),
+                              Text("Address: ${booking.address}"),
+                              const SizedBox(height: 5),
+                              const Text('Products:',
+                                  style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold)),
+                              const Divider(),
+
+                              // Displaying all products inside this booking
+                              ...booking.productIds.map((product) => Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                          "Product Name: ${product.productName}",
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold)),
+                                      Text(
+                                          "Description: ${product.productDescription}"),
+                                      Text.rich(
+                                        TextSpan(
+                                          text: "Price: ₹",
+                                          style: const TextStyle(
+                                              fontSize: 12,
+                                              color: Colors.black),
+                                          children: [
+                                            TextSpan(
+                                              text: "${product.price}",
+                                              style: const TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.bold,
+                                                color: Color(0xFF6BC37A),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      const SizedBox(height: 10),
+                                    ],
+                                  )),
+
+                              // Buttons for actions
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  ElevatedButton.icon(
+                                    onPressed: () {
+                                      // Implement share functionality
+                                    },
+                                    icon: const Icon(Icons.share),
+                                    label: const Text("Share"),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () async {
+                                      bool confirm =
+                                          await _showConfirmationDialog(
+                                              context);
+                                      if (confirm) {
+                                        // Proceed with booking acceptance
+                                        try {
+                                          await ref
+                                              .read(bookingProvider.notifier)
+                                              .updateBookings(booking.id);
+                                          // statusController.clear();
+                                          _showSnackBar(context,
+                                              "Booking updated successfully");
+                                        } catch (e) {
+                                          _showSnackBar(context, e.toString());
+                                        }
+                                      }
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.green,
+                                      foregroundColor: Colors.white,
+                                    ),
+                                    child: const Text("Booking Accept"),
+                                  ),
+                                ],
                               ),
-                            ),
-                            const Text("Full Body Checkup",
-                             style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white),
-                            ),
-                            const Text(
-                              "15 May 2020 8:30 am",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                            const SizedBox(height: 10),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green,
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text("Confirm",
-                                   style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0x802E3236),
-                                    foregroundColor: Colors.black,
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text("Reschedule",
-                                   style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white),
-                                  ),
-                                ),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                  ),
-                                  onPressed: () {},
-                                  child: const Text("Cancel",
-                                   style: TextStyle(
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-              const Divider(),
-              const Text(
-                'Past Bookings',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const Text(
-                'You have completed 12 bookings this month.',
-                style: TextStyle(color: Colors.black54),
-              ),
-              const SizedBox(height: 10),
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0x401BA4CA),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text("Client Name: Jane Smith"),
-                    Text("Service: Blood Test"),
-                    Text("Completed on: Sept 5, 2024"),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 20),
-              const Text(
-                'Booking Status Updates',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              const Text(
-                'Booking confirmed for [Client Name] on [Date/Time].\nBooking canceled for [Client Name] on [Date/Time].',
-                style: TextStyle(color: Colors.black54),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xff00ba4ca),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                      );
+                    },
                   ),
-                ),
-                onPressed: () {},
-                child: const Center(
-                  child: Text("Add New Booking",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  ),
-                ),
-              ),
-            ],
           ),
-        ),
-        bottomNavigationBar:  const BottomNavBar(),
+        ],
+      ),
+      bottomNavigationBar: const BottomNavBar(),
+    );
+  }
+
+  void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            message == "Please fill all fields." ? Colors.red : Colors.blue,
+        behavior: SnackBarBehavior.floating,
       ),
     );
+  }
+
+  /// Function to Show Confirmation Dialog
+  Future<bool> _showConfirmationDialog(BuildContext context) async {
+    return await showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text("Confirm Booking"),
+              content: const Text("Do you want to accept this booking?"),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // User canceled
+                  },
+                  child: const Text("Cancel"),
+                ),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // User confirmed
+                  },
+                  child: const Text("OK"),
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Default to false if dialog is dismissed
   }
 }

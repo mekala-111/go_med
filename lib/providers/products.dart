@@ -307,15 +307,7 @@ class ProductProvider extends StateNotifier<ProductModel> {
             ..fields['price'] = price != null ? price.toString() : "0.0"
             ..fields['category'] = category ?? "";
 
-      // Adding Image File if Present
-      // if (image != null) {
-      //   for (var image in image) {
-      //     request.files.add(await http.MultipartFile.fromPath(
-      //       'productImages', // Ensure this matches the expected field name
-      //       image.path,
-      //     ));
-      //   }
-      // }
+     
        if (image != null && image.isNotEmpty) {
         for (var img in image) {
           final fileExtension = img.path.split('.').last.toLowerCase();

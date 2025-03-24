@@ -4,7 +4,7 @@ class Bbapi {
   static const String login = "$baseUrl/distributor/login";
   static const String signup = "$baseUrl/distributor/signup";
   static const String add = "$baseUrl/products/create/product";
-  static const String getProduct = "$baseUrl/products/products";
+  static const String getProduct = "$baseUrl/products/distributor/products";
   static const String update = "$baseUrl/products/updateproduct";
   static const String delete = "$baseUrl/products/deleteproduct";
   static const String serviceEngineerupdate =
@@ -26,4 +26,6 @@ class Bbapi {
   static const String getService = "$baseUrl/services/getallservices";
   static const String serviceupdate = "$baseUrl/services/updateservice";
   static const String deleteService = "$baseUrl/services/deleteservice";
+  static const String bookingsGet = "$baseUrl/productbooking/distributor";
+  static const String bookingUpdate = "$baseUrl/productbooking/update";
 }

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:go_med/screens/engineerProductsscreen.dart';
 import '../model/sparepartState.dart';
+import '../screens/serviceEnginnerAddressScreen.dart';
 
 class SparePartDetailScreen extends StatefulWidget {
   final Data sparePart;
@@ -91,7 +93,9 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               // Buy Now Button
               Center(
                 child: ElevatedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileScreen()));
+                  },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 150, 170, 238),
                     minimumSize: Size(screenWidth * 0.4, screenHeight * 0.06),

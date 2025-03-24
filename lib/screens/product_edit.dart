@@ -69,6 +69,7 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
         sparePartNameController.text = args['sparepartName'] ?? '';
         type = args['type'] ?? '';
         productId = args['productId'] ?? '';
+        print('88888888888888888............$productId');
         sparePartId = args['sparepartId'] ?? '';
         isChecked = args['isChecked'] ?? false;
         // productNameController.text = args['sparepartName'] ?? '';
@@ -381,60 +382,60 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                 ),
                 const SizedBox(height: 8),
 
-              if(isChecked&&type=='edit')
-               _buildTextField(
-                  controller: sparePartNameController,
-                  labelText: isChecked ? "Spare Part Name" : "Product Name",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return isChecked
-                          ? "Spare part name is required."
-                          : "Product name is required.";
-                    }
-                    return null;
-                  },
-                ),
-                if(isChecked == false && type!='edit')
-                 _buildTextField(
-                  controller: productNameController,
-                  labelText: isChecked ? "Spare Part Name" : "Product Name",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return isChecked
-                          ? "Spare part name is required."
-                          : "Product name is required.";
-                    }
-                    return null;
-                  },
-                ),
-                if(isChecked==true&&type!='edit')
-               _buildTextField(
-                  controller: sparePartNameController,
-                  labelText: isChecked ? "Spare Part Name" : "Product Name",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return isChecked
-                          ? "Spare part name is required."
-                          : "Product name is required.";
-                    }
-                    return null;
-                  },
-                ),
-                if(isChecked==false&&type=='edit')
-               _buildTextField(
-                  controller: productNameController,
-                  labelText: isChecked ? "Spare Part Name" : "Product Name",
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return isChecked
-                          ? "Spare part name is required."
-                          : "Product name is required.";
-                    }
-                    return null;
-                  },
-                ),
+                if (isChecked && type == 'edit')
+                  _buildTextField(
+                    controller: sparePartNameController,
+                    labelText: isChecked ? "Spare Part Name" : "Product Name",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return isChecked
+                            ? "Spare part name is required."
+                            : "Product name is required.";
+                      }
+                      return null;
+                    },
+                  ),
+                if (isChecked == false && type != 'edit')
+                  _buildTextField(
+                    controller: productNameController,
+                    labelText: isChecked ? "Spare Part Name" : "Product Name",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return isChecked
+                            ? "Spare part name is required."
+                            : "Product name is required.";
+                      }
+                      return null;
+                    },
+                  ),
+                if (isChecked == true && type != 'edit')
+                  _buildTextField(
+                    controller: sparePartNameController,
+                    labelText: isChecked ? "Spare Part Name" : "Product Name",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return isChecked
+                            ? "Spare part name is required."
+                            : "Product name is required.";
+                      }
+                      return null;
+                    },
+                  ),
+                if (isChecked == false && type == 'edit')
+                  _buildTextField(
+                    controller: productNameController,
+                    labelText: isChecked ? "Spare Part Name" : "Product Name",
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return isChecked
+                            ? "Spare part name is required."
+                            : "Product name is required.";
+                      }
+                      return null;
+                    },
+                  ),
 
-            const SizedBox(height: 8),
+                const SizedBox(height: 8),
                 _buildTextField(
                   controller: priceController,
                   labelText: "Price",
@@ -583,11 +584,11 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                                 _image,
                                                 sparePartId,
                                                 // productNameController.text,
-                                                productId
-                                                );
-                                                 // Fetch updated spare parts to refresh the UI
-  await ref.read(sparepartProvider.notifier).getSpareParts();
-
+                                                productId);
+                                        // Fetch updated spare parts to refresh the UI
+                                        await ref
+                                            .read(sparepartProvider.notifier)
+                                            .getSpareParts();
 
                                         // Clear form fields
                                         productNameController.clear();
@@ -597,7 +598,6 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                         _showSnackBar(context,
                                             "sparepart updated successfully!");
                                         Navigator.of(context).pop();
-                                        
                                       } catch (e) {
                                         _showSnackBar(context, e.toString());
                                       }
@@ -615,16 +615,17 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                                         await ref
                                             .read(sparepartProvider.notifier)
                                             .addSpareParts(
-                                                sparePartNameController.text,
-                                                descriptionController.text,
-                                                parsedPrice,
-                                                selectedProduct,
-                                                _image,
-                                                );
+                                              sparePartNameController.text,
+                                              descriptionController.text,
+                                              parsedPrice,
+                                              selectedProduct,
+                                              _image,
+                                            );
                                         print('try exicuted==========');
-                                         // Fetch updated spare parts to refresh the UI
-  await ref.read(sparepartProvider.notifier).getSpareParts();
-
+                                        // Fetch updated spare parts to refresh the UI
+                                        await ref
+                                            .read(sparepartProvider.notifier)
+                                            .getSpareParts();
 
                                         // Clear form fields
                                         productNameController.clear();
@@ -633,11 +634,14 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
 
                                         _showSnackBar(context,
                                             "Sparepart added successfully!");
-                                            await ref.read(sparepartProvider.notifier).getSpareParts();
+                                        await ref
+                                            .read(sparepartProvider.notifier)
+                                            .getSpareParts();
 
                                         Navigator.of(context).pop();
-                                        await ref.read(sparepartProvider.notifier).getSpareParts();
-
+                                        await ref
+                                            .read(sparepartProvider.notifier)
+                                            .getSpareParts();
                                       } catch (e, stackTrace) {
                                         print('Error: $e');
                                         print('Stack Trace: $stackTrace');
