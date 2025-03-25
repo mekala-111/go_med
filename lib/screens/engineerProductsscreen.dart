@@ -4,6 +4,7 @@ import '../providers/sparepartProvider.dart';
 import '../providers/serviceengineerprovider.dart';
 import '../screens/serviceengineersparepartsscreen.dart';
 import '../screens/BottomNavBar.dart';
+import '../screens/serviceEnginnerAddressScreen.dart';
 
 class ServiceEngineerProductsPage extends ConsumerStatefulWidget {
   const ServiceEngineerProductsPage({super.key});
@@ -14,6 +15,7 @@ class ServiceEngineerProductsPage extends ConsumerStatefulWidget {
 }
 
 class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
+   String? sparepartId;
   @override
   void initState() {
     super.initState();
@@ -30,6 +32,7 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
     final isLoading = productState.statusCode == 0;
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -241,17 +244,39 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                     SizedBox(height: screenHeight * 0.005),
                                                     SizedBox(
                                                       width: screenWidth * 0.2,
-                                                      child: Text(
-                                                        sparePart.description ?? "No description",
-                                                        style: TextStyle(fontSize: screenWidth * 0.025),
-                                                        maxLines: 2,
-                                                        overflow: TextOverflow.ellipsis,
-                                                      ),
+                                                      child: LayoutBuilder(
+                                                              builder: (context, constraints) {
+                                                                return SizedBox(
+                                                                  width: constraints.maxWidth * 0.5, // Limits text width to half of available space
+                                                                  child: Text(
+                                                                    sparePart.description ?? "No description",
+                                                                    style: TextStyle(fontSize: screenWidth * 0.025),
+                                                                    maxLines: 2, // Display only 2 lines
+                                                                    overflow: TextOverflow.ellipsis, // Hide extra text with "..."
+                                                                  ),
+                                                                );
+                                                              },
+                                                            ),
                                                     ),
                                                     SizedBox(
                                                       width: screenWidth * 0.2,
                                                       child: ElevatedButton(
-                                                        onPressed: () {},
+                                                        onPressed: () {
+                                                          setState(() {
+                                                       sparepartId = sparePart.sparepartId; // Store the selected spare part ID
+  });
+                                                            // Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddressScreen()));
+                                                            Navigator.push(
+                                                                context,
+                                                                MaterialPageRoute(
+                                                                  builder: (context) => const AddressScreen(),
+                                                                  settings: RouteSettings(
+                                                                    arguments: {'sparePartIds': sparePart.sparepartId}, // ✅ Pass argument
+                                                                  ),
+                                                                ),
+                                                              );
+
+                                                        },
                                                         style: ElevatedButton.styleFrom(
                                                           backgroundColor: const Color.fromARGB(255, 150, 170, 238),
                                                           minimumSize: Size(screenWidth * 0.05, screenHeight * 0.03),

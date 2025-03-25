@@ -94,7 +94,7 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               Center(
                 child: ElevatedButton(
                   onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>ProfileScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen()));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 150, 170, 238),

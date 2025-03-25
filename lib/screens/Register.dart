@@ -197,16 +197,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
               ),
               SizedBox(height: screenHeight * 0.02),
 
-              TextFormField(
-                controller: _ownerNameController,
-                decoration: const InputDecoration(labelText: 'Owner name '),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter a Owner name ';
-                  }
-                  return null;
-                },
-              ),
+            
               SizedBox(height: screenHeight * 0.02),
               TextFormField(
                 controller: _emailController,
