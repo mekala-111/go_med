@@ -5,6 +5,7 @@ import '../providers/serviceengineerprovider.dart';
 import '../screens/serviceengineersparepartsscreen.dart';
 import '../screens/BottomNavBar.dart';
 import '../screens/serviceEnginnerAddressScreen.dart';
+import '../screens/serviceEnginnersparepartbooking.dart';
 
 class ServiceEngineerProductsPage extends ConsumerStatefulWidget {
   const ServiceEngineerProductsPage({super.key});
@@ -35,15 +36,49 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
     
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
+      appBar:AppBar(
+  backgroundColor: const Color(0xFF6BC37A),
+  elevation: 0,
+  title: const Text(
+    'Products',
+    style: TextStyle(color: Colors.black),
+  ),
+  
+
+  actions: [
+    SizedBox(
+      width: MediaQuery.of(context).size.width * 0.3,  height:MediaQuery.of(context).size.width * 0.1,// Using MediaQuery for screen width
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+           
+          });
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const Serviceenginnersparepartbooking(),
+
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color.fromARGB(255, 242, 231, 231),
+          minimumSize: Size(MediaQuery.of(context).size.width * 0.05, MediaQuery.of(context).size.height * 0.03),
         ),
-        title: const Text('Products', style: TextStyle(color: Colors.black)),
+        child: Text(
+          "Sparepart Booking",
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.018,
+            color: const Color.fromARGB(255, 22, 20, 20),
+          ),
+        ),
       ),
+    ),
+  ],
+),
+
+      
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
           : productState.data == null || productState.data!.isEmpty
@@ -264,7 +299,7 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                         onPressed: () {
                                                           setState(() {
                                                        sparepartId = sparePart.sparepartId; // Store the selected spare part ID
-  });
+                                                                      });
                                                             // Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddressScreen()));
                                                             Navigator.push(
                                                                 context,

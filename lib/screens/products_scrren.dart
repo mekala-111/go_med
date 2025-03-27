@@ -5,11 +5,13 @@ import 'package:go_med/providers/sparepartProvider.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
 import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/product_edit.dart';
-import 'Bookings.dart';
+import 'Distributor_Bookings.dart';
 import '../model/product_state.dart' as product_model;
 import '../model/sparepartState.dart' as sparepart_model;
 import '../screens/product_edit.dart';
 import '../providers/loader.dart';
+import '../screens/serviceEnginnersparepartbooking.dart';
+import '../screens/Distributor_sparepartbookings.dart';
 
 class ProductScreen extends ConsumerStatefulWidget {
   const ProductScreen({super.key});
@@ -43,17 +45,49 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () {
-            Navigator.pop(context,
-                MaterialPageRoute(builder: (context) => const DashboardPage()));
-          },
-        ),
+        // leading: IconButton(
+        //   icon: const Icon(Icons.arrow_back, color: Colors.black),
+        //   onPressed: () {
+        //     Navigator.pop(context,
+        //         MaterialPageRoute(builder: (context) => const DashboardPage()));
+        //   },
+        // ),
         title: const Text(
           'Products',
           style: TextStyle(color: Colors.black),
         ),
+        actions: [
+    SizedBox(
+      width: MediaQuery.of(context).size.width * 0.3,  height:MediaQuery.of(context).size.width * 0.1,// Using MediaQuery for screen width
+      child: ElevatedButton(
+        onPressed: () {
+          setState(() {
+           
+          });
+
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const DistributorSparepartbookings(),
+
+            ),
+          );
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0x801BA4CA),
+          minimumSize: Size(MediaQuery.of(context).size.width * 0.05, MediaQuery.of(context).size.height * 0.03),
+        ),
+        child: Text(
+          "Bookings",
+          style: TextStyle(
+            fontSize: MediaQuery.of(context).size.width * 0.04,
+            color: const Color.fromARGB(255, 22, 20, 20),
+          ),
+        ),
+      ),
+    ),
+  SizedBox(width: 15,)
+  ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

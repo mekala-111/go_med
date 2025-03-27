@@ -93,9 +93,22 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               // Buy Now Button
               Center(
                 child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>AddressScreen()));
-                  },
+                 onPressed: () {
+                                                      //     setState(() {
+                                                      //  sparepartId = sparePart.sparepartId; // Store the selected spare part ID
+                                                      //            });
+                                                      //       // Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddressScreen()));
+                                                      //       Navigator.push(
+                                                      //           context,
+                                                      //           MaterialPageRoute(
+                                                      //             builder: (context) => const AddressScreen(),
+                                                      //             settings: RouteSettings(
+                                                      //               arguments: {'sparePartIds': sparePart.sparepartId}, // ✅ Pass argument
+                                                      //             ),
+                                                      //           ),
+                                                      //         );
+
+                                                        },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: const Color.fromARGB(255, 150, 170, 238),
                     minimumSize: Size(screenWidth * 0.4, screenHeight * 0.06),

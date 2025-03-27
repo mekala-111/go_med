@@ -7,7 +7,7 @@ import 'package:go_med/screens/product_edit.dart';
 import 'screens/LoginPage.dart';
 import 'firebase_options.dart';
 import 'package:go_med/providers/auth_provider.dart';
-import 'package:go_med/screens/Bookings.dart';
+import 'package:go_med/screens/Distributor_Bookings.dart';
 
 import 'package:go_med/screens/Profile.dart';
 import 'package:go_med/screens/Profile_setup.dart';

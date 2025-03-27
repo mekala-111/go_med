@@ -4,7 +4,7 @@ import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/Services.dart';
 import 'package:go_med/screens/Service_engineer_services.dart';
 import 'package:go_med/screens/dashboard.dart';
-import 'package:go_med/screens/Bookings.dart';
+import 'package:go_med/screens/Distributor_Bookings.dart';
 import 'package:go_med/screens/products_scrren.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:go_med/screens/engineerProductsscreen.dart';
