@@ -1,17 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_med/providers/products.dart';
-import 'package:go_med/providers/sparepartProvider.dart';
-import 'package:go_med/screens/BottomNavBar.dart';
-import 'package:go_med/screens/dashboard.dart';
-import 'package:go_med/screens/product_edit.dart';
-import 'Distributor_Bookings.dart';
-import '../model/product_state.dart' as product_model;
-import '../model/sparepartState.dart' as sparepart_model;
-import '../screens/product_edit.dart';
-import '../providers/loader.dart';
-import '../screens/serviceEnginnersparepartbooking.dart';
+import 'package:go_med/providers/Distributor_products_provider.dart';
+
+import '../model/Distributor_products_model.dart'; // Import your model here
 import '../screens/Distributor_sparepartbookings.dart';
+import '../screens/BottomNavBar.dart';
 
 class ProductScreen extends ConsumerStatefulWidget {
   const ProductScreen({super.key});
@@ -25,69 +18,51 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.watch(productProvider.notifier).getProducts();
-      ref.watch(sparepartProvider.notifier).getSpareParts();
+      ref.watch(distributorProductProvider.notifier).getDistributorProducts();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final List<product_model.Data> productState =
-        ref.watch(productProvider).data ?? [];
-    print('productsstate.....................................$productState');
-    final List<sparepart_model.Data> sparePartsState =
-        ref.watch(sparepartProvider).data ?? [];
-    print(
-        'sparepartstate.....................................$sparePartsState');
-
+    final productState = ref.watch(distributorProductProvider);
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
         elevation: 0,
-        // leading: IconButton(
-        //   icon: const Icon(Icons.arrow_back, color: Colors.black),
-        //   onPressed: () {
-        //     Navigator.pop(context,
-        //         MaterialPageRoute(builder: (context) => const DashboardPage()));
-        //   },
-        // ),
         title: const Text(
           'Products',
           style: TextStyle(color: Colors.black),
         ),
         actions: [
-    SizedBox(
-      width: MediaQuery.of(context).size.width * 0.3,  height:MediaQuery.of(context).size.width * 0.1,// Using MediaQuery for screen width
-      child: ElevatedButton(
-        onPressed: () {
-          setState(() {
-           
-          });
-
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const DistributorSparepartbookings(),
-
+          SizedBox(
+            width: MediaQuery.of(context).size.width * 0.3,
+            height: MediaQuery.of(context).size.width * 0.1,
+            child: ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const DistributorSparepartbookings(),
+                  ),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0x801BA4CA),
+                minimumSize: Size(MediaQuery.of(context).size.width * 0.05,
+                    MediaQuery.of(context).size.height * 0.03),
+              ),
+              child: Text(
+                "Bookings",
+                style: TextStyle(
+                  fontSize: MediaQuery.of(context).size.width * 0.04,
+                  color: const Color.fromARGB(255, 22, 20, 20),
+                ),
+              ),
             ),
-          );
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0x801BA4CA),
-          minimumSize: Size(MediaQuery.of(context).size.width * 0.05, MediaQuery.of(context).size.height * 0.03),
-        ),
-        child: Text(
-          "Bookings",
-          style: TextStyle(
-            fontSize: MediaQuery.of(context).size.width * 0.04,
-            color: const Color.fromARGB(255, 22, 20, 20),
           ),
-        ),
-      ),
-    ),
-  SizedBox(width: 15,)
-  ],
+          const SizedBox(width: 15)
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -96,39 +71,26 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
           children: [
             _buildHeaderActions(context),
             const SizedBox(height: 16),
-            const Text(
-              'Products',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
             Expanded(
-              child: productState.isEmpty
+              child: productState.data == null || productState.data!.isEmpty
                   ? const Center(child: CircularProgressIndicator())
-                  : _buildProductList(productState, sparePartsState),
+                  : _buildProductList(productState.data!),
             ),
           ],
         ),
       ),
-      bottomNavigationBar:const  BottomNavBar(),
+      bottomNavigationBar: const BottomNavBar(),
     );
   }
 
   Widget _buildHeaderActions(BuildContext context) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        _buildActionButton(
-            context, 'Add New \nProducts', const AddProductScreen()),
-        _buildActionButton(context, 'Manage \nInventory', const BookingsScreen()),
-      ],
+      children: [],
     );
   }
 
-  Widget _buildProductList(List<product_model.Data> productState,
-      List<sparepart_model.Data> sparePartsState) {
+  Widget _buildProductList(List<Data> productState) {
     if (productState.isEmpty) {
       return const Center(
         child: Text(
@@ -142,109 +104,80 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
       itemCount: productState.length,
       itemBuilder: (context, index) {
         final product = productState[index];
-        return _buildProductCard(context, product, sparePartsState);
+        return _buildProductCard(context, product);
       },
     );
   }
 
-  Widget _buildActionButton(BuildContext context, String label, Widget page) {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.push(context, MaterialPageRoute(builder: (context) => page));
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0x801BA4CA),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+  Widget _buildProductCard(BuildContext context, Data product) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0x401BA4CA),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
       ),
-      child: Text(label, style: const TextStyle(color: Colors.black)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Display the product image
+          if (product.productImages != null &&
+              product.productImages!.isNotEmpty)
+            Image.network(
+              product.productImages![0], // Assuming we show the first image
+              height: 200,
+              width: 300,
+              fit: BoxFit.cover,
+            ),
+          SizedBox(height: 5),
+
+          Text(
+            product.productName ?? '',
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+          SizedBox(width: 5),
+          Text(
+            '₹${product.price ?? 0}',
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+
+          // const SizedBox(height: 8),
+          Text('Category: ${product.category ?? 'Unknown'}',
+              style: const TextStyle(fontSize: 14)),
+          Text('Description: ${product.productDescription ?? ''}',
+              style: const TextStyle(fontSize: 14)),
+          Text(
+            'Status: ${product.activated == true ? "Active" : "Inactive"}',
+            style: TextStyle(
+              color: product.activated == true ? Colors.green : Colors.red,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              _buildActionButtonCard(context, 'View Spare Parts', Colors.green,
+                  () {
+                _showSparePartsDialog(
+                    context, product.productId, product.spareParts);
+              }),
+              _buildActionButtonCard(context, 'Request', Colors.red, () {
+                _showRequestDialog(context, product, product.spareParts ?? []);
+              }),
+            ],
+          ),
+        ],
+      ),
     );
   }
-
-  Widget _buildProductCard(BuildContext context, product_model.Data product,
-    List<sparepart_model.Data> sparePartsState) {
-  return Container(
-    margin: const EdgeInsets.only(bottom: 16),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: const Color(0x401BA4CA),
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.2),
-          blurRadius: 5,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              product.productName ?? '',
-              style:
-                  const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            Text(
-              'Price: ₹${product.price ?? 0}',
-              style:
-                  const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Text('Category: ${product.category ?? 'Unknown'}',
-            style: const TextStyle(fontSize: 14)),
-        Text('Description: ${product.productDescription ?? ''}',
-            style: const TextStyle(fontSize: 14)),
-            // Text('status:${product.activated}'),
-            Text('Status: ${product.activated == true ? "Active" : "Inactive"}', style: TextStyle(color: product.activated == true ? Colors.green : Colors.red, // ✅ Green for Active, Red for Inactive
-    fontWeight: FontWeight.bold,
-  ),),
-
-        const SizedBox(height: 16),
-
-        /// **Row to Align Buttons Side by Side**
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly, // Space buttons evenly
-          children: [
-            _buildActionButtonCard(context, 'SpareParts', Colors.green, () {
-              _showSparePartsDialog(context, product.productId, sparePartsState);
-            }),
-            _buildActionButtonCard(context, 'Edit', Colors.grey, () {
-              Navigator.pushNamed(
-                context,
-                'addproductscreen',
-                arguments: {
-                  'type': "edit",
-                  'productName': product.productName,
-                  'price': product.price.toString(),
-                  'category': product.category,
-                  'description': product.productDescription,
-                  'productId': product.productId
-                },
-              );
-            }),
-            _buildActionButtonCard(context, 'Refund', Colors.red, () {
-              // _showConfirmationDialog(
-                // context,
-                // 'Delete',
-                // 'Are you sure you want to delete this product?',
-                // () => ref
-                    // .read(productProvider.notifier)
-                    // .deleteProduct(product.productId),
-              // );
-            }),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
 
   Widget _buildActionButtonCard(
       BuildContext context, String label, Color color, VoidCallback onPressed) {
@@ -259,12 +192,10 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
     );
   }
 
-  void _showSparePartsDialog(BuildContext context, String? productId,
-      List<sparepart_model.Data> sparePartsState) {
-    print("Total Spare Parts: ${sparePartsState.length}"); // Debugging log
-    final spareParts =
-        sparePartsState.where((sp) => sp.productId == productId).toList();
-    print('spareParts...........$spareParts');
+  void _showSparePartsDialog(
+      BuildContext context, String? productId, List<SpareParts>? spareParts) {
+    final productSpareParts = spareParts ?? [];
+
     showDialog(
       context: context,
       builder: (context) {
@@ -280,15 +211,14 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                     style:
                         TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 16),
-                Expanded(
-                  child: spareParts.isEmpty
-                      ? const Center(child: Text("No Spare Parts Available"))
-                      : ListView(
-                          children: spareParts
-                              .map((part) => _buildSparePartItem(context, part))
-                              .toList(),
-                        ),
-                ),
+                productSpareParts.isEmpty
+                    ? const Center(child: Text("No Spare Parts Available"))
+                    : ListView(
+                        shrinkWrap: true,
+                        children: productSpareParts
+                            .map((part) => _buildSparePartItem(context, part))
+                            .toList(),
+                      ),
                 const SizedBox(height: 10),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
@@ -302,131 +232,286 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
     );
   }
 
-Widget _buildSparePartItem(
-    BuildContext context, sparepart_model.Data sparePart) {
-  
-  /// Function to truncate text
-  String truncateText(String text, {int maxLength = 20}) {
-    return (text.length > maxLength) ? '${text.substring(0, maxLength)}...' : text;
+  Widget _buildSparePartItem(BuildContext context, SpareParts sparePart) {
+    String truncateText(String text, {int maxLength = 20}) {
+      return (text.length > maxLength)
+          ? '${text.substring(0, maxLength)}...'
+          : text;
+    }
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(175, 193, 199, 201),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 5,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            truncateText(sparePart.sparepartName ?? 'Unknown', maxLength: 25),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            '₹${sparePart.sparepartPrice ?? 'N/A'}',
+            style: const TextStyle(
+                fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            truncateText(sparePart.description ?? '', maxLength: 50),
+            style: const TextStyle(fontSize: 14),
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
   }
 
-  return Container(
-    margin: const EdgeInsets.only(bottom: 16),
-    padding: const EdgeInsets.all(16),
-    decoration: BoxDecoration(
-      color: const Color.fromARGB(175, 193, 199, 201),
-      borderRadius: BorderRadius.circular(12),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.grey.withOpacity(0.2),
-          blurRadius: 5,
-          offset: const Offset(0, 3),
-        ),
-      ],
-    ),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        /// **Spare Part Name (Truncated)**
-        Text(
-          truncateText(sparePart.sparepartName ?? 'Unknown', maxLength: 25),
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          overflow: TextOverflow.ellipsis, // Ensures name doesn't overflow
-        ),
+  void _showRequestDialog(
+      BuildContext context, Data product, List<SpareParts> sparePartsState) {
+    int productQuantity = 0;
+    final productQuantityController =
+        TextEditingController(text: productQuantity.toString());
+    final productPriceController = TextEditingController();
 
-        const SizedBox(height: 4),
+    // Filter spare parts related to this product
+    final spareParts =
+        sparePartsState.where((sp) => sp.sId == product.productId).toList();
 
-        /// **Price**
-        Text(
-          '₹${sparePart.price ?? 0}',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.green),
-        ),
+    List<int> sparePartQuantities = List.filled(spareParts.length, 1);
+    List<TextEditingController> sparePartQuantityControllers = List.generate(
+      spareParts.length,
+      (index) =>
+          TextEditingController(text: sparePartQuantities[index].toString()),
+    );
+    List<TextEditingController> sparePartPriceControllers =
+        List.generate(spareParts.length, (index) => TextEditingController());
+    List<bool> selectedSpareParts = List.filled(spareParts.length, false);
 
-        const SizedBox(height: 8),
-
-        /// **Description (Truncated)**
-        Text(
-          truncateText(sparePart.description ?? '', maxLength: 50),
-          style: const TextStyle(fontSize: 14),
-          overflow: TextOverflow.ellipsis, // Ensures description doesn't overflow
-        ),
-
-        const SizedBox(height: 16),
-        
-
-        /// **Icons Row (Edit & Delete)**
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.edit, color: Colors.blue),
-              onPressed: () {
-                // Handle edit logic here
-                Navigator.pushNamed(
-                context,
-                'addproductscreen',
-                arguments: {
-                  'type': "edit",
-                  'isChecked':true,
-                  'sparepartName': sparePart.sparepartName,
-                  'price': sparePart.price,
-                  // 'productName':sparePart.productName,
-                  'description': sparePart.description,
-                  'sparepartId': sparePart.sparepartId,
-                  'productId':sparePart.productId,
-                  'selectedProduct':sparePart.productName
-                },
-              );
-
-
-              },
-            ),
-            IconButton(
-              icon: const Icon(Icons.delete, color: Colors.red),
-              onPressed: () {
-                // Handle delete logic here
-                _showConfirmationDialog(
-                context,
-                'Delete',
-                'Are you sure you want to delete this sparepart?',
-                () => ref
-                    .read(sparepartProvider.notifier)
-                    .deleteSpareparts(sparePart.sparepartId),
-              );
-              },
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
-}
-
-
-
-  void _showConfirmationDialog(BuildContext context, String action,
-      String message, VoidCallback onConfirmed) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text(action),
-          content: Text(message),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Cancel'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                onConfirmed();
-              },
-              child: const Text('OK'),
-            ),
-          ],
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: Text(product.productName ?? 'Unknown Product'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Product Section
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: productPriceController,
+                                keyboardType: TextInputType.number,
+                                textAlign: TextAlign.center,
+                                decoration: const InputDecoration(
+                                  label: Text("Price"),
+                                  hintText: "Enter Price",
+                                  border: OutlineInputBorder(),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Row(
+                              children: [
+                                IconButton(
+                                  icon: const Icon(Icons.remove),
+                                  onPressed: () {
+                                    if (productQuantity > 1) {
+                                      setState(() {
+                                        productQuantity--;
+                                        productQuantityController.text =
+                                            productQuantity.toString();
+                                      });
+                                    }
+                                  },
+                                ),
+                                SizedBox(
+                                  width: 50,
+                                  child: TextField(
+                                    controller: productQuantityController,
+                                    keyboardType: TextInputType.number,
+                                    textAlign: TextAlign.center,
+                                    decoration:
+                                        const InputDecoration(labelText: "Qty"),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        productQuantity =
+                                            int.tryParse(value) ?? 1;
+                                      });
+                                    },
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.add),
+                                  onPressed: () {
+                                    setState(() {
+                                      productQuantity++;
+                                      productQuantityController.text =
+                                          productQuantity.toString();
+                                    });
+                                  },
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
+
+                    // Spare Parts Section
+                    const Text(
+                      'Spare Parts:',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Colors.indigo),
+                    ),
+                    spareParts.isEmpty
+                        ? const Text('No spare parts available')
+                        : Column(
+                            children: List.generate(spareParts.length, (index) {
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Checkbox(
+                                        value: selectedSpareParts[index],
+                                        onChanged: (value) {
+                                          setState(() {
+                                            selectedSpareParts[index] =
+                                                value ?? false;
+                                          });
+                                        },
+                                      ),
+                                      Expanded(
+                                        child: Text(
+                                          spareParts[index].sparepartName ??
+                                              'Unknown Part',
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: TextField(
+                                          controller:
+                                              sparePartPriceControllers[index],
+                                          keyboardType: TextInputType.number,
+                                          textAlign: TextAlign.center,
+                                          decoration: const InputDecoration(
+                                            labelText: "Price",
+                                            hintText: "Enter Price",
+                                            border: OutlineInputBorder(),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: const Icon(Icons.remove),
+                                            onPressed: () {
+                                              if (sparePartQuantities[index] >
+                                                  1) {
+                                                setState(() {
+                                                  sparePartQuantities[index]--;
+                                                  sparePartQuantityControllers[
+                                                              index]
+                                                          .text =
+                                                      sparePartQuantities[index]
+                                                          .toString();
+                                                });
+                                              }
+                                            },
+                                          ),
+                                          SizedBox(
+                                            width: 50,
+                                            child: TextField(
+                                              controller:
+                                                  sparePartQuantityControllers[
+                                                      index],
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              textAlign: TextAlign.center,
+                                              decoration: const InputDecoration(
+                                                  labelText: "Qty"),
+                                              onChanged: (value) {
+                                                setState(() {
+                                                  sparePartQuantities[index] =
+                                                      int.tryParse(value) ?? 1;
+                                                });
+                                              },
+                                            ),
+                                          ),
+                                          IconButton(
+                                            icon: const Icon(Icons.add),
+                                            onPressed: () {
+                                              setState(() {
+                                                sparePartQuantities[index]++;
+                                                sparePartQuantityControllers[
+                                                            index]
+                                                        .text =
+                                                    sparePartQuantities[index]
+                                                        .toString();
+                                              });
+                                            },
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                              );
+                            }),
+                          ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        'Send Request',
+                        style: TextStyle(color: Colors.black),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0x801BA4CA),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 8, horizontal: 16),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
         );
       },
     );

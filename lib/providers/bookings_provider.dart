@@ -25,15 +25,15 @@ class BookingsProvider extends StateNotifier<BookingModel> {
         throw Exception("User token is missing. Please log in again.");
       }
       final Map<String, dynamic> userData = jsonDecode(userDataString);
-      String? token = userData['accessToken'];
 
-      if (token == null || token.isEmpty) {
-        token = userData['data'] != null &&
-                (userData['data'] as List).isNotEmpty &&
-                userData['data'][0]['access_token'] != null
-            ? userData['data'][0]['access_token']
-            : null;
-      }
+
+       String? token = userData['accessToken'] ??
+        (userData['data'] != null &&
+            (userData['data'] as List).isNotEmpty &&
+            userData['data'][0]['access_token'] != null
+        ? userData['data'][0]['access_token']
+        : null);
+
 
       if (token == null || token.isEmpty) {
         throw Exception("User token is invalid. Please log in again.");
@@ -53,21 +53,20 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             String? newAccessToken =
                 await ref.read(loginProvider.notifier).restoreAccessToken();
 
-            if (newAccessToken != null) {
-              await prefs.setString('accessToken', newAccessToken);
-              token = newAccessToken;
-              req.headers['Authorization'] = 'Bearer $newAccessToken';
-              print("New Token: $newAccessToken");
-            }
-          }
+            await prefs.setString('accessToken',newAccessToken);
+            token = newAccessToken;
+            req.headers['Authorization'] = 'Bearer $newAccessToken';
+            print("New Token: $newAccessToken");
+                    }
         },
       );
       final authState = ref.watch(loginProvider).data;
       final String? distributorId =
-          authState?[0].details!.sId; // Get distributor ID
+          authState?[0].details!.sId; 
+          // Get distributor ID
 
       final response = await client.get(
-        Uri.parse("${Bbapi.bookingsGet}/${distributorId}"),
+        Uri.parse("${Bbapi.bookingsGet}/$distributorId"),
         headers: {
           'Authorization': 'Bearer $token',
           'Content-Type': 'application/json',
@@ -91,85 +90,83 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     }
   }
 
- Future<bool> updateBookings( String? bookingId) async {
-  final loadingState = ref.read(loadingProvider.notifier);
-  loadingState.state = true;
+  Future<bool> updateBookings(String? bookingId) async {
+    final loadingState = ref.read(loadingProvider.notifier);
+    loadingState.state = true;
 
-  print('Booking Data: , bookingId=$bookingId');
+    print('Booking Data: , bookingId=$bookingId');
 
-  try {
-   
+    try {
+      // Retrieve the token
+      final prefs = await SharedPreferences.getInstance();
+      final apiUrl = Uri.parse("${Bbapi.bookingUpdate}/$bookingId");
+      String? userDataString = prefs.getString('userData');
 
-    // Retrieve the token
-    final prefs = await SharedPreferences.getInstance();
-    final apiUrl = Uri.parse("${Bbapi.bookingUpdate}/$bookingId");
-    String? userDataString = prefs.getString('userData');
+      if (userDataString == null || userDataString.isEmpty) {
+        throw Exception("User token is missing. Please log in again.");
+      }
 
-    if (userDataString == null || userDataString.isEmpty) {
-      throw Exception("User token is missing. Please log in again.");
+      final Map<String, dynamic> userData = jsonDecode(userDataString);
+      String? token = userData['accessToken'];
+
+      if (token == null || token.isEmpty) {
+        token = (userData['data'] is List && userData['data'].isNotEmpty)
+            ? userData['data'][0]['access_token']
+            : null;
+      }
+
+      if (token == null || token.isEmpty) {
+        throw Exception("User token is invalid. Please log in again.");
+      }
+
+      print('Retrieved Token: $token');
+
+      // Debugging: Print full request
+      print('API URL: $apiUrl');
+      print('Headers: ${jsonEncode({
+            "Authorization": "Bearer $token",
+            "Content-Type": "application/json",
+          })}');
+      print('Body: ${jsonEncode({
+            "status": "confirmed",
+          })}');
+
+      // Initialize RetryClient
+      final client = RetryClient(http.Client(), retries: 3, when: (response) {
+        return response.statusCode == 401 || response.statusCode == 404;
+      });
+
+      final response = await client.put(
+        apiUrl,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "status": "confirmed",
+        }),
+      );
+
+      print('Update Status Code: ${response.statusCode}');
+      print('Update Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+        print("Booking updated successfully!");
+        getBookings(); // Refresh bookings list
+        return true;
+      } else {
+        final errorBody = jsonDecode(response.body);
+        final errorMessage =
+            errorBody['message'] ?? 'Unexpected error occurred.';
+        throw Exception("Error updating Booking: $errorMessage");
+      }
+    } catch (error) {
+      print("Failed to update Booking: $error");
+      rethrow;
+    } finally {
+      loadingState.state = false;
     }
-
-    final Map<String, dynamic> userData = jsonDecode(userDataString);
-    String? token = userData['accessToken'];
-
-    if (token == null || token.isEmpty) {
-      token = (userData['data'] is List && userData['data'].isNotEmpty)
-          ? userData['data'][0]['access_token']
-          : null;
-    }
-
-    if (token == null || token.isEmpty) {
-      throw Exception("User token is invalid. Please log in again.");
-    }
-
-    print('Retrieved Token: $token');
-
-    // Debugging: Print full request
-    print('API URL: $apiUrl');
-    print('Headers: ${jsonEncode({
-      "Authorization": "Bearer $token",
-      "Content-Type": "application/json",
-    })}');
-    print('Body: ${jsonEncode({
-      "status": "confirmed",
-    })}');
-
-    // Initialize RetryClient
-    final client = RetryClient(http.Client(), retries: 3, when: (response) {
-      return response.statusCode == 401 || response.statusCode == 404;
-    });
-
-    final response = await client.put(
-      apiUrl,
-      headers: {
-        "Authorization": "Bearer $token",
-        "Content-Type": "application/json",
-      },
-      body: jsonEncode({
-        "status": "confirmed",
-      }),
-    );
-
-    print('Update Status Code: ${response.statusCode}');
-    print('Update Response Body: ${response.body}');
-
-    if (response.statusCode == 200 || response.statusCode == 201) {
-      print("Booking updated successfully!");
-      getBookings(); // Refresh bookings list
-      return true;
-    } else {
-      final errorBody = jsonDecode(response.body);
-      final errorMessage =
-          errorBody['message'] ?? 'Unexpected error occurred.';
-      throw Exception("Error updating Booking: $errorMessage");
-    }
-  } catch (error) {
-    print("Failed to update Booking: $error");
-    rethrow;
-  } finally {
-    loadingState.state = false;
   }
-}
 }
 
 // Define productProvider with ref

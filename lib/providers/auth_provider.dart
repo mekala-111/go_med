@@ -170,46 +170,48 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     }
   }
 
- Future<void> signInWithPhoneNumber(String smsCode, WidgetRef ref) async {
-  final authState = ref.read(firebaseAuthProvider);
-  final loadingState = ref.read(loadingProvider.notifier);
-  SharedPreferences pref = await SharedPreferences.getInstance();
-  String? verificationid = pref.getString('verificationid');
+  Future<void> signInWithPhoneNumber(String smsCode, WidgetRef ref) async {
+    final authState = ref.read(firebaseAuthProvider);
+    final loadingState = ref.read(loadingProvider.notifier);
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    String? verificationid = pref.getString('verificationid');
 
-  if (verificationid == null || verificationid.isEmpty) {
-    print("No verification ID found.");
-    return;
-  }
+    if (verificationid == null || verificationid.isEmpty) {
+      print("No verification ID found.");
+      return;
+    }
 
-  try {
-    loadingState.state = true;
-    AuthCredential credential = PhoneAuthProvider.credential(
-      verificationId: verificationid,
-      smsCode: smsCode,
-    );
-
-    UserCredential userCredential = await authState.signInWithCredential(credential);
-    
-    if (userCredential.user != null) {
-      print("Phone verification successful.");
-
-      String? firebaseToken = await userCredential.user?.getIdToken();
-      if (firebaseToken != null) {
-        await pref.setString('firebaseToken', firebaseToken);
-      }
-
-      await sendPhoneNumberAndRoleToAPI(
-        phoneNumber: userCredential.user!.phoneNumber!,
+    try {
+      loadingState.state = true;
+      AuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationid,
+        smsCode: smsCode,
       );
 
-      await ref.read(loginProvider.notifier).tryAutoLogin();
+      UserCredential userCredential =
+          await authState.signInWithCredential(credential);
+
+      if (userCredential.user != null) {
+        print("Phone verification successful.");
+
+        String? firebaseToken = await userCredential.user?.getIdToken();
+        if (firebaseToken != null) {
+          await pref.setString('firebaseToken', firebaseToken);
+        }
+
+        await sendPhoneNumberAndRoleToAPI(
+          phoneNumber: userCredential.user!.phoneNumber!,
+        );
+
+        await ref.read(loginProvider.notifier).tryAutoLogin();
+      }
+    } catch (e) {
+      print("Error during phone verification: $e");
+    } finally {
+      loadingState.state = false;
     }
-  } catch (e) {
-    print("Error during phone verification: $e");
-  } finally {
-    loadingState.state = false;
   }
-}
+
   Future<void> sendPhoneNumberAndRoleToAPI({
     required String phoneNumber,
   }) async {
@@ -338,28 +340,37 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
   }
 
   Future<String> restoreAccessToken() async {
-    final url = Bbapi.refreshToken;
+    const  url = Bbapi.refreshToken;
 
     final prefs = await SharedPreferences.getInstance();
 
+    
     try {
-      String? currentAccessToken = state.data != null && state.data!.isNotEmpty
-          ? state.data![0].refreshToken
-          : null;
+      // Retrieve stored user data
+      String? storedUserData = prefs.getString('userData');
 
-      if (currentAccessToken == null || currentAccessToken.isEmpty) {
-        throw Exception("No valid access token found to refresh.");
+      if (storedUserData == null) {
+        throw Exception("No stored user data found.");
+      }
+
+      UserModel user = UserModel.fromJson(json.decode(storedUserData));
+      String? currentRefreshToken =
+          user.data?.isNotEmpty == true ? user.data![0].refreshToken : null;
+          print("older refreshtoken: $currentRefreshToken");
+      print('older access token${user.data![0].accessToken}');
+      if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
+        throw Exception("No valid refresh token found.");
       }
 
       var response = await http.patch(
         Uri.parse(url),
         headers: {
-          // 'Authorization': state.data![0].accessToken!,
-          'Authorization': 'Bearer $currentAccessToken',
+         
+          'Authorization': 'Bearer $currentRefreshToken',
 
           'Content-Type': 'application/json; charset=UTF-8'
         },
-        body: json.encode({"refresh_token": currentAccessToken}),
+        body: json.encode({"refresh_token": currentRefreshToken}),
       );
 
       var userDetails = json.decode(response.body);
@@ -372,33 +383,6 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
           print("shared preferance ${prefs.getString('userTokens')}");
 
           break;
-        // case 200:
-        //   print("refresh access token success");
-        //   final newAccessToken = userDetails['data']['access_token'];
-
-        //   final newRefreshToken = userDetails['data']['refresh_token'];
-
-        //   print('new accesstoken :$newAccessToken');
-        //   // Update state
-        //   state = state.copyWith(data: [
-        //     state.data![0].copyWith(
-        //       accessToken: newAccessToken,
-        //       refreshToken: newRefreshToken,
-        //     )
-        //   ]);
-
-        //   final userTokens = json.encode({
-        //     'accessToken': newAccessToken,
-        //     'refresh_token': newRefreshToken
-        //   });
-
-        //   prefs.setString(
-        //     'userTokens',
-        //     userTokens,
-        //   );
-        //   print(
-        //       "shared preferance after success  ${prefs.getString('userData')}");
-        // // loading(false); // Update loading state
         case 200:
           print("Refresh access token success");
 
@@ -444,6 +428,9 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
             // Debug: Print user data after saving
             print(
                 "User Data saved in SharedPreferences: ${prefs.getString('userData')}");
+                 print("updated accesstoken ${user.data![0].accessToken}");
+
+            return newAccessToken; // Return the new access token
           } else {
             // Handle the case where there is no existing user data in SharedPreferences
             print("No user data found in SharedPreferences.");
@@ -460,7 +447,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         print('Stack Trace: ${e.stackTrace}');
       }
     }
-    return state.data![0].accessToken!;
+    return '';
   }
 
   Future<void> updateServiceProfile(

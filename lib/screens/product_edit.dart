@@ -252,6 +252,8 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                             return ListTile(
                               title: Text(product.productName!),
                               onTap: () {
+                                print("Product selection tapped");
+                                
                                 setState(() {
                                   selectedProduct = product.productName;
                                   sparePartsContoller.text =
@@ -318,7 +320,10 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                         GestureDetector(
                           onTap: () {
                             setState(() {
+                               print("Product selection tapped");
                               isChecked = !isChecked;
+                              print("Checkbox clicked: $isChecked");
+  print("Filtered Products Length: ${filteredProducts.length}");
                             });
                             if (isChecked && productState.isEmpty) {
                               _showNoSparePartsDialog();
@@ -335,29 +340,26 @@ class ProductScreenState extends ConsumerState<AddProductScreen> {
                   ],
                 ),
                 const SizedBox(height: 0),
-                if (isChecked && filteredProducts.isNotEmpty)
-                  // Column(
-                  // children: [
-                  // Display selected product above the search bar
-                  GestureDetector(
-                    onTap: () {
-                      _showProductSelection(context);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: ListTile(
-                        title: Text(selectedProduct ?? 'Select Product'),
-                        trailing: const Icon(Icons.arrow_drop_down),
-                      ),
-                    ),
-                  ),
+                isChecked && filteredProducts.isNotEmpty
+    ? GestureDetector(
+        onTap: () {
+          _showProductSelection(context);
+        },
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.grey),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: ListTile(
+            title: Text(selectedProduct ?? 'Select Product'),
+            trailing: const Icon(Icons.arrow_drop_down),
+          ),
+        ),
+      )
+    : const SizedBox(), // 👈 Return an empty widget when the condition is false
 
-                // ],
-                // ),
+               
                 const SizedBox(height: 8),
                 GestureDetector(
                   onTap: _showImagePickerOptions,
