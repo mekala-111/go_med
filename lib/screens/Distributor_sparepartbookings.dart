@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/spareparetbookingprovider.dart';
+import 'package:go_med/screens/BottomNavBar.dart';
 
 class DistributorSparepartbookings extends ConsumerStatefulWidget {
   const DistributorSparepartbookings({super.key});
@@ -170,6 +171,7 @@ class _ServiceScreenState
                     );
                   },
                 ),
+                bottomNavigationBar:  BottomNavBar(),
     );
   }
 }

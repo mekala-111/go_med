@@ -4,34 +4,31 @@ class DistributorProductsModel {
   List<String>? messages;
   List<Data>? data;
 
-  DistributorProductsModel({this.statusCode, this.success, this.messages, this.data});
+  DistributorProductsModel({
+    this.statusCode,
+    this.success,
+    this.messages,
+    this.data,
+  });
 
-  // From JSON
-  DistributorProductsModel.fromJson(Map<String, dynamic> json) {
-    statusCode = json['statusCode'];
-    success = json['success'];
-    messages = json['messages'].cast<String>();
-    if (json['data'] != null) {
-      data = <Data>[];
-      json['data'].forEach((v) {
-        data!.add(Data.fromJson(v));
-      });
-    }
+  factory DistributorProductsModel.fromJson(Map<String, dynamic> json) {
+    return DistributorProductsModel(
+      statusCode: json['statusCode'],
+      success: json['success'],
+      messages: List<String>.from(json['messages'] ?? []),
+      data: (json['data'] as List?)?.map((e) => Data.fromJson(e)).toList(),
+    );
   }
 
-  // To JSON
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['statusCode'] = this.statusCode;
-    data['success'] = this.success;
-    data['messages'] = this.messages;
-    if (this.data != null) {
-      data['data'] = this.data!.map((v) => v.toJson()).toList();
-    }
-    return data;
+    return {
+      'statusCode': statusCode,
+      'success': success,
+      'messages': messages,
+      'data': data?.map((e) => e.toJson()).toList(),
+    };
   }
 
-  // Copy with method
   DistributorProductsModel copyWith({
     int? statusCode,
     bool? success,
@@ -46,7 +43,6 @@ class DistributorProductsModel {
     );
   }
 
-  // Initial method (default values)
   static DistributorProductsModel initial() {
     return DistributorProductsModel(
       statusCode: 0,
@@ -59,227 +55,197 @@ class DistributorProductsModel {
 
 class Data {
   String? productId;
-  String? distributorId;
-  String? firmName;
-  String? ownerName;
   String? productName;
   String? productDescription;
-  double? price;  // This expects a double
-  String? category;
-  List<SpareParts>? spareParts;
-  List<String>? productImages;
+  String? categoryId;
+  String? categoryName;
+  int? price;
+  int? quantity;
+  String? adminApproval;
   bool? activated;
+  List<String>? productImages;
+  List<LinkedSpareParts>? linkedSpareParts;
 
   Data({
     this.productId,
-    this.distributorId,
-    this.firmName,
-    this.ownerName,
     this.productName,
     this.productDescription,
+    this.categoryId,
+    this.categoryName,
     this.price,
-    this.category,
-    this.spareParts,
-    this.productImages,
+    this.quantity,
+    this.adminApproval,
     this.activated,
+    this.productImages,
+    this.linkedSpareParts,
   });
 
-  // From JSON
-  Data.fromJson(Map<String, dynamic> json) {
-    productId = json['productId'];
-    distributorId = json['distributorId'];
-    firmName = json['firmName'];
-    ownerName = json['ownerName'];
-    productName = json['productName'];
-    productDescription = json['productDescription'];
-    
-    // Ensure the price is always a double
-    price = json['price'] is int ? (json['price'] as int).toDouble() : json['price']?.toDouble();
-    
-    category = json['category'];
-    if (json['spareParts'] != null) {
-      spareParts = <SpareParts>[];
-      json['spareParts'].forEach((v) {
-        spareParts!.add(SpareParts.fromJson(v));
-      });
-    }
-    productImages = json['productImages'].cast<String>();
-    activated = json['activated'];
-  }
-
-  // To JSON
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['productId'] = this.productId;
-    data['distributorId'] = this.distributorId;
-    data['firmName'] = this.firmName;
-    data['ownerName'] = this.ownerName;
-    data['productName'] = this.productName;
-    data['productDescription'] = this.productDescription;
-    data['price'] = this.price;
-    data['category'] = this.category;
-    if (this.spareParts != null) {
-      data['spareParts'] = this.spareParts!.map((v) => v.toJson()).toList();
-    }
-    data['productImages'] = this.productImages;
-    data['activated'] = this.activated;
-    return data;
-  }
-
-  // Copy with method
-  Data copyWith({
-    String? productId,
-    String? distributorId,
-    String? firmName,
-    String? ownerName,
-    String? productName,
-    String? productDescription,
-    double? price,
-    String? category,
-    List<SpareParts>? spareParts,
-    List<String>? productImages,
-    bool? activated,
-  }) {
+  factory Data.fromJson(Map<String, dynamic> json) {
     return Data(
-      productId: productId ?? this.productId,
-      distributorId: distributorId ?? this.distributorId,
-      firmName: firmName ?? this.firmName,
-      ownerName: ownerName ?? this.ownerName,
-      productName: productName ?? this.productName,
-      productDescription: productDescription ?? this.productDescription,
-      price: price ?? this.price,
-      category: category ?? this.category,
-      spareParts: spareParts ?? this.spareParts,
-      productImages: productImages ?? this.productImages,
-      activated: activated ?? this.activated,
+      productId: json['productId'],
+      productName: json['productName'],
+      productDescription: json['productDescription'],
+      categoryId: json['categoryId'],
+      categoryName: json['categoryName'],
+      price: json['price'],
+      quantity: json['quantity'],
+      adminApproval: json['adminApproval'],
+      activated: json['activated'],
+      productImages: List<String>.from(json['productImages'] ?? []),
+      linkedSpareParts: (json['linkedSpareParts'] as List?)
+          ?.map((e) => LinkedSpareParts.fromJson(e))
+          .toList(),
     );
   }
 
-  // Initial method (default values)
+  Map<String, dynamic> toJson() {
+    return {
+      'productId': productId,
+      'productName': productName,
+      'productDescription': productDescription,
+      'categoryId': categoryId,
+      'categoryName': categoryName,
+      'price': price,
+      'quantity': quantity,
+      'adminApproval': adminApproval,
+      'activated': activated,
+      'productImages': productImages,
+      'linkedSpareParts':
+          linkedSpareParts?.map((e) => e.toJson()).toList(),
+    };
+  }
+
+  Data copyWith({
+    String? productId,
+    String? productName,
+    String? productDescription,
+    String? categoryId,
+    String? categoryName,
+    int? price,
+    int? quantity,
+    String? adminApproval,
+    bool? activated,
+    List<String>? productImages,
+    List<LinkedSpareParts>? linkedSpareParts,
+  }) {
+    return Data(
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      productDescription: productDescription ?? this.productDescription,
+      categoryId: categoryId ?? this.categoryId,
+      categoryName: categoryName ?? this.categoryName,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      adminApproval: adminApproval ?? this.adminApproval,
+      activated: activated ?? this.activated,
+      productImages: productImages ?? this.productImages,
+      linkedSpareParts: linkedSpareParts ?? this.linkedSpareParts,
+    );
+  }
+
   static Data initial() {
     return Data(
       productId: '',
-      distributorId: '',
-      firmName: '',
-      ownerName: '',
       productName: '',
       productDescription: '',
-      price: 0.0,
-      category: '',
-      spareParts: [],
-      productImages: [],
+      categoryId: '',
+      categoryName: '',
+      price: 0,
+      quantity: 0,
+      adminApproval: '',
       activated: false,
+      productImages: [],
+      linkedSpareParts: [],
     );
   }
 }
 
-class SpareParts {
-  String? s0;
-  String? s1;
-  String? s2;
-  String? s3;
-  List<String>? sparePartImages;
-  String? sparepartId;
-  String? sparepartName;
-  String? description;
-  String? sId;
-  double? sparepartPrice;  // This expects a double
-  int? sparepartQuantity;
+class LinkedSpareParts {
+  String? productId;
+  String? parentId;
+  String? productName;
+  String? productDescription;
+  int? price;
+  int? quantity;
+  List<String>? productImages;
+  String? createdAt;
+  String? updatedAt;
 
-  SpareParts({
-    this.s0,
-    this.s1,
-    this.s2,
-    this.s3,
-    this.sparePartImages,
-    this.sparepartId,
-    this.sparepartName,
-    this.description,
-    this.sId,
-    this.sparepartPrice,
-    this.sparepartQuantity,
+  LinkedSpareParts({
+    this.productId,
+    this.parentId,
+    this.productName,
+    this.productDescription,
+    this.price,
+    this.quantity,
+    this.productImages,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  // From JSON
-  SpareParts.fromJson(Map<String, dynamic> json) {
-    s0 = json['0'];
-    s1 = json['1'];
-    s2 = json['2'];
-    s3 = json['3'];
-    sparePartImages = json['sparePartImages'].cast<String>();
-    sparepartId = json['sparepartId'];
-    sparepartName = json['sparepartName'];
-    description = json['description'];
-    sId = json['_id'];
-    
-    // Ensure the sparepartPrice is always a double
-    sparepartPrice = json['sparepartPrice'] is int
-        ? (json['sparepartPrice'] as int).toDouble()
-        : json['sparepartPrice']?.toDouble();
-    
-    sparepartQuantity = json['sparepartQuantity'];
-  }
-
-  // To JSON
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = Map<String, dynamic>();
-    data['0'] = this.s0;
-    data['1'] = this.s1;
-    data['2'] = this.s2;
-    data['3'] = this.s3;
-    data['sparePartImages'] = this.sparePartImages;
-    data['sparepartId'] = this.sparepartId;
-    data['sparepartName'] = this.sparepartName;
-    data['description'] = this.description;
-    data['_id'] = this.sId;
-    data['sparepartPrice'] = this.sparepartPrice;
-    data['sparepartQuantity'] = this.sparepartQuantity;
-    return data;
-  }
-
-  // Copy with method
-  SpareParts copyWith({
-    String? s0,
-    String? s1,
-    String? s2,
-    String? s3,
-    List<String>? sparePartImages,
-    String? sparepartId,
-    String? sparepartName,
-    String? description,
-    String? sId,
-    double? sparepartPrice,  // Use double here
-    int? sparepartQuantity,
-  }) {
-    return SpareParts(
-      s0: s0 ?? this.s0,
-      s1: s1 ?? this.s1,
-      s2: s2 ?? this.s2,
-      s3: s3 ?? this.s3,
-      sparePartImages: sparePartImages ?? this.sparePartImages,
-      sparepartId: sparepartId ?? this.sparepartId,
-      sparepartName: sparepartName ?? this.sparepartName,
-      description: description ?? this.description,
-      sId: sId ?? this.sId,
-      sparepartPrice: sparepartPrice ?? this.sparepartPrice,
-      sparepartQuantity: sparepartQuantity ?? this.sparepartQuantity,
+  factory LinkedSpareParts.fromJson(Map<String, dynamic> json) {
+    return LinkedSpareParts(
+      productId: json['productId'],
+      parentId: json['parentId'],
+      productName: json['productName'],
+      productDescription: json['productDescription'],
+      price: json['price'],
+      quantity: json['quantity'],
+      productImages: List<String>.from(json['productImages'] ?? []),
+      createdAt: json['createdAt'],
+      updatedAt: json['updatedAt'],
     );
   }
 
-  // Initial method (default values)
-  static SpareParts initial() {
-    return SpareParts(
-      s0: '',
-      s1: '',
-      s2: '',
-      s3: '',
-      sparePartImages: [],
-      sparepartId: '',
-      sparepartName: '',
-      description: '',
-      sId: '',
-      sparepartPrice: 0.0,  // Default to 0.0
-      sparepartQuantity: 0,
+  Map<String, dynamic> toJson() {
+    return {
+      'productId': productId,
+      'parentId': parentId,
+      'productName': productName,
+      'productDescription': productDescription,
+      'price': price,
+      'quantity': quantity,
+      'productImages': productImages,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+    };
+  }
+
+  LinkedSpareParts copyWith({
+    String? productId,
+    String? parentId,
+    String? productName,
+    String? productDescription,
+    int? price,
+    int? quantity,
+    List<String>? productImages,
+    String? createdAt,
+    String? updatedAt,
+  }) {
+    return LinkedSpareParts(
+      productId: productId ?? this.productId,
+      parentId: parentId ?? this.parentId,
+      productName: productName ?? this.productName,
+      productDescription: productDescription ?? this.productDescription,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      productImages: productImages ?? this.productImages,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
+
+  static LinkedSpareParts initial() {
+    return LinkedSpareParts(
+      productId: '',
+      parentId: '',
+      productName: '',
+      productDescription: '',
+      price: 0,
+      quantity: 0,
+      productImages: [],
+      createdAt: '',
+      updatedAt: '',
     );
   }
 }

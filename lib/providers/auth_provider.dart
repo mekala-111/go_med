@@ -362,13 +362,13 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         throw Exception("No valid refresh token found.");
       }
 
-      var response = await http.patch(
+      final response = await http.patch(
         Uri.parse(url),
         headers: {
          
           'Authorization': 'Bearer $currentRefreshToken',
 
-          'Content-Type': 'application/json; charset=UTF-8'
+          'Content-Type': 'application/json',
         },
         body: json.encode({"refresh_token": currentRefreshToken}),
       );

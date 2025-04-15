@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/auth_provider.dart';
-import 'package:go_med/screens/Services.dart';
 import 'package:go_med/screens/Service_engineer_services.dart';
 import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/Distributor_Bookings.dart';
 import 'package:go_med/screens/products_scrren.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:go_med/screens/engineerProductsscreen.dart';
+import 'package:go_med/screens/Distributor_sparepartbookings.dart';
 
 class BottomNavBar extends ConsumerWidget {
   const BottomNavBar({super.key});
@@ -17,7 +17,7 @@ class BottomNavBar extends ConsumerWidget {
       "/dashboard",
       "/bookings",
       "/products",
-      "/services",
+      "/distributorsparepartbooking",
       "/settings"
     ];
 
@@ -28,25 +28,21 @@ class BottomNavBar extends ConsumerWidget {
       case 0:
         page = const DashboardPage();
         break;
-
       case 1:
-      page =  (role == 'serviceEngineer') 
-          ? const ServiceEngineerProductsPage()
-         : const BookingsScreen();
+        page = (role == 'serviceEngineer')
+            ? const ServiceEngineerProductsPage()
+            : const BookingsScreen();
         break;
-
       case 2:
-      page = (role == 'serviceEngineer') 
-          ? const ServiceEngineerProductsPage()
-         : const ProductScreen();
+        page = (role == 'serviceEngineer')
+            ? const ServiceEngineerProductsPage()
+            : const ProductScreen();
         break;
-
       case 3:
-        page = (role == 'serviceEngineer') 
-          ? const ServicesEngineerPage()
-          : const ServicesPage();
+        page = (role == 'serviceEngineer')
+            ? const ServicesEngineerPage()
+            : const DistributorSparepartbookings();
         break;
-        
       case 4:
         page = const SettingsPage();
         break;
@@ -56,7 +52,12 @@ class BottomNavBar extends ConsumerWidget {
 
     Navigator.pushReplacement(
       context,
-      MaterialPageRoute(builder: (context) => page, settings: RouteSettings(name: routes[index])),
+      PageRouteBuilder(
+        pageBuilder: (_, __, ___) => page,
+        settings: RouteSettings(name: routes[index]),
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+      ),
     );
   }
 
@@ -70,12 +71,12 @@ class BottomNavBar extends ConsumerWidget {
         return 1;
       case "/products":
         return 2;
-      case "/services":
+      case "/distributorsparepartbooking":
         return 3;
       case "/settings":
         return 4;
       default:
-        return 0; // Default to Home
+        return 0;
     }
   }
 
@@ -97,7 +98,8 @@ class BottomNavBar extends ConsumerWidget {
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
         BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Product'),
-        BottomNavigationBarItem(icon: Icon(Icons.miscellaneous_services), label: 'Services'),
+        BottomNavigationBarItem(
+            icon: Icon(Icons.miscellaneous_services), label: 'Spare Parts'),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
       ],
     );

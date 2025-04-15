@@ -16,25 +16,11 @@ import 'package:go_med/screens/Services.dart';
 
 import 'package:go_med/screens/products_scrren.dart';
 import 'package:go_med/screens/services_edit.dart';
-
+import 'package:go_med/screens/Distributor_sparepartbookings.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:flutter/services.dart'; // Required for screen orientation
 
-// void main() async {
-//   WidgetsFlutterBinding.ensureInitialized();
-//   await SystemChrome.setPreferredOrientations([
-//     DeviceOrientation.portraitUp,
-//     DeviceOrientation.portraitDown,
-//   ]);
 
-//   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-//   runApp(
-//     const ProviderScope(
-//       // Wrap your app with ProviderScope
-//       child: MyApp(),
-//     ),
-//   );
-// }
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
@@ -70,7 +56,7 @@ class MyApp extends StatelessWidget {
             print('token/main $accessToken');
             // Check if the user has a valid refresh token
             if (accessToken != null && accessToken.isNotEmpty) {
-              print('navigate dashboard....................');
+              print('navigate to the dashboard....................');
               return const DashboardPage(); // User is authenticated, redirect to Home
             } else {
               print('No valid refresh token, trying auto-login');
@@ -117,6 +103,8 @@ class MyApp extends StatelessWidget {
           "servicepageedit": (context) => const ServicesPageEdit(),
           "servicepage": (context) => const ServicesPage(),
           "settingspage": (context) => const SettingsPage(),
+          "distributorsparepartbooking": (context) => const DistributorSparepartbookings(),
+
         });
     // This trailing comma makes auto-formatting nicer for build methods.
   }
