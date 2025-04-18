@@ -6,8 +6,9 @@ import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/Distributor_Bookings.dart';
 import 'package:go_med/screens/products_scrren.dart';
 import 'package:go_med/screens/settings.dart';
-import 'package:go_med/screens/engineerProductsscreen.dart';
+import 'package:go_med/screens/serviceEngineerProductsscreen.dart';
 import 'package:go_med/screens/Distributor_sparepartbookings.dart';
+import '../screens/serviceEngineerBookingsservicesScreeen.dart';
 
 class BottomNavBar extends ConsumerWidget {
   const BottomNavBar({super.key});
@@ -30,7 +31,7 @@ class BottomNavBar extends ConsumerWidget {
         break;
       case 1:
         page = (role == 'serviceEngineer')
-            ? const ServiceEngineerProductsPage()
+            ? const Serviceengineerbookingsservicescreeen()
             : const BookingsScreen();
         break;
       case 2:

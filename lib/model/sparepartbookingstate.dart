@@ -198,7 +198,7 @@ class SparePartIds {
   String? sId;
   String? sparepartName;
   String? description;
-  String? price;
+  int? price;
   List<String>? sparePartImages;
 
   SparePartIds({
@@ -213,7 +213,7 @@ class SparePartIds {
         sId: '',
         sparepartName: '',
         description: '',
-        price: '',
+        price: 0,
         sparePartImages: [],
       );
 
@@ -221,7 +221,7 @@ class SparePartIds {
     String? sId,
     String? sparepartName,
     String? description,
-    String? price,
+    int? price,
     List<String>? sparePartImages,
   }) {
     return SparePartIds(

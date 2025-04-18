@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:go_med/screens/engineerProductsscreen.dart';
-import '../model/sparepartState.dart';
-import '../screens/serviceEnginnerAddressScreen.dart';
+import 'package:go_med/model/ServiceEngineerProductsModel.dart';
+import 'package:go_med/screens/serviceEnginnerAddressScreen.dart';
+import '../screens/serviceengineersparepartsDetails.dart';
 
 class SparePartDetailScreen extends StatefulWidget {
   final Data sparePart;
@@ -32,9 +32,9 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: widget.sparePart.sparePartImages != null && widget.sparePart.sparePartImages!.isNotEmpty
+                child: widget.sparePart.productImages != null && widget.sparePart.productImages!.isNotEmpty
                     ? Image.network(
-                        widget.sparePart.sparePartImages![0],
+                        widget.sparePart.productImages![0],
                         width: screenWidth * 0.95,
                         height: screenHeight * 0.35,
                         fit: BoxFit.cover,
@@ -48,7 +48,7 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               ),
               SizedBox(height: screenHeight * 0.02),
               Text(
-                widget.sparePart.sparepartName ?? "Unknown",
+                widget.sparePart.productName?? "Unknown",
                 style: TextStyle(fontSize: screenWidth * 0.09, fontWeight: FontWeight.bold),
               ),
               SizedBox(height: screenHeight * 0.01),
@@ -62,7 +62,7 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                 style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
               ),
               Text(
-                widget.sparePart.description ?? "No description available",
+                widget.sparePart.productDescription ?? "No description available",
                 style: TextStyle(fontSize: screenWidth * 0.035),
               ),
               SizedBox(height: screenHeight * 0.02),
@@ -94,19 +94,30 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               Center(
                 child: ElevatedButton(
                  onPressed: () {
-                                                      //     setState(() {
+                  Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddressScreen(),
+                                  settings: RouteSettings(
+                                    arguments: {
+                                      'sparePartId': widget.sparePart.productId, // ✅ Pass the ID here
+                                    },
+                                  ),
+                                ),
+                              );
+                                                          // setState(() {
                                                       //  sparepartId = sparePart.sparepartId; // Store the selected spare part ID
-                                                      //            });
-                                                      //       // Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddressScreen()));
-                                                      //       Navigator.push(
-                                                      //           context,
-                                                      //           MaterialPageRoute(
-                                                      //             builder: (context) => const AddressScreen(),
-                                                      //             settings: RouteSettings(
-                                                      //               arguments: {'sparePartIds': sparePart.sparepartId}, // ✅ Pass argument
-                                                      //             ),
-                                                      //           ),
-                                                      //         );
+                                                                //  });
+                                                            // Navigator.push(context, MaterialPageRoute(builder: (context)=>const AddressScreen()));
+                                                            // Navigator.push(
+                                                            //     context,
+                                                            //     MaterialPageRoute(
+                                                            //       builder: (context) => const AddressScreen(),
+                                                            //       settings: RouteSettings(
+                                                                    // arguments: {'sparePartIds': sparePart.sparepartId}, // ✅ Pass argument
+                                                              //     ),
+                                                              //   ),
+                                                              // );
 
                                                         },
                   style: ElevatedButton.styleFrom(

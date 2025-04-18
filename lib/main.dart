@@ -92,7 +92,7 @@ class MyApp extends StatelessWidget {
           },
         ),
         routes: {
-          "addproductscreen": (context) => const AddProductScreen(),
+          // "addproductscreen": (context) => const AddProductScreen(),
           "productscreen": (context) => const ProductScreen(),
           "loginscreen": (context) => LoginScreen(),
           "dashboardpage": (context) => const DashboardPage(),
@@ -100,8 +100,8 @@ class MyApp extends StatelessWidget {
           "profilesetuppage": (context) => const ProfileSetupPage(),
           "profilepage": (context) => const ProfilePage(),
           "registrationpage": (context) => const RegistrationPage(),
-          "servicepageedit": (context) => const ServicesPageEdit(),
-          "servicepage": (context) => const ServicesPage(),
+          // "servicepageedit": (context) => const ServicesPageEdit(),
+          // "servicepage": (context) => const ServicesPage(),
           "settingspage": (context) => const SettingsPage(),
           "distributorsparepartbooking": (context) => const DistributorSparepartbookings(),
 

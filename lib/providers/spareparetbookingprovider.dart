@@ -77,13 +77,14 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
         body: jsonEncode({
           'address': address,
           'location': location,
-          //  'sparePartIds':sparepartId.t,
+          
           'sparePartIds': sparepartId, // ✅ Convert to list
-           'serviceEngineerId':serviceEngineerId.toString(),
+           'serviceEngineerId':serviceEngineerId,
           'status': "pending",
         }),
         
       );
+      
       
       
 
@@ -94,10 +95,13 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("sparepartBooking updated successfully!");
       } else {
-        final errorBody = jsonDecode(response.body);
-        final errorMessage =
-            errorBody['message'] ?? 'Unexpected error occurred.';
-        throw Exception("Error updating Booking: $errorMessage");
+         try {
+    final errorBody = jsonDecode(response.body);
+    final errorMessage = errorBody['message'] ?? 'Unexpected error occurred.';
+    throw Exception("Error updating Booking: $errorMessage");
+  } catch (e) {
+    throw Exception("Invalid response format: ${response.body}");
+  }
       }
     } catch (error) {
       print("Failed to add sparepartbooking: $error");

@@ -110,10 +110,10 @@ class DashboardButtonRow extends StatelessWidget {
           DashboardButton(
             label: "Manage\nServices",
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const ServicesPage()),
-              );
+              // Navigator.push(
+              //   context,
+              //   MaterialPageRoute(builder: (context) => const ServicesPage()),
+              // );
             },
           ),
          const SizedBox(width: 2,),

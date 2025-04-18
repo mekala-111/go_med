@@ -36,14 +36,15 @@ class _ServiceScreenState
         ),
       ),
       body: sparepartBookingState.data == null
-          ? const Center(child: CircularProgressIndicator()) // Loading state
-          : sparepartBookingState.data!.isEmpty
-              ? const Center(
+          ?  const Center(
                   child: Text(
                     'No spare part bookings available.',
                     style: TextStyle(fontSize: 16),
                   ),
                 )
+          : sparepartBookingState.data!.isEmpty
+              
+              ?const Center(child: CircularProgressIndicator())
               : ListView.builder(
                   padding: const EdgeInsets.all(10),
                   itemCount: sparepartBookingState.data!.length,
@@ -60,18 +61,12 @@ class _ServiceScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Text(
-                            //   "Booking ID: ${booking.sId ?? 'N/A'}",
-                            //   style: const TextStyle(
-                            //       fontSize: 14, fontWeight: FontWeight.bold),
-                            // ),
-                            // const SizedBox(height: 8),
                             Column(
                               children: booking.sparePartIds?.map((sparePart) {
                                     return Column(
                                       children: [
-                                        if (sparePart.sparePartImages
-                                                ?.isNotEmpty ??
+                                        if (sparePart
+                                                .sparePartImages?.isNotEmpty ??
                                             false)
                                           ClipRRect(
                                             borderRadius:
@@ -112,14 +107,14 @@ class _ServiceScreenState
                             ElevatedButton(
                               onPressed: () {
                                 // Handle delete logic here
-                _showConfirmationDialog(
-                context,
-                'Delete',
-                'Are you sure you want to delete this sparepartbooking?',
-                () => ref
-                    .read(sparepartBookingProvider.notifier)
-                    .deleteSparepartBooking(booking.sId),
-              );
+                                _showConfirmationDialog(
+                                  context,
+                                  'Delete',
+                                  'Are you sure you want to delete this sparepartbooking?',
+                                  () => ref
+                                      .read(sparepartBookingProvider.notifier)
+                                      .deleteSparepartBooking(booking.sId),
+                                );
                                 // TODO: Implement cancel booking functionality
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
@@ -145,6 +140,7 @@ class _ServiceScreenState
                 ),
     );
   }
+
   void _showConfirmationDialog(BuildContext context, String action,
       String message, VoidCallback onConfirmed) {
     showDialog(

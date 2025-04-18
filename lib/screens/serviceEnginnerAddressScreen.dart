@@ -3,8 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
-import 'dart:convert';
-
+import 'package:google_places_flutter/google_places_flutter.dart';
 import '../providers/auth_provider.dart';
 import '../providers/spareparetbookingprovider.dart';
 
@@ -18,6 +17,8 @@ class AddressScreen extends ConsumerStatefulWidget {
 class _AddressScreenState extends ConsumerState<AddressScreen> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController addressController = TextEditingController();
+  final TextEditingController locationSearchController =
+      TextEditingController();
   List<String> sparepartIds = [];
 
   GoogleMapController? _mapController;
@@ -39,9 +40,9 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
           if (receivedIds is String) {
             sparepartIds = [receivedIds];
           } else if (receivedIds is List) {
-            sparepartIds = List<String>.from(receivedIds.map((e) => e.toString()));
+            sparepartIds =
+                List<String>.from(receivedIds.map((e) => e.toString()));
           }
-          print('Received spare part IDs: $sparepartIds');
         });
       }
     });
@@ -64,7 +65,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     }
 
     if (permission == LocationPermission.deniedForever) {
-      setState(() => _currentAddress = "Location permanently denied. Enable from settings.");
+      setState(() => _currentAddress =
+          "Location permanently denied. Enable from settings.");
       return;
     }
 
@@ -88,8 +90,10 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
       List<Placemark> placemarks = await placemarkFromCoordinates(lat, lng);
       if (placemarks.isNotEmpty) {
         Placemark place = placemarks.first;
+        String newAddress =
+            "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
         setState(() {
-          _currentAddress = "${place.street}, ${place.locality}, ${place.administrativeArea}, ${place.country}";
+          _currentAddress = newAddress;
         });
       }
     } catch (e) {
@@ -102,7 +106,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
     final loginData = ref.watch(loginProvider).data ?? [];
-    String? loggedInEngineerId = loginData.isNotEmpty ? loginData[0].details?.sId : null;
+    String? loggedInEngineerId =
+        loginData.isNotEmpty ? loginData[0].details?.sId : null;
 
     return Scaffold(
       appBar: AppBar(
@@ -122,6 +127,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                   labelText: 'Address',
                   border: OutlineInputBorder(),
                 ),
+                maxLines: 2,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter an address';
@@ -129,9 +135,48 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 15),
+              const Text(
+                "Search Location:",
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
               const SizedBox(height: 10),
-              const Text("Location:", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-              Text(_currentAddress, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+              GooglePlaceAutoCompleteTextField(
+                textEditingController: locationSearchController,
+                googleAPIKey: "AIzaSyCMADwyS3eoxJ5dQ_iFiWcDBA_tJwoZosw",
+                inputDecoration: InputDecoration(
+                  hintText: "Search for location",
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                ),
+                debounceTime: 800,
+                isLatLngRequired: true,
+                getPlaceDetailWithLatLng: (prediction) {
+                  double lat = double.parse(prediction.lat!);
+                  double lng = double.parse(prediction.lng!);
+                  setState(() {
+                    _currentPosition = LatLng(lat, lng);
+                  });
+                  _mapController?.animateCamera(
+                      CameraUpdate.newLatLngZoom(_currentPosition!, 15));
+                  _getAddressFromLatLng(lat, lng);
+                },
+                itemClick: (prediction) {
+                  locationSearchController.text = prediction.description!;
+                  locationSearchController.selection =
+                      TextSelection.fromPosition(
+                    TextPosition(offset: prediction.description!.length),
+                  );
+                  // *Do not update addressController here*
+                },
+              ),
+              const SizedBox(height: 15),
+              const Text("Location:",
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+              Text(_currentAddress,
+                  style: const TextStyle(fontSize: 14, color: Colors.black54)),
               const SizedBox(height: 10),
               Expanded(
                 child: _currentPosition == null
@@ -153,9 +198,8 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                         onCameraIdle: () async {
                           if (_currentPosition != null) {
                             await _getAddressFromLatLng(
-                              _currentPosition!.latitude,
-                              _currentPosition!.longitude,
-                            );
+                                _currentPosition!.latitude,
+                                _currentPosition!.longitude);
                           }
                         },
                         markers: {
@@ -163,61 +207,66 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                             markerId: const MarkerId("live_location"),
                             position: _currentPosition!,
                             infoWindow: const InfoWindow(title: "You are here"),
-                            icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueBlue),
+                            icon: BitmapDescriptor.defaultMarkerWithHue(
+                                BitmapDescriptor.hueBlue),
                           ),
                         },
                       ),
               ),
               const SizedBox(height: 10),
               Center(
-                child: Builder(
-                  builder: (context) => ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState?.validate() ?? false) {
-                        print('Booking spare part...');
-
-                        if (sparepartIds.isEmpty) {
-                          _showSnackBar(context, "No spare parts selected.");
-                          return;
-                        }
-
-                        if (_currentPosition == null) {
-                          _showSnackBar(context, "Location not found. Try again.");
-                          return;
-                        }
-
-                        if (loggedInEngineerId == null || loggedInEngineerId!.isEmpty) {
-                          _showSnackBar(context, "Service Engineer ID is missing.");
-                          return;
-                        }
-
-                        String formattedLocation = "${_currentPosition!.latitude},${_currentPosition!.longitude}";
-
-                        try {
-                          await ref.read(sparepartBookingProvider.notifier).addSparepartBooking(
-                                addressController.text,
-                                formattedLocation,
-                                loggedInEngineerId,
-                                sparepartIds,
-                              );
-
-                          _showSnackBar(context, "Spare part booked successfully!");
-                          Navigator.of(context).pop();
-                        } catch (e) {
-                          _showSnackBar(context, "Error: ${e.toString()}");
-                        }
-                      } else {
-                        _showSnackBar(context, "Please fill all fields.");
+                child: ElevatedButton(
+                  onPressed: () async {
+                    if (_formKey.currentState?.validate() ?? false) {
+                      if (sparepartIds.isEmpty) {
+                        _showSnackBar(context, "No spare parts selected.");
+                        return;
                       }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color.fromARGB(255, 31, 176, 84),
-                      minimumSize: Size(screenWidth * 0.9, screenHeight * 0.06),
-                    ),
-                    child: Text(
-                      "Book Spare Part",
-                      style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
-                    ),
+
+                      if (_currentPosition == null) {
+                        _showSnackBar(
+                            context, "Location not found. Try again.");
+                        return;
+                      }
+
+                      if (loggedInEngineerId == null ||
+                          loggedInEngineerId.isEmpty) {
+                        _showSnackBar(
+                            context, "Service Engineer ID is missing.");
+                        return;
+                      }
+
+                      String formattedLocation =
+                          "${_currentPosition!.latitude},${_currentPosition!.longitude}";
+
+                      try {
+                        await ref
+                            .read(sparepartBookingProvider.notifier)
+                            .addSparepartBooking(
+                              addressController.text,
+                              formattedLocation,
+                              loggedInEngineerId,
+                              sparepartIds,
+                            );
+
+                        _showSnackBar(
+                            context, "Spare part booked successfully!");
+                        Navigator.of(context).pop();
+                      } catch (e) {
+                        _showSnackBar(context, "Error: ${e.toString()}");
+                      }
+                    } else {
+                      _showSnackBar(context, "Please fill all fields.");
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color.fromARGB(255, 31, 176, 84),
+                    minimumSize: Size(screenWidth * 0.9, screenHeight * 0.06),
+                  ),
+                  child: Text(
+                    "Book Spare Part",
+                    style: TextStyle(
+                        fontSize: screenWidth * 0.04, color: Colors.white),
                   ),
                 ),
               ),
