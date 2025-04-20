@@ -122,20 +122,24 @@ class Product {
   final String productName;
   final String productDescription;
   final int price;
+  int? quantity;
   final String category;
   final bool spareParts;
   final List<String> productImages;
   final Distributor distributorId;
+  String? bookingStatus;
 
   Product({
     required this.id,
     required this.productName,
     required this.productDescription,
     required this.price,
+    required this.quantity,
     required this.category,
     required this.spareParts,
     required this.productImages,
     required this.distributorId,
+    required this.bookingStatus
   });
 
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -144,6 +148,8 @@ class Product {
       productName: json['productName'] ?? 'N/A',
       productDescription: json['productDescription'] ?? 'N/A',
       price: json['price'] ?? 0,
+      bookingStatus : json['bookingStatus']?? 'N/A',
+      quantity:json['quantity'] ?? 0,
       category: json['category'] ?? 'N/A',
       spareParts: json['spareParts'] == "true",
       productImages: (json['productImages'] as List<dynamic>?)

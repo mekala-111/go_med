@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_med/screens/Distributor_Bookings.dart';
+import 'package:go_med/screens/Distributor_products_Bookings.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
 import 'package:go_med/screens/Services.dart';
 import 'package:go_med/screens/products_scrren.dart';

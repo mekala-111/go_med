@@ -90,11 +90,11 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     }
   }
 
-  Future<bool> updateBookings(String? bookingId) async {
+  Future<bool> updateBookings(String? bookingId,int? quantity,String? bookingStatus) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
-    print('Booking Data: , bookingId=$bookingId');
+    print('Booking Data: , bookingId=$bookingId,quantity:$quantity');
 
     try {
       // Retrieve the token
@@ -128,7 +128,9 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             "Content-Type": "application/json",
           })}');
       print('Body: ${jsonEncode({
-            "status": "confirmed",
+            // "status": "confirmed",
+            'bookingStatus':bookingStatus,
+            'quantity':quantity
           })}');
 
       // Initialize RetryClient

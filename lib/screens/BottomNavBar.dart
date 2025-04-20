@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/Service_engineer_services.dart';
 import 'package:go_med/screens/dashboard.dart';
-import 'package:go_med/screens/Distributor_Bookings.dart';
+import 'package:go_med/screens/Distributor_products_Bookings.dart';
 import 'package:go_med/screens/products_scrren.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:go_med/screens/serviceEngineerProductsscreen.dart';

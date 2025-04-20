@@ -24,7 +24,7 @@ class _ServiceScreenState
   @override
   Widget build(BuildContext context) {
     final sparepartBookingState = ref.watch(sparepartBookingProvider);
-
+      final isLoading = sparepartBookingState.statusCode == 0;
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
@@ -34,7 +34,7 @@ class _ServiceScreenState
           style: TextStyle(color: Colors.black),
         ),
       ),
-      body: sparepartBookingState.data == null
+      body:isLoading 
           ? const Center(child: CircularProgressIndicator()) // Loading state
           : sparepartBookingState.data!.isEmpty
               ? const Center(
