@@ -46,13 +46,16 @@ class ServiceScreenState extends ConsumerState<ServicesEngineerPage> {
                 loggedInEngineer?.serviceIds?.contains(service.sId) ?? false)
             .toList() ??
         [];
-
+final isLoading = services.statusCode == 0;
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Services"),
         backgroundColor: const Color(0xFF6BC37A),
       ),
-      body: loggedInEngineer == null
+      body: 
+      isLoading ?
+       const Center(child: CircularProgressIndicator()):
+      loggedInEngineer == null
           ? const Center(child: Text("No service engineer found."))
           : Padding(
               padding: const EdgeInsets.all(16.0),

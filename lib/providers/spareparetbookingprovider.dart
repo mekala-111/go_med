@@ -14,10 +14,10 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
   SparepartBookingProvider(this.ref) : super((SparepartBookingState.initial()));
 
   // Function to add a product and handle the response
-  Future<void> addSparepartBooking(String? address, String? location,
-      String? serviceEngineerId, List<String> sparepartId) async {
+  Future<void> addSparepartBooking(String? address, String? location,String? sparepartId,
+      String? serviceEngineerId,  String? quantity) async {
     print(
-        'data of booking...address-$address,locstion-$location,servicid-$serviceEngineerId,sparepartid-$sparepartId ');
+        'data of booking...address-$address,locstion-$location,servicid-$serviceEngineerId ,quantity-$quantity');
     final loadingState = ref.read(loadingProvider.notifier);
 
     try {
@@ -78,7 +78,7 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
           'address': address,
           'location': location,
           
-          'sparePartIds': sparepartId, // ✅ Convert to list
+          // 'sparePartIds': sparepartId, // ✅ Convert to list
            'serviceEngineerId':serviceEngineerId,
           'status': "pending",
         }),

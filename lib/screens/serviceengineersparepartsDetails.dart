@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_med/model/ServiceEngineerProductsModel.dart';
 import 'package:go_med/screens/serviceEnginnerAddressScreen.dart';
-import '../screens/serviceengineersparepartsDetails.dart';
+
 
 class SparePartDetailScreen extends StatefulWidget {
   final Data sparePart;
@@ -61,11 +61,16 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                 "Description:",
                 style: TextStyle(fontSize: screenWidth * 0.04, fontWeight: FontWeight.bold),
               ),
+
               Text(
                 widget.sparePart.productDescription ?? "No description available",
                 style: TextStyle(fontSize: screenWidth * 0.035),
               ),
-              SizedBox(height: screenHeight * 0.02),
+              // SizedBox(height: screenHeight * 0.02),
+               Text(
+                "Available Stock: ${widget.sparePart.quantity ?? "0.00"}",
+                // style: TextStyle(fontSize: screenWidth * 0.045, color: Colors.green, fontWeight: FontWeight.bold),
+              ),
         
               // Star Rating
               Text(
@@ -101,6 +106,8 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                                   settings: RouteSettings(
                                     arguments: {
                                       'sparePartId': widget.sparePart.productId, // ✅ Pass the ID here
+                                      'quantity':widget.sparePart.quantity
+
                                     },
                                   ),
                                 ),

@@ -241,6 +241,7 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                                     builder: (context) => const AddressScreen(),
                                                                     settings: RouteSettings(arguments: {
                                                                       'sparePartIds': sparePart.productId,
+                                                                      'quantity':sparePart.quantity
                                                                     }),
                                                                   ),
                                                                 );

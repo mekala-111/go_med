@@ -16,10 +16,12 @@ class AddressScreen extends ConsumerStatefulWidget {
 
 class _AddressScreenState extends ConsumerState<AddressScreen> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController addressController = TextEditingController();
+  final TextEditingController addController = TextEditingController();
   final TextEditingController locationSearchController =
       TextEditingController();
-  List<String> sparepartIds = [];
+  // List<String> sparepartIds = [];
+  late String sparepartIds;
+  String? quantity;
 
   GoogleMapController? _mapController;
   LatLng? _currentPosition;
@@ -29,23 +31,23 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   void initState() {
     super.initState();
     _fetchInitialLocation();
+  }
 
-    Future.delayed(Duration.zero, () {
-      final args =
-          ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
 
-      if (args != null && args.containsKey('sparePartIds')) {
-        setState(() {
-          final receivedIds = args['sparePartIds'];
-          if (receivedIds is String) {
-            sparepartIds = [receivedIds];
-          } else if (receivedIds is List) {
-            sparepartIds =
-                List<String>.from(receivedIds.map((e) => e.toString()));
-          }
-        });
-      }
-    });
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+
+    if (args != null) {
+      sparepartIds = args['sparePartId'];
+      quantity = args['quantity']?.toString();
+      print('🛠️ Received Spare Part ID: $sparepartIds');
+      print('📦 Received Quantity: $quantity');
+    } else {
+      print('⚠️ No arguments received.');
+    }
   }
 
   Future<void> _fetchInitialLocation() async {
@@ -122,7 +124,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextFormField(
-                controller: addressController,
+                controller: addController,
                 decoration: const InputDecoration(
                   labelText: 'Address',
                   border: OutlineInputBorder(),
@@ -141,36 +143,38 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 10),
-              GooglePlaceAutoCompleteTextField(
-                textEditingController: locationSearchController,
-                googleAPIKey: "AIzaSyCMADwyS3eoxJ5dQ_iFiWcDBA_tJwoZosw",
-                inputDecoration: InputDecoration(
-                  hintText: "Search for location",
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(10),
+              FocusScope(
+                node: FocusScopeNode(),
+                child: GooglePlaceAutoCompleteTextField(
+                  textEditingController: locationSearchController,
+                  googleAPIKey: "AIzaSyCMADwyS3eoxJ5dQ_iFiWcDBA_tJwoZosw",
+                  inputDecoration: InputDecoration(
+                    hintText: "Search for location",
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 15),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 15),
+                  debounceTime: 800,
+                  isLatLngRequired: true,
+                  getPlaceDetailWithLatLng: (prediction) {
+                    double lat = double.parse(prediction.lat!);
+                    double lng = double.parse(prediction.lng!);
+                    setState(() {
+                      _currentPosition = LatLng(lat, lng);
+                    });
+                    _mapController?.animateCamera(
+                        CameraUpdate.newLatLngZoom(_currentPosition!, 15));
+                    _getAddressFromLatLng(lat, lng);
+                  },
+                  itemClick: (prediction) {
+                    locationSearchController.text = prediction.description!;
+                    locationSearchController.selection =
+                        TextSelection.fromPosition(
+                      TextPosition(offset: prediction.description!.length),
+                    );
+                  },
                 ),
-                debounceTime: 800,
-                isLatLngRequired: true,
-                getPlaceDetailWithLatLng: (prediction) {
-                  double lat = double.parse(prediction.lat!);
-                  double lng = double.parse(prediction.lng!);
-                  setState(() {
-                    _currentPosition = LatLng(lat, lng);
-                  });
-                  _mapController?.animateCamera(
-                      CameraUpdate.newLatLngZoom(_currentPosition!, 15));
-                  _getAddressFromLatLng(lat, lng);
-                },
-                itemClick: (prediction) {
-                  locationSearchController.text = prediction.description!;
-                  locationSearchController.selection =
-                      TextSelection.fromPosition(
-                    TextPosition(offset: prediction.description!.length),
-                  );
-                  // *Do not update addressController here*
-                },
               ),
               const SizedBox(height: 15),
               const Text("Location:",
@@ -218,10 +222,10 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                 child: ElevatedButton(
                   onPressed: () async {
                     if (_formKey.currentState?.validate() ?? false) {
-                      if (sparepartIds.isEmpty) {
-                        _showSnackBar(context, "No spare parts selected.");
-                        return;
-                      }
+                      // if (sparepartIds.isEmpty) {
+                      //   _showSnackBar(context, "No spare parts selected.");
+                      //   return;
+                      // }
 
                       if (_currentPosition == null) {
                         _showSnackBar(
@@ -243,10 +247,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                         await ref
                             .read(sparepartBookingProvider.notifier)
                             .addSparepartBooking(
-                              addressController.text,
+                              addController.text,
                               formattedLocation,
                               loggedInEngineerId,
                               sparepartIds,
+                              quantity,
                             );
 
                         _showSnackBar(

@@ -79,7 +79,7 @@ class BookingsProvider extends StateNotifier<BookingModel> {
         final Map<String, dynamic> res = json.decode(response.body);
         final bookingData = BookingModel.fromJson(res);
         state = bookingData;
-        print("bookings fetched successfully");
+        print(" product bookings fetched successfully");
       } else {
         throw Exception('Failed to load bookings: ${response.statusCode}');
       }
@@ -90,11 +90,11 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     }
   }
 
-  Future<bool> updateBookings(String? bookingId,int? quantity,String? bookingStatus) async {
+  Future<bool> updateBookings(String? bookingId,int? quantity,String? bookingStatus,String? productId) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
-    print('Booking Data: , bookingId=$bookingId,quantity:$quantity');
+    print('Booking Data: , bookingId=$bookingId,quantity:$quantity,status:$bookingStatus, productId:$productId, booking id:::$bookingId');
 
     try {
       // Retrieve the token
@@ -128,9 +128,11 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             "Content-Type": "application/json",
           })}');
       print('Body: ${jsonEncode({
-            // "status": "confirmed",
+            
             'bookingStatus':bookingStatus,
-            'quantity':quantity
+            'quantity':quantity,
+            'productId':productId
+
           })}');
 
       // Initialize RetryClient
@@ -138,16 +140,24 @@ class BookingsProvider extends StateNotifier<BookingModel> {
         return response.statusCode == 401 || response.statusCode == 404;
       });
 
-      final response = await client.put(
-        apiUrl,
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "status": "confirmed",
-        }),
-      );
+     final response = await client.put(
+  apiUrl,
+  headers: {
+    "Authorization": "Bearer $token",
+    "Content-Type": "application/json",
+  },
+  body: jsonEncode({
+    "products": [
+      {
+        "productId": productId,
+        "quantity": quantity,
+        "bookingStatus": bookingStatus,
+      }
+    ],
+    // "status": bookingStatus, // Optional if you want to update root status
+  }),
+);
+
 
       print('Update Status Code: ${response.statusCode}');
       print('Update Response Body: ${response.body}');

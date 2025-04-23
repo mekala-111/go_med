@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/model/Quantity_parts_model.dart';
 import 'package:go_med/providers/spareparetbookingprovider.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
-
+import 'package:url_launcher/url_launcher.dart';
 class DistributorSparepartbookings extends ConsumerStatefulWidget {
   const DistributorSparepartbookings({super.key});
 
@@ -48,6 +49,25 @@ class _ServiceScreenState
                   itemCount: sparepartBookingState.data!.length,
                   itemBuilder: (context, index) {
                     final booking = sparepartBookingState.data![index];
+                     String? mapsLink;
+                     if (booking.location != null &&
+                          booking.location!.contains(',')) {
+                        final locationParts = booking.location!.split(',');
+                        try {
+                          
+                          final latitude =
+                              double.parse(locationParts[0].trim());
+                          final longitude =
+                              double.parse(locationParts[1].trim());
+                          mapsLink =
+                              "https://www.google.com/maps?q=$latitude,$longitude";
+                        } catch (e) {
+                          mapsLink = null;
+                        }
+                      } else {
+                        mapsLink = null;
+                      }
+
 
                     return Card(
                       margin: const EdgeInsets.symmetric(vertical: 10),
@@ -126,15 +146,32 @@ class _ServiceScreenState
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 ElevatedButton(
-                                  onPressed: () {
+                                  onPressed: ()async {
                                     // TODO: Implement share functionality
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text("Share clicked!"),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
+                                    // ScaffoldMessenger.of(context).showSnackBar(
+                                    //   const SnackBar(
+                                    //     content: Text("Share clicked!"),
+                                    //   ),
+                                    // );
+                                    final message =
+                                          "📍 User Location:\n$mapsLink\n\n👤 Name: ${booking.serviceEngineer!.name}\n📞 Phone: ${booking.serviceEngineer!.mobile}\n🏠 Address: ${booking.serviceEngineer!.email?? 'N/A'}\n📌 Location: ${mapsLink ?? 'N/A'}\n\n📦 Products:\n${booking.sparePartIds!.map((sparepart) {
+                                        return "- ${sparepart.sparepartName} (price: ${sparepart.price}, ₹${sparepart.description},)";
+                                      }).join("\n")}";
+
+                                      final whatsappUrl = Uri.parse(
+                                          "https://wa.me/?text=${Uri.encodeComponent(message)}");
+
+                                      // Open WhatsApp with the message
+                                      if (await canLaunchUrl(whatsappUrl)) {
+                                        await launchUrl(whatsappUrl,
+                                            mode:
+                                                LaunchMode.externalApplication);
+                                      } else {
+                                        _showSnackBar(
+                                            context, "WhatsApp not available");
+                                      }
+                                     },
+                                    style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.blue,
                                     padding: const EdgeInsets.symmetric(
                                         horizontal: 20, vertical: 10),
@@ -172,6 +209,16 @@ class _ServiceScreenState
                   },
                 ),
                 bottomNavigationBar:  BottomNavBar(),
+    );
+  }
+   void _showSnackBar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        backgroundColor:
+            message == "Please fill all fields." ? Colors.red : Colors.blue,
+        behavior: SnackBarBehavior.floating,
+      ),
     );
   }
 }
