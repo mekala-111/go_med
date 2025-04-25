@@ -21,11 +21,13 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
       TextEditingController();
   // List<String> sparepartIds = [];
   late String sparepartIds;
-  String? quantity;
+  String? parentId;
 
   GoogleMapController? _mapController;
   LatLng? _currentPosition;
   String _currentAddress = "Fetching location...";
+  // final TextEditingController quantityController = TextEditingController();
+  double? enteredQuantity;
 
   @override
   void initState() {
@@ -42,9 +44,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
     if (args != null) {
       sparepartIds = args['sparePartId'];
-      quantity = args['quantity']?.toString();
+      // quantity = args['quantity']?.toString();
+      enteredQuantity = args['enteredQuantity'];
+      parentId = args['parentId'];
       print('🛠️ Received Spare Part ID: $sparepartIds');
-      print('📦 Received Quantity: $quantity');
+      print('📦 Received Quantity: $enteredQuantity');
     } else {
       print('⚠️ No arguments received.');
     }
@@ -249,9 +253,10 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                             .addSparepartBooking(
                               addController.text,
                               formattedLocation,
-                              loggedInEngineerId,
                               sparepartIds,
-                              quantity,
+                              loggedInEngineerId,
+                              enteredQuantity,
+                              parentId
                             );
 
                         _showSnackBar(

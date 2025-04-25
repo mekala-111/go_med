@@ -10,10 +10,12 @@ class Serviceengineerbookingsservicescreeen extends ConsumerStatefulWidget {
   const Serviceengineerbookingsservicescreeen({super.key});
 
   @override
-  ConsumerState<Serviceengineerbookingsservicescreeen> createState() => _ServiceScreenState();
+  ConsumerState<Serviceengineerbookingsservicescreeen> createState() =>
+      _ServiceScreenState();
 }
 
-class _ServiceScreenState extends ConsumerState<Serviceengineerbookingsservicescreeen> {
+class _ServiceScreenState
+    extends ConsumerState<Serviceengineerbookingsservicescreeen> {
   final Map<int, TextEditingController> _startOtpControllers = {};
   final Map<int, TextEditingController> _endOtpControllers = {};
   final Map<int, bool> _startOtpFilled = {};
@@ -25,8 +27,12 @@ class _ServiceScreenState extends ConsumerState<Serviceengineerbookingsservicesc
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(serviceEngineerBookingServicesProvider.notifier).getServiceEnginnerBookingServices();
-      ref.read(serviceEngineerProductsProvider.notifier).getServiceEnginnerProducts();
+      ref
+          .read(serviceEngineerBookingServicesProvider.notifier)
+          .getServiceEnginnerBookingServices();
+      ref
+          .read(serviceEngineerProductsProvider.notifier)
+          .getServiceEnginnerProducts();
     });
   }
 
@@ -74,12 +80,15 @@ class _ServiceScreenState extends ConsumerState<Serviceengineerbookingsservicesc
                     _endOtpSubmitted[index] ??= false;
 
                     String? mapsLink;
-                    if (booking.location != null && booking.location!.contains(',')) {
+                    if (booking.location != null &&
+                        booking.location!.contains(',')) {
                       final locationParts = booking.location!.split(',');
                       try {
                         final latitude = double.parse(locationParts[0].trim());
-                        final longitude = double.parse(locationParts[1].trim());
-                        mapsLink = "https://www.google.com/maps?q=$latitude,$longitude";
+                        final longitude =
+                            double.parse(locationParts[1].trim());
+                        mapsLink =
+                            "https://www.google.com/maps?q=$latitude,$longitude";
                       } catch (_) {}
                     }
 
@@ -89,127 +98,280 @@ class _ServiceScreenState extends ConsumerState<Serviceengineerbookingsservicesc
                         borderRadius: BorderRadius.circular(12),
                       ),
                       elevation: 4,
-                      color: const Color.fromARGB(255, 204, 213, 230),
+                      color: Colors.white,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Service Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            const SizedBox(height: 8),
+                            const Text('Service Details',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16)),
+                            // const SizedBox(height: 8),
                             ...booking.serviceIds?.map((service) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Text('Name: ${service.name ?? 'N/A'}'),
-                                        if (booking.productId != null && booking.productId!.isNotEmpty)
-                                          Text('Product: ${productIdNameMap[booking.productId!] ?? 'Unknown'}'),
-                                        Text('Details: ${service.details ?? 'N/A'}'),
-                                        Text('Status: ${booking.status ?? 'N/A'}'),
-                                        const Divider(height: 24),
-                                      ],
+                                  return Card(
+                                    margin: const EdgeInsets.symmetric(vertical: 4,horizontal: 4),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                                    elevation: 2,
+                                    color: const Color.fromARGB(255, 194, 225, 241),
+                                    child: Padding(
+                                      padding:
+                                          const EdgeInsets.symmetric(vertical: 8,horizontal: 8),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Name: ${service.name ?? 'N/A'}'),
+                                          if (booking.productId != null &&
+                                              booking.productId!.isNotEmpty)
+                                            Text(
+                                                'Product: ${productIdNameMap[booking.productId!] ?? 'Unknown'}'),
+                                          Text(
+                                              'Details: ${service.details ?? 'no details'}'),
+                                          Text(
+                                              'Date: ${booking.date ?? 'no date'}'),
+                                          Text(
+                                              'Time: ${booking.time ?? 'no time'}'),
+                                         RichText(
+                                          text: TextSpan(
+                                            children: [
+                                              const TextSpan(
+                                                text: 'Status: ',
+                                                style: TextStyle(
+                                                  color: Colors.black,
+                                                  fontSize: 16,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              TextSpan(
+                                                text: booking.status,
+                                                style: TextStyle(
+                                                  color: _getStatusColor(booking.status),
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+
+                                          // const Divider(height: 24),
+                                        ],
+                                      ),
                                     ),
                                   );
                                 }).toList() ??
                                 [const Text('No services listed.')],
                             const SizedBox(height: 12),
 
-                            if (booking.status?.toLowerCase() == 'confirmed') ...[
-                              if (!_startOtpSubmitted[index]!) ...[
+
+
+
+                            // if (booking.status?.toLowerCase() == 'confirmed') ...[
+                              if (booking.status?.toLowerCase() == 'confirmed') ...[
                                 const Text('Start OTP Verification',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold, fontSize: 16)),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: _startOtpControllers[index],
                                   keyboardType: TextInputType.number,
                                   maxLength: 6,
-                                  decoration: const InputDecoration(labelText: 'Enter Start OTP', counterText: ""),
+                                  decoration: const InputDecoration(
+                                      labelText: 'Enter Start OTP',
+                                      counterText: ""),
                                   onChanged: (value) {
                                     setState(() {
-                                      _startOtpFilled[index] = value.length == 6;
+                                      _startOtpFilled[index] =
+                                          value.length == 6;
                                     });
                                   },
                                 ),
                                 const SizedBox(height: 8),
-                                ElevatedButton(
+                               ElevatedButton(
                                   onPressed: _startOtpFilled[index]!
-                                      ? () {
-                                          setState(() {
-                                            _startOtpSubmitted[index] = true;
-                                          });
+                                      ? () async {
+                                          final bookingId = booking.sId; // Use your actual field name here
+                                          final otp = _startOtpControllers[index]!.text.trim();
+
+                                          if (bookingId == null || otp.isEmpty) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Booking ID or OTP missing')),
+                                            );
+                                            return;
+                                          }
+
+                                          final success = await ref
+                                              .read(serviceEngineerBookingServicesProvider.notifier)
+                                              .updateServiceBookings(
+                                                bookingId,
+                                                startOtp: otp,
+                                                endOtp: null, // Sending only start OTP
+                                              );
+
+                                          if (success) {
+                                            setState(() {
+                                              _startOtpSubmitted[index] = true;
+                                            });
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Start OTP submitted')),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Failed to submit Start OTP')),
+                                            );
+                                          }
                                         }
                                       : null,
                                   child: const Text("Start OTP"),
                                 ),
-                              ] else if (!_endOtpSubmitted[index]!) ...[
+
+                              ] else if (booking.status?.toLowerCase() == 'servicestarted') ...[
                                 const SizedBox(height: 16),
                                 const Text('End OTP Verification',
-                                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16)),
                                 const SizedBox(height: 8),
                                 TextField(
                                   controller: _endOtpControllers[index],
                                   keyboardType: TextInputType.number,
                                   maxLength: 6,
-                                  decoration: const InputDecoration(labelText: 'Enter End OTP', counterText: ""),
+                                  decoration: const InputDecoration(
+                                      labelText: 'Enter End OTP',
+                                      counterText: ""),
                                   onChanged: (value) {
                                     setState(() {
-                                      _endOtpFilled[index] = value.length == 6;
+                                      _endOtpFilled[index] =
+                                          value.length == 6;
                                     });
                                   },
                                 ),
                                 const SizedBox(height: 8),
-                                ElevatedButton(
+                               ElevatedButton(
                                   onPressed: _endOtpFilled[index]!
-                                      ? () {
-                                          setState(() {
-                                            _endOtpSubmitted[index] = true;
-                                          });
+                                      ? () async {
+                                          final bookingId = booking.sId; // Use your actual field name here
+                                          final otp = _endOtpControllers[index]!.text.trim();
+
+                                          if (bookingId == null || otp.isEmpty) {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Booking ID or OTP missing')),
+                                            );
+                                            return;
+                                          }
+
+                                          final success = await ref
+                                              .read(serviceEngineerBookingServicesProvider.notifier)
+                                              .updateServiceBookings(
+                                                bookingId,
+                                                startOtp: null, // Sending only end OTP
+                                                endOtp: otp,
+                                              );
+
+                                          if (success) {
+                                            setState(() {
+                                              _endOtpSubmitted[index] = true;
+                                            });
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('End OTP submitted')),
+                                            );
+                                          } else {
+                                            ScaffoldMessenger.of(context).showSnackBar(
+                                              const SnackBar(content: Text('Failed to submit End OTP')),
+                                            );
+                                          }
                                         }
                                       : null,
                                   child: const Text("End OTP"),
                                 ),
-                              ] else
-                                const Padding(
-                                  padding: EdgeInsets.only(top: 12),
-                                  child: Text('Service Completed',
-                                      style: TextStyle(color: Colors.green, fontWeight: FontWeight.bold, fontSize: 16)),
-                                ),
-                            ],
 
-                            const SizedBox(height: 12),
-                            const Text('User Details', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                            const SizedBox(height: 8),
-                            Text('Username: ${booking.userId?.name ?? 'N/A'}'),
-                            Text('Mobile: ${booking.userId?.mobile ?? 'N/A'}'),
-                            Text('Email: ${booking.userId?.email ?? 'N/A'}'),
-                            mapsLink != null
-                                ? RichText(
-                                    text: TextSpan(
-                                      children: [
-                                        const TextSpan(
-                                          text: "Location: ",
-                                          style: TextStyle(color: Colors.black, fontSize: 20),
+                              ] else
+                               
+                             const Padding(
+                                  padding: EdgeInsets.only(top: 12),
+                                  child: Text('',
+                                      style: TextStyle(
+                                          color: Colors.green,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16)),
+                                ),
+                                
+
+                           
+                           
+                           
+                           
+                           
+                           
+                           
+                           
+                            // const SizedBox(height: 12),
+                            const Text('User Details',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16)),
+                            // const SizedBox(height: 8),
+                            Text('${booking.userId?.name ?? 'N/A'}'),
+                            Text('${booking.userId?.mobile ?? 'N/A'}'),
+                            Text('${booking.userId?.email ?? 'N/A'}'),
+                           mapsLink != null
+                                ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      const Text(
+                                        "Location:",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 12,
+                                          // fontWeight: FontWeight.bold,
                                         ),
-                                        TextSpan(
-                                          text: mapsLink,
-                                          style: const TextStyle(color: Colors.blue, fontSize: 20),
-                                          recognizer: TapGestureRecognizer()
-                                            ..onTap = () async {
-                                              final uri = Uri.parse(mapsLink!);
-                                              if (await canLaunchUrl(uri)) {
-                                                await launchUrl(uri, mode: LaunchMode.externalApplication);
-                                              } else {
-                                                throw 'Could not launch $mapsLink';
-                                              }
-                                            },
+                                      ),
+                                      // const SizedBox(height: 4),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          final uri = Uri.parse(mapsLink!);
+                                          if (await canLaunchUrl(uri)) {
+                                            await launchUrl(uri, mode: LaunchMode.externalApplication);
+                                          } else {
+                                            throw 'Could not launch $mapsLink';
+                                          }
+                                        },
+                                        child: Text(
+                                          mapsLink!,
+                                          style: const TextStyle(
+                                            color: Colors.blue,
+                                            fontSize: 12,
+                                            // decoration: TextDecoration.underline,
+                                          ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
                                   )
                                 : const Text("Location: N/A"),
-                            Text('Address: ${booking.address ?? 'N/A'}'),
+                            Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Address:',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        // fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    // const SizedBox(height: 4),
+                                    Text(
+                                      booking.address ?? 'N/A',
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black87,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+
 
                             const SizedBox(height: 12),
                             Row(
@@ -219,7 +381,8 @@ class _ServiceScreenState extends ConsumerState<Serviceengineerbookingsservicesc
                                   onPressed: () {
                                     // Share action
                                   },
-                                  icon: const Icon(Icons.share, color: Colors.blue),
+                                  icon: const Icon(Icons.share,
+                                      color: Colors.blue),
                                   label: const Text("Share"),
                                 ),
                               ],
@@ -233,4 +396,34 @@ class _ServiceScreenState extends ConsumerState<Serviceengineerbookingsservicesc
       bottomNavigationBar: const BottomNavBar(),
     );
   }
+//   String _getStatusLabel(String? status) {
+//   switch (status?.toLowerCase()) {
+//     case 'pending':
+//       return 'Pending';
+//     case 'confirmed':
+//       return 'Confirmed';
+//     case 'start service':
+//       return 'Start Service';
+//     case 'service completed':
+//       return 'Service Completed';
+//     default:
+//       return status ?? 'No Status';
+//   }
+// }
+
+Color _getStatusColor(String? status) {
+  switch (status?.toLowerCase()) {
+    case 'pending':
+      return Colors.red;
+    case 'confirmed':
+      return Colors.blue;
+    case 'startservice':
+      return Colors.orange;
+    case 'servicecompleted':
+      return Colors.green;
+    default:
+      return Colors.black;
+  }
+}
+
 }

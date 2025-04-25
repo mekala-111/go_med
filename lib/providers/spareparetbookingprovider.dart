@@ -14,103 +14,116 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
   SparepartBookingProvider(this.ref) : super((SparepartBookingState.initial()));
 
   // Function to add a product and handle the response
-  Future<void> addSparepartBooking(String? address, String? location,String? sparepartId,
-      String? serviceEngineerId,  String? quantity) async {
-    print(
-        'data of booking...address-$address,locstion-$location,servicid-$serviceEngineerId ,quantity-$quantity');
-    final loadingState = ref.read(loadingProvider.notifier);
+Future<void> addSparepartBooking(
+  String? address, 
+  String? location, 
+  String? sparepartId,
+  String? serviceEngineerId,  
+  double? quantity,
+  String? parentId) async {
 
-    try {
-      loadingState.state = true;
+  print(
+    'Booking Details: Address-$address, Location-$location, Service Engineer ID-$serviceEngineerId, Quantity-$quantity, Spare Part ID-$sparepartId');
 
-      // Retrieve the token from SharedPreferences
-      final prefs = await SharedPreferences.getInstance();
-      String? userDataString = prefs.getString('userData');
-      final apiUrl = Uri.parse("${Bbapi.bookingSparepart}");
+  final loadingState = ref.read(loadingProvider.notifier);
 
-      if (userDataString == null || userDataString.isEmpty) {
-        throw Exception("User token is missing. Please log in again.");
-      }
+  try {
+    // Start loading state
+    loadingState.state = true;
 
-      final Map<String, dynamic> userData = jsonDecode(userDataString);
-      String? token = userData['accessToken'];
+    // Retrieve the token from SharedPreferences
+    final prefs = await SharedPreferences.getInstance();
+    String? userDataString = prefs.getString('userData');
+    final apiUrl = Uri.parse("${Bbapi.bookingSparepart}");
 
-      if (token == null || token.isEmpty) {
-        token = userData['data'] != null &&
-                (userData['data'] as List).isNotEmpty &&
-                userData['data'][0]['access_token'] != null
-            ? userData['data'][0]['access_token']
-            : null;
-      }
-
-      if (token == null || token.isEmpty) {
-        throw Exception("User token is invalid. Please log in again.");
-      }
-
-      print('Retrieved Token: $token');
-      // Initialize RetryClient for handling retries
-      final client = RetryClient(
-        http.Client(),
-        retries: 3, // Retry up to 3 times
-        when: (response) =>
-            response.statusCode == 400 ||
-            response.statusCode == 401, // Retry on 401 Unauthorized
-        onRetry: (req, res, retryCount) async {
-          if (retryCount == 0 && res?.statusCode == 400 ||
-              res?.statusCode == 401) {
-            // Handle token restoration logic on the first retry
-            String? newAccessToken =
-                await ref.read(loginProvider.notifier).restoreAccessToken();
-            print('Restored Token:++++++++++ $newAccessToken');
-            req.headers['Authorization'] = 'Bearer $newAccessToken';
-          }
-        },
-      );
-
-      // Creating a Multipart Request
-      final response = await client.post(
-        apiUrl,
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          'address': address,
-          'location': location,
-          
-          // 'sparePartIds': sparepartId, // ✅ Convert to list
-           'serviceEngineerId':serviceEngineerId,
-          'status': "pending",
-        }),
-        
-      );
-      
-      
-      
-
-      // Sending Request
-      print('Update Status Code: ${response.statusCode}');
-      print('Update Response Body: ${response.body}');
-
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        print("sparepartBooking updated successfully!");
-      } else {
-         try {
-    final errorBody = jsonDecode(response.body);
-    final errorMessage = errorBody['message'] ?? 'Unexpected error occurred.';
-    throw Exception("Error updating Booking: $errorMessage");
-  } catch (e) {
-    throw Exception("Invalid response format: ${response.body}");
-  }
-      }
-    } catch (error) {
-      print("Failed to add sparepartbooking: $error");
-      rethrow;
-    } finally {
-      loadingState.state = false;
+    // Validate user data and token
+    if (userDataString == null || userDataString.isEmpty) {
+      throw Exception("User token is missing. Please log in again.");
     }
-      }
 
+    final Map<String, dynamic> userData = jsonDecode(userDataString);
+    String? token = userData['accessToken'];
+
+    if (token == null || token.isEmpty) {
+      token = userData['data'] != null &&
+              (userData['data'] as List).isNotEmpty &&
+              userData['data'][0]['access_token'] != null
+          ? userData['data'][0]['access_token']
+          : null;
+    }
+
+    if (token == null || token.isEmpty) {
+      throw Exception("User token is invalid. Please log in again.");
+    }
+
+    print('Retrieved Token: $token');
+
+    // Initialize RetryClient for retrying requests on failure
+    final client = RetryClient(
+      http.Client(),
+      retries: 3, // Retry up to 3 times
+      when: (response) =>
+          response.statusCode == 400 || response.statusCode == 401, // Retry on 400 or 401
+      onRetry: (req, res, retryCount) async {
+        if (retryCount == 0 && res?.statusCode == 400 || res?.statusCode == 401) {
+          // Handle token restoration logic on the first retry
+          String? newAccessToken =
+              await ref.read(loginProvider.notifier).restoreAccessToken();
+          print('Restored Token:++++++++++ $newAccessToken');
+          req.headers['Authorization'] = 'Bearer $newAccessToken';
+        }
+      },
+    );
+
+    // Make API call to add spare part booking
+    final response = await client.post(
+      apiUrl,
+      headers: {
+        "Authorization": "Bearer $token",
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode({
+        'address': address,
+        'location': location,
+        'serviceEngineerId': serviceEngineerId,
+        'status': "pending",
+        'products': [
+          {
+            'productId': sparepartId,   // Spare Part ID
+            'parentId':parentId, // Example parentId (replace as needed)
+            // 'drRequestId': "68031f0be36c9278cb559940", // Example drRequestId (replace as needed)
+            'quantity': quantity,       // Quantity of the spare part
+            'bookingStatus': "pending"  // Default booking status
+          }
+        ],
+      }),
+    );
+
+    // Check the status code and handle the response
+    print('Response Status Code: ${response.statusCode}');
+    print('Response Body: ${response.body}');
+
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      print("SparepartBooking updated successfully!");
+    } else {
+      // Handle errors
+      try {
+        final errorBody = jsonDecode(response.body);
+        final errorMessage = errorBody['messages']?.join(", ") ?? 'Unexpected error occurred.';
+        throw Exception("Error updating Booking: $errorMessage");
+      } catch (e) {
+        throw Exception("Invalid response format: ${response.body}");
+      }
+    }
+  } catch (error) {
+    // Handle any errors in the process
+    print("Failed to add spare part booking: $error");
+    rethrow; // Rethrow the error to propagate it
+  } finally {
+    // Reset loading state
+    loadingState.state = false;
+  }
+}
 
 
 

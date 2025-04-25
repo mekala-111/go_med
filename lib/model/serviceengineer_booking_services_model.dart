@@ -4,43 +4,60 @@ class ServiceenginnerBookingServicesModel {
   List<String>? messages;
   List<Data>? data;
 
-  ServiceenginnerBookingServicesModel({this.statusCode, this.success, this.messages, this.data});
+  ServiceenginnerBookingServicesModel({
+    this.statusCode,
+    this.success,
+    this.messages,
+    this.data,
+  });
 
-  factory ServiceenginnerBookingServicesModel.fromJson(Map<String, dynamic> json) => ServiceenginnerBookingServicesModel(
-        statusCode: json['statusCode'],
-        success: json['success'],
-        messages: json['messages']?.cast<String>(),
-        data: json['data'] != null
-            ? (json['data'] as List).map((v) => Data.fromJson(v)).toList()
-            : null,
-      );
+  ServiceenginnerBookingServicesModel.fromJson(Map<String, dynamic> json) {
+    statusCode = json['statusCode'];
+    success = json['success'];
+    messages = json['messages'] != null 
+        ? List<String>.from(json['messages']) 
+        : [];
+    if (json['data'] != null) {
+      data = <Data>[];
+      json['data'].forEach((v) {
+        data!.add(Data.fromJson(v));
+      });
+    }
+  }
 
-  Map<String, dynamic> toJson() => {
-        'statusCode': statusCode,
-        'success': success,
-        'messages': messages,
-        'data': data?.map((v) => v.toJson()).toList(),
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = {};
+    map['statusCode'] = statusCode;
+    map['success'] = success;
+    map['messages'] = messages;
+    if (data != null) {
+      map['data'] = data!.map((v) => v.toJson()).toList();
+    }
+    return map;
+  }
 
   ServiceenginnerBookingServicesModel copyWith({
     int? statusCode,
     bool? success,
     List<String>? messages,
     List<Data>? data,
-  }) =>
-      ServiceenginnerBookingServicesModel(
-        statusCode: statusCode ?? this.statusCode,
-        success: success ?? this.success,
-        messages: messages ?? this.messages,
-        data: data ?? this.data,
-      );
+  }) {
+    return ServiceenginnerBookingServicesModel(
+      statusCode: statusCode ?? this.statusCode,
+      success: success ?? this.success,
+      messages: messages ?? this.messages,
+      data: data ?? this.data,
+    );
+  }
 
-  static ServiceenginnerBookingServicesModel initial() => ServiceenginnerBookingServicesModel(
-        statusCode: 0,
-        success: false,
-        messages: [],
-        data: [],
-      );
+  static ServiceenginnerBookingServicesModel initial() {
+    return ServiceenginnerBookingServicesModel(
+      statusCode: 0,
+      success: false,
+      messages: [],
+      data: [],
+    );
+  }
 }
 
 class Data {
@@ -53,7 +70,7 @@ class Data {
   String? date;
   String? time;
   String? status;
-  ServiceEngineerId? serviceEngineerId;
+  String? serviceEngineerId;
   String? startOtp;
   String? endOtp;
   String? createdAt;
@@ -76,45 +93,50 @@ class Data {
     this.updatedAt,
   });
 
-  factory Data.fromJson(Map<String, dynamic> json) => Data(
-        sId: json['_id'],
-        userId: json['userId'] != null ? UserId.fromJson(json['userId']) : null,
-        serviceIds: json['serviceIds'] != null
-            ? (json['serviceIds'] as List)
-                .map((v) => ServiceIds.fromJson(v))
-                .toList()
-            : null,
-        productId: json['productId'],
-        location: json['location'],
-        address: json['address'],
-        date: json['date'],
-        time: json['time'],
-        status: json['status'],
-        serviceEngineerId: json['serviceEngineerId'] != null
-            ? ServiceEngineerId.fromJson(json['serviceEngineerId'])
-            : null,
-        startOtp: json['startOtp'],
-        endOtp: json['endOtp'],
-        createdAt: json['createdAt'],
-        updatedAt: json['updatedAt'],
-      );
+  Data.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    userId = json['userId'] != null ? UserId.fromJson(json['userId']) : null;
+    if (json['serviceIds'] != null) {
+      serviceIds = <ServiceIds>[];
+      json['serviceIds'].forEach((v) {
+        serviceIds!.add(ServiceIds.fromJson(v));
+      });
+    }
+    productId = json['productId'];
+    location = json['location'];
+    address = json['address'];
+    date = json['date'];
+    time = json['time'];
+    status = json['status'];
+    serviceEngineerId = json['serviceEngineerId'];
+    startOtp = json['startOtp'];
+    endOtp = json['endOtp'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
+  }
 
-  Map<String, dynamic> toJson() => {
-        '_id': sId,
-        'userId': userId?.toJson(),
-        'serviceIds': serviceIds?.map((v) => v.toJson()).toList(),
-        'productId': productId,
-        'location': location,
-        'address': address,
-        'date': date,
-        'time': time,
-        'status': status,
-        'serviceEngineerId': serviceEngineerId?.toJson(),
-        'startOtp': startOtp,
-        'endOtp': endOtp,
-        'createdAt': createdAt,
-        'updatedAt': updatedAt,
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = {};
+    map['_id'] = sId;
+    if (userId != null) {
+      map['userId'] = userId!.toJson();
+    }
+    if (serviceIds != null) {
+      map['serviceIds'] = serviceIds!.map((v) => v.toJson()).toList();
+    }
+    map['productId'] = productId;
+    map['location'] = location;
+    map['address'] = address;
+    map['date'] = date;
+    map['time'] = time;
+    map['status'] = status;
+    map['serviceEngineerId'] = serviceEngineerId;
+    map['startOtp'] = startOtp;
+    map['endOtp'] = endOtp;
+    map['createdAt'] = createdAt;
+    map['updatedAt'] = updatedAt;
+    return map;
+  }
 
   Data copyWith({
     String? sId,
@@ -126,45 +148,48 @@ class Data {
     String? date,
     String? time,
     String? status,
-    ServiceEngineerId? serviceEngineerId,
+    String? serviceEngineerId,
     String? startOtp,
     String? endOtp,
     String? createdAt,
     String? updatedAt,
-  }) =>
-      Data(
-        sId: sId ?? this.sId,
-        userId: userId ?? this.userId,
-        serviceIds: serviceIds ?? this.serviceIds,
-        productId: productId ?? this.productId,
-        location: location ?? this.location,
-        address: address ?? this.address,
-        date: date ?? this.date,
-        time: time ?? this.time,
-        status: status ?? this.status,
-        serviceEngineerId: serviceEngineerId ?? this.serviceEngineerId,
-        startOtp: startOtp ?? this.startOtp,
-        endOtp: endOtp ?? this.endOtp,
-        createdAt: createdAt ?? this.createdAt,
-        updatedAt: updatedAt ?? this.updatedAt,
-      );
+  }) {
+    return Data(
+      sId: sId ?? this.sId,
+      userId: userId ?? this.userId,
+      serviceIds: serviceIds ?? this.serviceIds,
+      productId: productId ?? this.productId,
+      location: location ?? this.location,
+      address: address ?? this.address,
+      date: date ?? this.date,
+      time: time ?? this.time,
+      status: status ?? this.status,
+      serviceEngineerId: serviceEngineerId ?? this.serviceEngineerId,
+      startOtp: startOtp ?? this.startOtp,
+      endOtp: endOtp ?? this.endOtp,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+    );
+  }
 
-  static Data initial() => Data(
-        sId: '',
-        userId: UserId.initial(),
-        serviceIds: [],
-        productId: '',
-        location: '',
-        address: '',
-        date: '',
-        time: '',
-        status: '',
-        serviceEngineerId: ServiceEngineerId.initial(),
-        startOtp: '',
-        endOtp: '',
-        createdAt: '',
-        updatedAt: '',
-      );
+  static Data initial() {
+    return Data(
+      sId: '',
+      userId: UserId.initial(),
+      serviceIds: [],
+      productId: '',
+      location: '',
+      address: '',
+      date: '',
+      time: '',
+      status: '',
+      serviceEngineerId: '',
+      startOtp: '',
+      endOtp: '',
+      createdAt: '',
+      updatedAt: '',
+    );
+  }
 }
 
 class UserId {
@@ -176,21 +201,23 @@ class UserId {
 
   UserId({this.sId, this.mobile, this.name, this.email, this.profileImage});
 
-  factory UserId.fromJson(Map<String, dynamic> json) => UserId(
-        sId: json['_id'],
-        mobile: json['mobile'],
-        name: json['name'],
-        email: json['email'],
-        profileImage: json['profileImage']?.cast<String>(),
-      );
+  UserId.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    mobile = json['mobile'];
+    name = json['name'];
+    email = json['email'];
+    profileImage = json['profileImage']?.cast<String>() ?? [];
+  }
 
-  Map<String, dynamic> toJson() => {
-        '_id': sId,
-        'mobile': mobile,
-        'name': name,
-        'email': email,
-        'profileImage': profileImage,
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = {};
+    map['_id'] = sId;
+    map['mobile'] = mobile;
+    map['name'] = name;
+    map['email'] = email;
+    map['profileImage'] = profileImage;
+    return map;
+  }
 
   UserId copyWith({
     String? sId,
@@ -198,22 +225,25 @@ class UserId {
     String? name,
     String? email,
     List<String>? profileImage,
-  }) =>
-      UserId(
-        sId: sId ?? this.sId,
-        mobile: mobile ?? this.mobile,
-        name: name ?? this.name,
-        email: email ?? this.email,
-        profileImage: profileImage ?? this.profileImage,
-      );
+  }) {
+    return UserId(
+      sId: sId ?? this.sId,
+      mobile: mobile ?? this.mobile,
+      name: name ?? this.name,
+      email: email ?? this.email,
+      profileImage: profileImage ?? this.profileImage,
+    );
+  }
 
-  static UserId initial() => UserId(
-        sId: '',
-        mobile: '',
-        name: '',
-        email: '',
-        profileImage: [],
-      );
+  static UserId initial() {
+    return UserId(
+      sId: '',
+      mobile: '',
+      name: '',
+      email: '',
+      profileImage: [],
+    );
+  }
 }
 
 class ServiceIds {
@@ -222,36 +252,26 @@ class ServiceIds {
   String? details;
   int? price;
   List<String>? productIds;
-  DistributorId? distributorId;
 
-  ServiceIds({
-    this.sId,
-    this.name,
-    this.details,
-    this.price,
-    this.productIds,
-    this.distributorId,
-  });
+  ServiceIds({this.sId, this.name, this.details, this.price, this.productIds});
 
-  factory ServiceIds.fromJson(Map<String, dynamic> json) => ServiceIds(
-        sId: json['_id'],
-        name: json['name'],
-        details: json['details'],
-        price: json['price'],
-        productIds: json['productIds']?.cast<String>(),
-        distributorId: json['distributorId'] != null
-            ? DistributorId.fromJson(json['distributorId'])
-            : null,
-      );
+  ServiceIds.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    name = json['name'];
+    details = json['details'];
+    price = json['price'];
+    productIds = json['productIds']?.cast<String>() ?? [];
+  }
 
-  Map<String, dynamic> toJson() => {
-        '_id': sId,
-        'name': name,
-        'details': details,
-        'price': price,
-        'productIds': productIds,
-        'distributorId': distributorId?.toJson(),
-      };
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> map = {};
+    map['_id'] = sId;
+    map['name'] = name;
+    map['details'] = details;
+    map['price'] = price;
+    map['productIds'] = productIds;
+    return map;
+  }
 
   ServiceIds copyWith({
     String? sId,
@@ -259,104 +279,23 @@ class ServiceIds {
     String? details,
     int? price,
     List<String>? productIds,
-    DistributorId? distributorId,
-  }) =>
-      ServiceIds(
-        sId: sId ?? this.sId,
-        name: name ?? this.name,
-        details: details ?? this.details,
-        price: price ?? this.price,
-        productIds: productIds ?? this.productIds,
-        distributorId: distributorId ?? this.distributorId,
-      );
+  }) {
+    return ServiceIds(
+      sId: sId ?? this.sId,
+      name: name ?? this.name,
+      details: details ?? this.details,
+      price: price ?? this.price,
+      productIds: productIds ?? this.productIds,
+    );
+  }
 
-  static ServiceIds initial() => ServiceIds(
-        sId: '',
-        name: '',
-        details: '',
-        price: 0,
-        productIds: [],
-        distributorId: DistributorId.initial(),
-      );
-}
-
-class DistributorId {
-  String? sId;
-  String? ownerName;
-  String? firmName;
-
-  DistributorId({this.sId, this.ownerName, this.firmName});
-
-  factory DistributorId.fromJson(Map<String, dynamic> json) => DistributorId(
-        sId: json['_id'],
-        ownerName: json['ownerName'],
-        firmName: json['firmName'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        '_id': sId,
-        'ownerName': ownerName,
-        'firmName': firmName,
-      };
-
-  DistributorId copyWith({
-    String? sId,
-    String? ownerName,
-    String? firmName,
-  }) =>
-      DistributorId(
-        sId: sId ?? this.sId,
-        ownerName: ownerName ?? this.ownerName,
-        firmName: firmName ?? this.firmName,
-      );
-
-  static DistributorId initial() => DistributorId(
-        sId: '',
-        ownerName: '',
-        firmName: '',
-      );
-}
-
-class ServiceEngineerId {
-  String? sId;
-  String? name;
-  String? mobile;
-  String? email;
-
-  ServiceEngineerId({this.sId, this.name, this.mobile, this.email});
-
-  factory ServiceEngineerId.fromJson(Map<String, dynamic> json) =>
-      ServiceEngineerId(
-        sId: json['_id'],
-        name: json['name'],
-        mobile: json['mobile'],
-        email: json['email'],
-      );
-
-  Map<String, dynamic> toJson() => {
-        '_id': sId,
-        'name': name,
-        'mobile': mobile,
-        'email': email,
-      };
-
-  ServiceEngineerId copyWith({
-    String? sId,
-    String? name,
-    String? mobile,
-    String? email,
-  }) =>
-      ServiceEngineerId(
-        sId: sId ?? this.sId,
-        name: name ?? this.name,
-        mobile: mobile ?? this.mobile,
-        email: email ?? this.email,
-      );
-
-  static ServiceEngineerId initial() => ServiceEngineerId(
-        sId: '',
-        name: '',
-        mobile: '',
-        email: '',
-      );
+  static ServiceIds initial() {
+    return ServiceIds(
+      sId: '',
+      name: '',
+      details: '',
+      price: 0,
+      productIds: [],
+    );
+  }
 }

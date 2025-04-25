@@ -171,7 +171,7 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                                 sparePart),
                                                   ),
                                                 );
-                                              },
+                                               },
                                                   child: Card(
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius: BorderRadius.circular(8),
@@ -238,11 +238,12 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                                 Navigator.push(
                                                                   context,
                                                                   MaterialPageRoute(
-                                                                    builder: (context) => const AddressScreen(),
-                                                                    settings: RouteSettings(arguments: {
-                                                                      'sparePartIds': sparePart.productId,
-                                                                      'quantity':sparePart.quantity
-                                                                    }),
+                                                                    builder: (context) =>  SparePartDetailScreen(sparePart:
+                                                                sparePart),
+                                                                    // settings: RouteSettings(arguments: {
+                                                                    //   'sparePartIds': sparePart.productId,
+                                                                    //   'quantity':sparePart.quantity
+                                                                    // }),
                                                                   ),
                                                                 );
                                                               },
@@ -251,9 +252,10 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                                     const Color.fromARGB(255, 150, 170, 238),
                                                               ),
                                                               child: Text(
-                                                                "Buy Now",
+                                                                "Next",
                                                                 style: TextStyle(
-                                                                  fontSize: screenWidth * 0.02,
+                                                                
+                                                                  fontSize: screenWidth * 0.03,
                                                                   color: const Color.fromARGB(255, 17, 16, 16),
                                                                 ),
                                                               ),

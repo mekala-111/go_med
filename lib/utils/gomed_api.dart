@@ -20,7 +20,7 @@ class Bbapi {
   static const String getSparepartBooking = "$baseUrl/sparepartsBooking/list";
   static const String deleteSparepartBooking ="$baseUrl/sparepartsBooking/delete";
   static const String serviceenginnerBookingServices ="$baseUrl /servicebooking/list";
- 
+   static const String serviceenginnerBookingServicesUpdate ="$baseUrl /servicebooking/update";
   
   static const String updateProfile = "$baseUrl/distributor/update";
   static const String deleteAccount = "$baseUrl/distributor/delete";
