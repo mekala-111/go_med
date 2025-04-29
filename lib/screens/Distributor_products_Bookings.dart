@@ -221,7 +221,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                                 .notifier)
                                                             .updateBookings(
                                                                 booking.id,
-                                                                product
+                                                                quantity:product
                                                                     .quantity,
                                                                 "confirmed",
                                                                 product.id);
@@ -255,8 +255,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                                 .notifier)
                                                             .updateBookings(
                                                                 booking.id,
-                                                                product
-                                                                    .quantity,
+                                                                quantity:null,
                                                                 "completed",
                                                                 product.id);
                                                         _showSnackBar(context,

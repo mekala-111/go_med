@@ -13,27 +13,16 @@ class SparepartBookingState {
         data: [],
       );
 
-  SparepartBookingState copyWith({
-    int? statusCode,
-    bool? success,
-    List<String>? messages,
-    List<Data>? data,
-  }) {
-    return SparepartBookingState(
-      statusCode: statusCode ?? this.statusCode,
-      success: success ?? this.success,
-      messages: messages ?? this.messages,
-      data: data ?? this.data,
-    );
-  }
-
-  factory SparepartBookingState.fromJson(Map<String, dynamic> json) {
-    return SparepartBookingState(
-      statusCode: json['statusCode'],
-      success: json['success'],
-      messages: List<String>.from(json['messages'] ?? []),
-      data: (json['data'] as List?)?.map((v) => Data.fromJson(v)).toList() ?? [],
-    );
+  SparepartBookingState.fromJson(Map<String, dynamic> json) {
+    statusCode = json['statusCode'];
+    success = json['success'];
+    messages = json['messages'] != null ? List<String>.from(json['messages']) : null;
+    if (json['data'] != null) {
+      data = <Data>[];
+      json['data'].forEach((v) {
+        data!.add(Data.fromJson(v));
+      });
+    }
   }
 
   Map<String, dynamic> toJson() => {
@@ -43,7 +32,6 @@ class SparepartBookingState {
         'data': data?.map((v) => v.toJson()).toList(),
       };
 }
-
 
 class Data {
   String? sId;
@@ -77,44 +65,22 @@ class Data {
         updatedAt: '',
       );
 
-  Data copyWith({
-    String? sId,
-    ServiceEngineer? serviceEngineer,
-    List<SparePartIds>? sparePartIds,
-    String? location,
-    String? address,
-    String? status,
-    String? createdAt,
-    String? updatedAt,
-  }) {
-    return Data(
-      sId: sId ?? this.sId,
-      serviceEngineer: serviceEngineer ?? this.serviceEngineer,
-      sparePartIds: sparePartIds ?? this.sparePartIds,
-      location: location ?? this.location,
-      address: address ?? this.address,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
-
-  factory Data.fromJson(Map<String, dynamic> json) {
-    return Data(
-      sId: json['_id'],
-      serviceEngineer: json['serviceEngineer'] != null
-          ? ServiceEngineer.fromJson(json['serviceEngineer'])
-          : null,
-      sparePartIds: (json['sparePartIds'] as List?)
-              ?.map((v) => SparePartIds.fromJson(v))
-              .toList() ??
-          [],
-      location: json['location'],
-      address: json['address'],
-      status: json['status'],
-      createdAt: json['createdAt'],
-      updatedAt: json['updatedAt'],
-    );
+  Data.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    serviceEngineer = json['serviceEngineer'] != null
+        ? ServiceEngineer.fromJson(json['serviceEngineer'])
+        : null;
+    if (json['sparePartIds'] != null) {
+      sparePartIds = <SparePartIds>[];
+      json['sparePartIds'].forEach((v) {
+        sparePartIds!.add(SparePartIds.fromJson(v));
+      });
+    }
+    location = json['location'];
+    address = json['address'];
+    status = json['status'];
+    createdAt = json['createdAt'];
+    updatedAt = json['updatedAt'];
   }
 
   Map<String, dynamic> toJson() => {
@@ -155,33 +121,15 @@ class ServiceEngineer {
         role: '',
       );
 
-  ServiceEngineer copyWith({
-    String? sId,
-    String? name,
-    String? email,
-    String? mobile,
-    List<String>? profileImage,
-    String? role,
-  }) {
-    return ServiceEngineer(
-      sId: sId ?? this.sId,
-      name: name ?? this.name,
-      email: email ?? this.email,
-      mobile: mobile ?? this.mobile,
-      profileImage: profileImage ?? this.profileImage,
-      role: role ?? this.role,
-    );
-  }
-
-  factory ServiceEngineer.fromJson(Map<String, dynamic> json) {
-    return ServiceEngineer(
-      sId: json['_id'],
-      name: json['name'],
-      email: json['email'],
-      mobile: json['mobile'],
-      profileImage: List<String>.from(json['profileImage'] ?? []),
-      role: json['role'],
-    );
+  ServiceEngineer.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    name = json['name'];
+    email = json['email'];
+    mobile = json['mobile'];
+    profileImage = json['profileImage'] != null
+        ? List<String>.from(json['profileImage'])
+        : null;
+    role = json['role'];
   }
 
   Map<String, dynamic> toJson() => {
@@ -196,58 +144,62 @@ class ServiceEngineer {
 
 class SparePartIds {
   String? sId;
-  String? sparepartName;
+  String? parentId;
+  String? sparePartName;
   String? description;
-  int? price;
   List<String>? sparePartImages;
+  String? bookingStatus;
+  int? price;
+  int? quantity;
+  int? availableStock;
 
   SparePartIds({
     this.sId,
-    this.sparepartName,
+    this.parentId,
+    this.sparePartName,
     this.description,
-    this.price,
     this.sparePartImages,
+    this.bookingStatus,
+    this.price,
+    this.quantity,
+    this.availableStock,
   });
 
   factory SparePartIds.initial() => SparePartIds(
         sId: '',
-        sparepartName: '',
+        parentId: '',
+        sparePartName: '',
         description: '',
-        price: 0,
         sparePartImages: [],
+        bookingStatus: '',
+        price: 0,
+        quantity: 0,
+        availableStock: 0,
       );
 
-  SparePartIds copyWith({
-    String? sId,
-    String? sparepartName,
-    String? description,
-    int? price,
-    List<String>? sparePartImages,
-  }) {
-    return SparePartIds(
-      sId: sId ?? this.sId,
-      sparepartName: sparepartName ?? this.sparepartName,
-      description: description ?? this.description,
-      price: price ?? this.price,
-      sparePartImages: sparePartImages ?? this.sparePartImages,
-    );
-  }
-
-  factory SparePartIds.fromJson(Map<String, dynamic> json) {
-    return SparePartIds(
-      sId: json['_id'],
-      sparepartName: json['sparepartName'],
-      description: json['description'],
-      price: json['price'],
-      sparePartImages: List<String>.from(json['sparePartImages'] ?? []),
-    );
+  SparePartIds.fromJson(Map<String, dynamic> json) {
+    sId = json['_id'];
+    parentId = json['parentId'];
+    sparePartName = json['sparePartName'];
+    description = json['description'];
+    sparePartImages = json['sparePartImages'] != null
+        ? List<String>.from(json['sparePartImages'])
+        : null;
+    bookingStatus = json['bookingStatus'];
+    price = json['price'];
+    quantity = json['quantity'];
+    availableStock = json['availableStock'];
   }
 
   Map<String, dynamic> toJson() => {
         '_id': sId,
-        'sparepartName': sparepartName,
+        'parentId': parentId,
+        'sparePartName': sparePartName,
         'description': description,
-        'price': price,
         'sparePartImages': sparePartImages,
+        'bookingStatus': bookingStatus,
+        'price': price,
+        'quantity': quantity,
+        'availableStock': availableStock,
       };
 }

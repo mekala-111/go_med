@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
+// ignore: depend_on_referenced_packages
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
 import 'package:go_med/providers/auth_provider.dart';
 
@@ -21,6 +22,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
   final TextEditingController experienceController = TextEditingController();
 
   File? _selectedImage;
+   String? _profileImageUrl;
   final double maxImageSize = 5 * 1024 * 1024; // 5 MB in bytes
   @override
   void initState() {
@@ -47,6 +49,11 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     if (image != null) {
       final File imageFile = File(image.path);
       final int imageSize = await imageFile.length();
+      final String fileExtension = image.path.split('.').last.toLowerCase();
+    if (fileExtension != 'jpg' && fileExtension != 'jpeg' && fileExtension != 'png') {
+      _showFormatError();
+      return;
+    }
 
       if (imageSize <= maxImageSize) {
         setState(() {
@@ -126,8 +133,10 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                         radius: 50,
                         backgroundImage: _selectedImage != null
                             ? FileImage(_selectedImage!) as ImageProvider
-                            : null,
-                        child: _selectedImage == null
+                            : _profileImageUrl != null
+                              ? CachedNetworkImageProvider(_profileImageUrl!)
+                              : null,
+                        child: _selectedImage == null&&_profileImageUrl == null
                             ? const Icon(
                                 Icons.person,
                                 size: 50,
@@ -292,4 +301,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
       },
     );
   }
+   void _showFormatError() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Invalid Image Format"),
+      content: const Text("Only .jpg, .jpeg, or .png files are allowed. Please select a valid image."),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text("OK"),
+        ),
+      ],
+    ),
+  );
+}
+
 }

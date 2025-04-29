@@ -17,10 +17,11 @@ class Bbapi {
   static const String getServiceengineers = "$baseUrl/admin/service-engineers";
   static const String serviceEnginnerProductsApproved = "$baseUrl/products/products/approved";
   static const String bookingSparepart = "$baseUrl/sparepartsBooking/create";
-  static const String getSparepartBooking = "$baseUrl/sparepartsBooking/list";
+  static const String getSparepartBooking = "$baseUrl/sparepartsBooking/distributor";
   static const String deleteSparepartBooking ="$baseUrl/sparepartsBooking/delete";
   static const String serviceenginnerBookingServices ="$baseUrl /servicebooking/list";
    static const String serviceenginnerBookingServicesUpdate ="$baseUrl /servicebooking/update";
+   static const String serviceEnginnerSparepartBooking ="$baseUrl/sparepartsBooking/list";
   
   static const String updateProfile = "$baseUrl/distributor/update";
   static const String deleteAccount = "$baseUrl/distributor/delete";
@@ -35,6 +36,7 @@ class Bbapi {
   static const String deleteService = "$baseUrl/services/deleteservice";
   static const String bookingsGet = "$baseUrl/productbooking/distributor";
   static const String bookingUpdate = "$baseUrl/productbooking/update";
+  static const String sparepartBookingUpdate = "$baseUrl/sparepartsBooking/update";
   
   static const String distributorProducts = "$baseUrl/products/adminAddProducts";
   static const String quantityParts = "$baseUrl/products/products/all";

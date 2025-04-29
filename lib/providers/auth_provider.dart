@@ -126,14 +126,16 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     final auth = ref.read(firebaseAuthProvider);
     var loader = ref.read(loadingProvider.notifier);
     var codeSentNotifier = ref.read(codeSentProvider.notifier);
+    print(' before try block...........');
     //loader.state = true;
     var pref = await SharedPreferences.getInstance();
 
     try {
+      print('Entering to the try block....');
       await auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
         verificationCompleted: (PhoneAuthCredential credential) async {
-          print('try.///////////////////');
+          print('phone verification completed....$phoneNumber');
           // loader.state = false;
           await auth.signInWithCredential(credential);
         },
@@ -340,11 +342,10 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
   }
 
   Future<String> restoreAccessToken() async {
-    const  url = Bbapi.refreshToken;
+    const url = Bbapi.refreshToken;
 
     final prefs = await SharedPreferences.getInstance();
 
-    
     try {
       // Retrieve stored user data
       String? storedUserData = prefs.getString('userData');
@@ -356,7 +357,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       UserModel user = UserModel.fromJson(json.decode(storedUserData));
       String? currentRefreshToken =
           user.data?.isNotEmpty == true ? user.data![0].refreshToken : null;
-          print("older refreshtoken: $currentRefreshToken");
+      print("older refreshtoken: $currentRefreshToken");
       print('older access token${user.data![0].accessToken}');
       if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
         throw Exception("No valid refresh token found.");
@@ -365,9 +366,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       final response = await http.patch(
         Uri.parse(url),
         headers: {
-         
           'Authorization': 'Bearer $currentRefreshToken',
-
           'Content-Type': 'application/json',
         },
         body: json.encode({"refresh_token": currentRefreshToken}),
@@ -428,7 +427,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
             // Debug: Print user data after saving
             print(
                 "User Data saved in SharedPreferences: ${prefs.getString('userData')}");
-                 print("updated accesstoken ${user.data![0].accessToken}");
+            print("updated accesstoken ${user.data![0].accessToken}");
 
             return newAccessToken; // Return the new access token
           } else {
@@ -523,13 +522,14 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
             selectedImage.path,
             contentType: contentType,
           ));
+
         } else {
           print(
               "serviceengineerProfile image file does not exist: ${selectedImage.path}");
           throw Exception("serviceengineerProfile image file not found");
         }
       }
-
+      
       print("Request Fields: ${request.fields}");
       print("Request Headers: ${request.headers}");
       print('profile is there');
@@ -648,7 +648,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     // final token = prefs.getString('firebaseToken');
 
     print(
-        'name--$name, email--$email, mobile--$phone, photo--${selectedImage?.path}');
+        'printing data ...................name--$name, email--$email, mobile--$phone, photo--${selectedImage?.path}');
 
     if (userId == null || token == null) {
       print('User ID or Firebase token is missing.');
@@ -682,23 +682,47 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       final request = http.MultipartRequest('PUT', Uri.parse(apiUrl))
         ..headers.addAll({
           "Authorization": "Bearer $token",
-          "Content-Type": "multipart/form-data",
+          // "Content-Type": "multipart/form-data",
         })
-        ..fields['name'] = name ?? ''
+        ..fields['ownerName'] = name ?? ''
         ..fields['email'] = email ?? ''
         ..fields['mobile'] = phone ?? '';
 
+      // if (selectedImage != null) {
+      //   if (await selectedImage.exists()) {
+      //     request.files.add(await http.MultipartFile.fromPath(
+      //       'distributorImage',
+      //       selectedImage.path,
+      //     ));
+      //   } else {
+      //     print("Profile image file does not exist: ${selectedImage.path}");
+      //     throw Exception("Profile image file not found");
+      //   }
+      // }
       if (selectedImage != null) {
-        if (await selectedImage.exists()) {
-          request.files.add(await http.MultipartFile.fromPath(
-            'profileImage',
-            selectedImage.path,
-          ));
-        } else {
-          print("Profile image file does not exist: ${selectedImage.path}");
-          throw Exception("Profile image file not found");
-        }
-      }
+  final extension = selectedImage.path.split('.').last.toLowerCase();
+  final allowedExtensions = ['jpg', 'jpeg', 'png'];
+
+  if (!allowedExtensions.contains(extension)) {
+    print("Invalid file type: .$extension. Only jpg, jpeg, or png are allowed.");
+    throw Exception("Only .jpg, .jpeg, or .png files are allowed");
+  }
+
+  if (await selectedImage.exists()) {
+    // import 'package:http_parser/http_parser.dart'; // At top
+
+request.files.add(await http.MultipartFile.fromPath(
+  'distributorImage',
+  selectedImage.path,
+  contentType: MediaType('image', extension == 'png' ? 'png' : 'jpeg'),
+));
+
+  } else {
+    print("Profile image file does not exist: ${selectedImage.path}");
+    throw Exception("Profile image file not found");
+  }
+}
+
 
       print("Request Fields: ${request.fields}");
       print("Request Headers: ${request.headers}");
@@ -709,21 +733,12 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
       // Send the request using the inner client of RetryClient
       final streamedResponse = await retryClient.send(request);
       final response = await http.Response.fromStream(streamedResponse);
-      print('profile is there');
+      print('profile is there${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         print("Profile updated successfully.");
 
-        // final updatedUser = json.decode(response.body);
-        // print('upadated userdata $updatedUser');
-        // state = state.copyWith(
-        //   data: [
-        //     Data.fromJson(updatedUser['user'])
-        //   ], // Assuming response contains updated user data
-        // );
-
-        // // Optionally, update the local storage
-        // await prefs.setString('userData', json.encode(updatedUser));
+        
         var userDetails = json.decode(response.body);
         UserModel user = UserModel.fromJson(userDetails);
         print(" updated Response: ${response.body}");
@@ -731,9 +746,6 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         // Debug: Print the user data to check if it's correct
         print("updated User Data to Save: ${user.toJson()}");
 
-        //state=state.copyWith(messages:userDetails['message'],
-
-        //data: [Data.fromJson(userDetails['user'])],); // Assuming userDetails['user'] maps to the Data model
         state = user;
         final userData = json.encode({
           // 'accessToken': user.data?[0].accessToken,
@@ -759,6 +771,8 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
     }
   }
 }
+
+
 
 final loginProvider =
     StateNotifierProvider<PhoneAuthNotifier, UserModel>((ref) {

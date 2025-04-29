@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/providers/serviceengineer_booking_services_provide.dart';
 import 'package:go_med/providers/spareparetbookingprovider.dart';
-
+import '../providers/Serviceengineersparepartbookingprovider.dart';
+import '../screens/serviceenginnerspareparttrackingscreen.dart';
 // import '../model/sparepartbookingstate.dart';
 
 class Serviceenginnersparepartbooking extends ConsumerStatefulWidget {
@@ -14,17 +16,20 @@ class Serviceenginnersparepartbooking extends ConsumerStatefulWidget {
 
 class _ServiceScreenState
     extends ConsumerState<Serviceenginnersparepartbooking> {
+      var sparePart;
+    
   @override
   void initState() {
     super.initState();
     Future.microtask(() {
-      ref.read(sparepartBookingProvider.notifier).getSparepartBooking();
+      ref.read(serciceEngineerSparepartBookingProvider.notifier).fetchSparepartBookings();
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final sparepartBookingState = ref.watch(sparepartBookingProvider);
+    final sparepartBookingState = ref.watch(serciceEngineerSparepartBookingProvider);
+    final isLoading = sparepartBookingState.statusCode == 0;
 
     return Scaffold(
       appBar: AppBar(
@@ -35,16 +40,15 @@ class _ServiceScreenState
           style: TextStyle(color: Colors.black),
         ),
       ),
-      body: sparepartBookingState.data == null
-          ?  const Center(
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : sparepartBookingState.data!.isEmpty
+              ? const Center(
                   child: Text(
                     'No spare part bookings available.',
                     style: TextStyle(fontSize: 16),
                   ),
                 )
-          : sparepartBookingState.data!.isEmpty
-              
-              ?const Center(child: CircularProgressIndicator())
               : ListView.builder(
                   padding: const EdgeInsets.all(10),
                   itemCount: sparepartBookingState.data!.length,
@@ -80,7 +84,7 @@ class _ServiceScreenState
                                           ),
                                         const SizedBox(height: 8),
                                         Text(
-                                          sparePart.sparepartName ?? 'N/A',
+                                          sparePart.sparePartName ?? 'N/A',
                                           style: const TextStyle(
                                               fontSize: 16,
                                               fontWeight: FontWeight.bold),
@@ -97,6 +101,11 @@ class _ServiceScreenState
                                               fontWeight: FontWeight.bold,
                                               color: Colors.green),
                                         ),
+                                         Text(
+                                          "status: ${sparePart.bookingStatus ?? 'No status'}",
+                                          style: const TextStyle(fontSize: 14),
+                                        ),
+                                        
                                         const Divider(),
                                       ],
                                     );
@@ -112,7 +121,7 @@ class _ServiceScreenState
                                   'Delete',
                                   'Are you sure you want to delete this sparepartbooking?',
                                   () => ref
-                                      .read(sparepartBookingProvider.notifier)
+                                      .read(serciceEngineerSparepartBookingProvider.notifier)
                                       .deleteSparepartBooking(booking.sId),
                                 );
                                 // TODO: Implement cancel booking functionality
@@ -129,6 +138,28 @@ class _ServiceScreenState
                               ),
                               child: const Text(
                                 "Cancel Booking",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                            SizedBox(width: 6,),
+                            ElevatedButton(
+                              onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ServiceEngineerSparePartTrackingScreen(
+          booking: booking,
+        ),
+      ),
+    );
+  },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color.fromARGB(255, 137, 196, 49),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20, vertical: 10),
+                              ),
+                              child: const Text(
+                                "View Details",
                                 style: TextStyle(color: Colors.white),
                               ),
                             ),

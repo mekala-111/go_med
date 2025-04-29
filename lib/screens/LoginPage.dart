@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
@@ -6,6 +7,7 @@ import '../providers/loader.dart';
 import 'dashboard.dart';
 import '../screens/Register.dart';
 import '../providers/auth_provider.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   @override
@@ -202,8 +204,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     width: double.infinity,
                     child: ElevatedButton(
                       onPressed: isOtpEntered && !isLoggingIn
-                          ? () async {
-
+                          ? () async 
+                          {
+                            String smsCode = otpController.text.trim();
+                            if (smsCode.isNotEmpty){
                               setState(() {
                                 isLoggingIn = true;
                               });
@@ -216,11 +220,44 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                             _timer!.cancel();
                                       }
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP Verified Successfully!")));
-                                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
-                              } catch (e) {
-                                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Failed to verify OTP: $e")));
-                              }
+                                } on FirebaseAuthException catch (e) {
+                                  setState(() {
+                                 isLoggingIn  = false;
+                                         });
 
+                                    String errorMessage = 'Verification failed. Please try again.';
+                                    if (e.code == 'invalid-verification-code') {
+                                      errorMessage = 'The OTP you entered is incorrect.';
+                                    } else if (e.code == 'session-expired') {
+                                      errorMessage = 'OTP session expired. Please request a new one.';
+                                    }
+
+                                   ScaffoldMessenger.of(context).showSnackBar(
+                                   SnackBar(
+                                   content: Text(errorMessage),
+                                    backgroundColor: Colors.red,
+                               ),
+                               );
+                                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
+                              } catch (e,stackTrace) {
+                                   setState(() {
+                                     isLoggingIn  = false; // Stop loading if there was an error
+                                   });
+
+                                   FirebaseCrashlytics.instance.recordError(e, stackTrace, reason: 'OTP verification error');
+                                  // Show error message if OTP verification fails
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text("An error occurred: $e"),
+                                    backgroundColor: Colors.red,),
+                                  );
+                                
+                              } 
+                              }else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text("Please enter the OTP."),
+                                  backgroundColor: Colors.red,),
+                                );
+                              }
                               setState(() {
                                 isLoggingIn = false;
                               });

@@ -90,7 +90,12 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     }
   }
 
-  Future<bool> updateBookings(String? bookingId,int? quantity,String? bookingStatus,String? productId) async {
+  Future<bool> updateBookings(
+    String? bookingId,
+    String? bookingStatus,
+    String? productId,
+    { required quantity}
+    ) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
@@ -130,7 +135,8 @@ class BookingsProvider extends StateNotifier<BookingModel> {
       print('Body: ${jsonEncode({
             
             'bookingStatus':bookingStatus,
-            'quantity':quantity,
+            // 'quantity':quantity,
+             if (quantity != null) "quantity": quantity,
             'productId':productId
 
           })}');
@@ -140,7 +146,7 @@ class BookingsProvider extends StateNotifier<BookingModel> {
         return response.statusCode == 401 || response.statusCode == 404;
       });
 
-     final response = await client.put(
+     final response = await client.patch(
   apiUrl,
   headers: {
     "Authorization": "Bearer $token",
@@ -150,7 +156,8 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     "products": [
       {
         "productId": productId,
-        "quantity": quantity,
+        // "quantity": quantity,
+        if (quantity != null) "quantity": quantity,
         "bookingStatus": bookingStatus,
       }
     ],

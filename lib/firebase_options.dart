@@ -42,7 +42,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBCQI-bNCFSenC7rsyc8NHZVxtoUfSH1O8',
-    appId: '1:942219741281:android:05890adb481d01d7624220',
+    appId: '1:942219741281:android:33b74851a0395e3b624220',
     messagingSenderId: '942219741281',
     projectId: 'go-med-serve',
     storageBucket: 'go-med-serve.firebasestorage.app',
@@ -59,12 +59,12 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyBDsnIu_TrR3VnGcu3DQLZCOjprsV7VqhA',
-    appId: '1:942219741281:web:98f68c57cb114357624220',
+    appId: '1:942219741281:web:5184d430f0bc75d1624220',
     messagingSenderId: '942219741281',
     projectId: 'go-med-serve',
     authDomain: 'go-med-serve.firebaseapp.com',
     storageBucket: 'go-med-serve.firebasestorage.app',
-    measurementId: 'G-2T02FSJBXQ',
+    measurementId: 'G-F7SN99V4WR',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
