@@ -135,6 +135,7 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                               'sparePartId': widget.sparePart.productId,
                               'enteredQuantity': _enteredQuantity,
                               'parentId':widget.sparePart.parentId,
+                              'price':widget.sparePart.price
                             },
                           ),
                         ),

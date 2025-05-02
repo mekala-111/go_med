@@ -6,6 +6,8 @@ import 'package:geocoding/geocoding.dart';
 import 'package:google_places_flutter/google_places_flutter.dart';
 import '../providers/auth_provider.dart';
 import '../providers/spareparetbookingprovider.dart';
+import '../screens/serviceEngineerProductsscreen.dart';
+import '../screens/Rezorpay_screen.dart';
 
 class AddressScreen extends ConsumerStatefulWidget {
   const AddressScreen({super.key});
@@ -22,6 +24,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   // List<String> sparepartIds = [];
   late String sparepartIds;
   String? parentId;
+  int? price;
 
   GoogleMapController? _mapController;
   LatLng? _currentPosition;
@@ -47,8 +50,10 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
       // quantity = args['quantity']?.toString();
       enteredQuantity = args['enteredQuantity'];
       parentId = args['parentId'];
+      price = args['price'];
       print('🛠️ Received Spare Part ID: $sparepartIds');
       print('📦 Received Quantity: $enteredQuantity');
+      print('price of sparepart...$price');
     } else {
       print('⚠️ No arguments received.');
     }
@@ -224,61 +229,54 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
               const SizedBox(height: 10),
               Center(
                 child: ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      // if (sparepartIds.isEmpty) {
-                      //   _showSnackBar(context, "No spare parts selected.");
-                      //   return;
-                      // }
+  onPressed: () async {
+    if (_formKey.currentState?.validate() ?? false) {
+      if (_currentPosition == null) {
+        _showSnackBar(context, "Location not found. Try again.");
+        return;
+      }
 
-                      if (_currentPosition == null) {
-                        _showSnackBar(
-                            context, "Location not found. Try again.");
-                        return;
-                      }
+      if (loggedInEngineerId == null || loggedInEngineerId.isEmpty) {
+        _showSnackBar(context, "Service Engineer ID is missing.");
+        return;
+      }
 
-                      if (loggedInEngineerId == null ||
-                          loggedInEngineerId.isEmpty) {
-                        _showSnackBar(
-                            context, "Service Engineer ID is missing.");
-                        return;
-                      }
+      String formattedLocation =
+          "${_currentPosition!.latitude},${_currentPosition!.longitude}";
 
-                      String formattedLocation =
-                          "${_currentPosition!.latitude},${_currentPosition!.longitude}";
+      // Navigate to RazorpayScreen with arguments
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => RazorpayPaymentPage(
+            address: addController.text,
+            location: formattedLocation,
+            sparepartIds: sparepartIds,
+            engineerId: loggedInEngineerId,
+            quantity: enteredQuantity,
+            parentId: parentId,
+            price:price
 
-                      try {
-                        await ref
-                            .read(sparepartBookingProvider.notifier)
-                            .addSparepartBooking(
-                              addController.text,
-                              formattedLocation,
-                              sparepartIds,
-                              loggedInEngineerId,
-                              enteredQuantity,
-                              parentId
-                            );
+          ),
+        ),
+      );
+    } else {
+      _showSnackBar(context, "Please fill all fields.");
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: const Color.fromARGB(255, 31, 176, 84),
+    minimumSize: Size(screenWidth * 0.9, screenHeight * 0.06),
+  ),
+  child: Text(
+    "Book Spare Part",
+    style: TextStyle(
+      fontSize: screenWidth * 0.04,
+      color: Colors.white,
+    ),
+  ),
+),
 
-                        _showSnackBar(
-                            context, "Spare part booked successfully!");
-                        Navigator.of(context).pop();
-                      } catch (e) {
-                        _showSnackBar(context, "Error: ${e.toString()}");
-                      }
-                    } else {
-                      _showSnackBar(context, "Please fill all fields.");
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color.fromARGB(255, 31, 176, 84),
-                    minimumSize: Size(screenWidth * 0.9, screenHeight * 0.06),
-                  ),
-                  child: Text(
-                    "Book Spare Part",
-                    style: TextStyle(
-                        fontSize: screenWidth * 0.04, color: Colors.white),
-                  ),
-                ),
               ),
             ],
           ),

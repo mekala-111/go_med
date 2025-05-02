@@ -6,6 +6,7 @@ import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/Profile.dart';
 import '../providers/logout_notifier.dart';
 import '../screens/LoginPage.dart';
+import '../screens/wallet_screen.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -105,6 +106,10 @@ class SettingsPage extends ConsumerWidget {
               ),
               onTap: () {
                 // Navigate to Wallet
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const WalletScreen()),
+                );
               },
             ),
             const SizedBox(height: 20),
@@ -201,14 +206,14 @@ class SettingsPage extends ConsumerWidget {
     final userModel = ref.read(loginProvider);
     final userId = userModel.data?[0].details?.sId;
     final token = userModel.data?[0].accessToken;
-     print("DEBUG: userId = $userId, token = $token, role = $role"); // Debugging
-     if (userId == null || token == null) {
-    print("ERROR: userId or token is null. Cannot delete account.");
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Error: User data is missing!')),
-    );
-    return;
-  }
+    print("DEBUG: userId = $userId, token = $token, role = $role"); // Debugging
+    if (userId == null || token == null) {
+      print("ERROR: userId or token is null. Cannot delete account.");
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Error: User data is missing!')),
+      );
+      return;
+    }
     showDialog(
       context: context,
       builder: (BuildContext context) {

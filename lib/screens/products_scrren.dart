@@ -5,6 +5,8 @@ import '../providers/Distributor_products_provider.dart';
 import '../screens/BottomNavBar.dart';
 import '../screens/Select_productsscreen.dart';
 import '../screens/request_accepted_list_.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+
 
 class ProductScreen extends ConsumerStatefulWidget {
   const ProductScreen({super.key});
@@ -127,14 +129,27 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
               child: Column(
                 children: [
                   const SizedBox(height: 10),
-                  if (product.productImages != null &&
-                      product.productImages!.isNotEmpty)
-                    Image.network(
-                      product.productImages![0],
+                 product.productImages != null && product.productImages!.isNotEmpty?
+                    CachedNetworkImage(
+                      imageUrl: product.productImages![0],
                       height: 150,
                       width: 280,
                       fit: BoxFit.cover,
-                    ),
+                      placeholder: (context, url) => const SizedBox(
+                        height: 150,
+                        child: Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => const SizedBox(
+                        height: 150,
+                        child: Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
+                      ),
+                    ): const SizedBox(
+      height: 150,
+      width: 280,
+      child: Center(child: Icon(Icons.image_not_supported, size: 50)),
+    ),
+
+                    
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
@@ -233,14 +248,22 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (sparePart.productImages != null &&
-              sparePart.productImages!.isNotEmpty)
-            Image.network(
-              sparePart.productImages![0],
+          if (sparePart.productImages != null && sparePart.productImages!.isNotEmpty)
+          CachedNetworkImage(
+            imageUrl: sparePart.productImages![0],
+            height: 100,
+            width: double.infinity,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => const SizedBox(
               height: 100,
-              width: double.infinity,
-              fit: BoxFit.cover,
+              child: Center(child: CircularProgressIndicator()),
             ),
+            errorWidget: (context, url, error) => const SizedBox(
+              height: 100,
+              child: Center(child: Icon(Icons.broken_image, size: 40, color: Colors.grey)),
+            ),
+          ),
+
           const SizedBox(height: 5),
           Text(
             sparePart.productName ?? 'Unknown Spare Part',

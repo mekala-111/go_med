@@ -66,18 +66,33 @@ class QuantityPartsProvider extends StateNotifier<QuantityPartsModel> {
       );
 
       
-      final  request= await client.post(
-        apiUrl,
-        headers: {
-          "Authorization": "Bearer $token",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          'products':selectedData,
+      // final  request= await client.post(
+      //   apiUrl,
+      //   headers: {
+      //     "Authorization": "Bearer $token",
+      //     "Content-Type": "application/json",
+      //   },
+      //   body: jsonEncode({
+      //     'products':selectedData,
           
-        }),
+      //   }),
         
-      );
+      // );
+      final cleanedProducts = selectedData.map((item) => {
+  'productId': item['productId'],
+  'price': item['price'],
+  'quantity': item['quantity'],
+}).toList();
+
+final request = await client.post(
+  apiUrl,
+  headers: {
+    "Authorization": "Bearer $token",
+    "Content-Type": "application/json",
+  },
+  body: jsonEncode({'products': cleanedProducts}),
+);
+
       
       
 

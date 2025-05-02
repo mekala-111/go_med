@@ -112,47 +112,47 @@ class _ServiceScreenState
                                   }).toList() ??
                                   [],
                             ),
-                            const SizedBox(height: 10),
+                            // const SizedBox(height: 10),
+                            // ElevatedButton(
+                            //   onPressed: () {
+                            //     // Handle delete logic here
+                            //     _showConfirmationDialog(
+                            //       context,
+                            //       'Delete',
+                            //       'Are you sure you want to delete this sparepartbooking?',
+                            //       () => ref
+                            //           .read(serciceEngineerSparepartBookingProvider.notifier)
+                            //           .deleteSparepartBooking(booking.sId),
+                            //     );
+                            //     // TODO: Implement cancel booking functionality
+                            //     ScaffoldMessenger.of(context).showSnackBar(
+                            //       const SnackBar(
+                            //         content: Text("Cancel booking clicked!"),
+                            //       ),
+                            //     );
+                            //   },
+                            //   style: ElevatedButton.styleFrom(
+                            //     backgroundColor: Colors.red,
+                            //     padding: const EdgeInsets.symmetric(
+                            //         horizontal: 20, vertical: 10),
+                            //   ),
+                            //   child: const Text(
+                            //     "Cancel Booking",
+                            //     style: TextStyle(color: Colors.white),
+                            //   ),
+                            // ),
+                            // SizedBox(width: 6,),
                             ElevatedButton(
                               onPressed: () {
-                                // Handle delete logic here
-                                _showConfirmationDialog(
-                                  context,
-                                  'Delete',
-                                  'Are you sure you want to delete this sparepartbooking?',
-                                  () => ref
-                                      .read(serciceEngineerSparepartBookingProvider.notifier)
-                                      .deleteSparepartBooking(booking.sId),
-                                );
-                                // TODO: Implement cancel booking functionality
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text("Cancel booking clicked!"),
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => ServiceEngineerSparePartTrackingScreen(
+                                    booking: booking,
                                   ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 10),
-                              ),
-                              child: const Text(
-                                "Cancel Booking",
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ),
-                            SizedBox(width: 6,),
-                            ElevatedButton(
-                              onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ServiceEngineerSparePartTrackingScreen(
-          booking: booking,
-        ),
-      ),
-    );
-  },
+                                ),
+                              );
+                            },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color.fromARGB(255, 137, 196, 49),
                                 padding: const EdgeInsets.symmetric(

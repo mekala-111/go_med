@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/Quantity_parts_provider.dart';
 import '../model/Distributor_products_model.dart';
 import '../providers/Distributor_products_provider.dart';
+import '../screens/products_scrren.dart';
 
 class SelectedProductsScreen extends ConsumerStatefulWidget {
   final List<Data> selectedProducts;
@@ -81,6 +82,7 @@ class _SelectedProductsScreenState
       "productName": product.productName,
       "price": priceController.text,
       "quantity": qtyController.text,
+      "parentId": null,
     });
 
     return StatefulBuilder(
@@ -111,6 +113,7 @@ class _SelectedProductsScreenState
                           "productName": product.productName,
                           "price": priceController.text,
                           "quantity": qtyController.text,
+                          "parentId": null,
                         });
                       }
                     },
@@ -136,6 +139,7 @@ class _SelectedProductsScreenState
                         "productName": product.productName,
                         "price": val,
                         "quantity": qtyController.text,
+                        "parentId": null,
                       }),
                     ),
                   ),
@@ -153,6 +157,8 @@ class _SelectedProductsScreenState
                               "productName": product.productName,
                               "price": priceController.text,
                               "quantity": qtyController.text,
+                              "parentId": null,
+                              
                             });
                           }
                         },
@@ -169,6 +175,7 @@ class _SelectedProductsScreenState
                             "productName": product.productName,
                             "price": priceController.text,
                             "quantity": val,
+                            "parentId": null, 
                           }),
                         ),
                       ),
@@ -182,6 +189,7 @@ class _SelectedProductsScreenState
                             "productName": product.productName,
                             "price": priceController.text,
                             "quantity": qtyController.text,
+                            "parentId": null,
                           });
                         },
                       ),
@@ -201,6 +209,7 @@ class _SelectedProductsScreenState
                     productName: linkedSparePart.productName,
                     price: linkedSparePart.price,
                     productImages: linkedSparePart.productImages,
+
                     linkedSpareParts: [],
                   );
 
@@ -220,6 +229,7 @@ class _SelectedProductsScreenState
                                 "productName": data.productName,
                                 "price": priceControllers[index].text,
                                 "quantity": qtyControllers[index].text,
+                                "parentId":linkedSparePart.parentId
                               };
                               if (value!) {
                                 updateOrAdd(map);
@@ -318,6 +328,11 @@ class _SelectedProductsScreenState
             print("Selected Items: $selectedItems");
             try {
               await ref.read(quantityPartsProvider.notifier).addQuatity(selectedItems);
+              // Navigate to next screen after successful booking
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ProductScreen()), // Replace with your actual screen
+        );
             } catch (e) {
               print("Error booking items: $e");
             }

@@ -95,12 +95,16 @@ class BottomNavBar extends ConsumerWidget {
       selectedIconTheme: const IconThemeData(color: Colors.black, size: 28),
       unselectedIconTheme: const IconThemeData(color: Colors.white, size: 24),
       onTap: (index) => navigateTo(context, index, role),
-      items: const [
+      items: [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
         BottomNavigationBarItem(icon: Icon(Icons.book), label: 'Bookings'),
         BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Product'),
-        BottomNavigationBarItem(
-            icon: Icon(Icons.miscellaneous_services), label: 'Spare Parts'),
+        // BottomNavigationBarItem(
+        //     icon: Icon(Icons.miscellaneous_services), label: 'Spare Parts'),
+         BottomNavigationBarItem(
+      icon: const Icon(Icons.miscellaneous_services),
+      label: role == 'serviceEngineer' ? 'Services' : 'Spare Parts',
+    ),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
       ],
     );

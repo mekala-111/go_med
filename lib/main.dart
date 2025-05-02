@@ -1,3 +1,4 @@
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
@@ -8,6 +9,7 @@ import 'screens/LoginPage.dart';
 import 'firebase_options.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/Distributor_products_Bookings.dart';
+import '../screens/wallet_screen.dart';
 
 import 'package:go_med/screens/Profile.dart';
 import 'package:go_med/screens/Profile_setup.dart';
@@ -25,7 +27,11 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   options:
-  DefaultFirebaseOptions.currentPlatform;
+  // DefaultFirebaseOptions.currentPlatform;
+  // final db = FirebaseDatabase.instanceFor(
+  //   app: Firebase.app(),
+  //   databaseURL: 'https://go-med-9a330-default-rtdb.firebaseio.com/',
+  // );
   runApp(
     const ProviderScope(
       // Wrap your app with ProviderScope
