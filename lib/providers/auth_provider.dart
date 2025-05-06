@@ -342,112 +342,130 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
   }
 
   Future<String> restoreAccessToken() async {
-    const url = Bbapi.refreshToken;
+  const url = Bbapi.refreshToken;
+  final prefs = await SharedPreferences.getInstance();
 
-    final prefs = await SharedPreferences.getInstance();
+  try {
+    // Retrieve stored user data
+    String? storedUserData = prefs.getString('userData');
 
-    try {
-      // Retrieve stored user data
-      String? storedUserData = prefs.getString('userData');
-
-      if (storedUserData == null) {
-        throw Exception("No stored user data found.");
-      }
-
-      UserModel user = UserModel.fromJson(json.decode(storedUserData));
-      String? currentRefreshToken =
-          user.data?.isNotEmpty == true ? user.data![0].refreshToken : null;
-      print("older refreshtoken: $currentRefreshToken");
-      print('older access token${user.data![0].accessToken}');
-      if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
-        throw Exception("No valid refresh token found.");
-      }
-
-      final response = await http.patch(
-        Uri.parse(url),
-        headers: {
-          'Authorization': 'Bearer $currentRefreshToken',
-          'Content-Type': 'application/json',
-        },
-        body: json.encode({"refresh_token": currentRefreshToken}),
-      );
-
-      var userDetails = json.decode(response.body);
-      print('restore token response $userDetails');
-      switch (response.statusCode) {
-        case 401:
-          // Handle 401 Unauthorized
-          // await logout();
-          // await tryAutoLogin();
-          print("shared preferance ${prefs.getString('userTokens')}");
-
-          break;
-        case 200:
-          print("Refresh access token success");
-
-          // Extract the new access token and refresh token
-          final newAccessToken = userDetails['data']['access_token'];
-          final newRefreshToken = userDetails['data']['refresh_token'];
-
-          print('New access token: $newAccessToken');
-          print('New refresh token: $newRefreshToken');
-
-          // Retrieve existing user data from SharedPreferences
-          String? storedUserData = prefs.getString('userData');
-
-          if (storedUserData != null) {
-            // Parse the stored user data into a UserModel object
-            UserModel user = UserModel.fromJson(json.decode(storedUserData));
-
-            // Update the accessToken and refreshToken in the existing data model
-            user = user.copyWith(
-              data: [
-                user.data![0].copyWith(
-                  accessToken: newAccessToken,
-                  refreshToken: newRefreshToken,
-                ),
-              ],
-            );
-
-            // Convert the updated UserModel back to JSON
-            final updatedUserData = json.encode({
-              'statusCode': user.statusCode,
-              'success': user.success,
-              'messages': user.messages,
-              'data': user.data?.map((data) => data.toJson()).toList(),
-            });
-
-            // Debug: Print updated user data before saving
-            print(
-                "Updated User Data to Save in SharedPreferences: $updatedUserData");
-
-            // Save the updated user data in SharedPreferences
-            await prefs.setString('userData', updatedUserData);
-
-            // Debug: Print user data after saving
-            print(
-                "User Data saved in SharedPreferences: ${prefs.getString('userData')}");
-            print("updated accesstoken ${user.data![0].accessToken}");
-
-            return newAccessToken; // Return the new access token
-          } else {
-            // Handle the case where there is no existing user data in SharedPreferences
-            print("No user data found in SharedPreferences.");
-          }
-      }
-    } on FormatException catch (formatException) {
-      print('Format Exception: ${formatException.message}');
-      print('Invalid response format.');
-    } on HttpException catch (httpException) {
-      print('HTTP Exception: ${httpException.message}');
-    } catch (e) {
-      print('General Exception: ${e.toString()}');
-      if (e is Error) {
-        print('Stack Trace: ${e.stackTrace}');
-      }
+    if (storedUserData == null || storedUserData.isEmpty) {
+      throw Exception("No stored user data found.");
     }
-    return '';
+
+    // Parse the stored user data into a UserModel object
+    UserModel user = UserModel.fromJson(json.decode(storedUserData));
+
+    if (user.data == null || user.data!.isEmpty) {
+      throw Exception("User data is empty or malformed.");
+    }
+
+    String? currentRefreshToken = user.data![0].refreshToken;
+
+    print("Older refresh token: $currentRefreshToken");
+    print("Older access token: ${user.data![0].accessToken}");
+
+    if (currentRefreshToken == null || currentRefreshToken.isEmpty) {
+      throw Exception("No valid refresh token found.");
+    }
+
+    final response = await http.patch(
+      Uri.parse(url),
+      headers: {
+        'Authorization': 'Bearer $currentRefreshToken',
+        'Content-Type': 'application/json',
+      },
+      body: json.encode({"refresh_token": currentRefreshToken}),
+    );
+
+    var userDetails = json.decode(response.body);
+    print('Restore token response: $userDetails');
+
+    switch (response.statusCode) {
+      case 200:
+        print("Refresh access token success");
+
+        // Extract the new access token and refresh token
+        final newAccessToken = userDetails['data']['access_token'];
+        final newRefreshToken = userDetails['data']['refresh_token'];
+
+        print('New access token: $newAccessToken');
+        print('New refresh token: $newRefreshToken');
+
+        // Retrieve existing user data from SharedPreferences
+        String? storedUserData = prefs.getString('userData');
+
+        if (storedUserData != null) {
+          // Parse the stored user data into a UserModel object
+          UserModel user = UserModel.fromJson(json.decode(storedUserData));
+
+          // Update the accessToken and refreshToken in the existing data model
+          user = user.copyWith(
+            data: [
+              user.data![0].copyWith(
+                accessToken: newAccessToken,
+                refreshToken: newRefreshToken,
+              ),
+            ],
+          );
+
+          // Convert the updated UserModel back to JSON
+          final updatedUserData = json.encode({
+            'statusCode': user.statusCode,
+            'success': user.success,
+            'messages': user.messages,
+            'data': user.data?.map((data) => data.toJson()).toList(),
+          });
+
+          // Debug: Print updated user data before saving
+          print("Updated User Data to Save in SharedPreferences: $updatedUserData");
+
+          // Save the updated user data in SharedPreferences
+          await prefs.setString('userData', updatedUserData);
+
+          // Debug: Print user data after saving
+          print("User Data saved in SharedPreferences: ${prefs.getString('userData')}");
+          print("Updated access token: ${user.data![0].accessToken}");
+
+          return newAccessToken; // Return the new access token
+        } else {
+          // Handle the case where there is no existing user data in SharedPreferences
+          print("No user data found in SharedPreferences.");
+        }
+        break;
+
+      case 401:
+        // Handle token expiration (401 Unauthorized)
+        print("Refresh token is invalid or expired. Please log in again.");
+        throw Exception("Refresh token is invalid or expired. Please log in again.");
+
+      case 400:
+        // Handle bad request (token is missing or invalid)
+        print("Bad Request: Invalid refresh token.");
+        throw Exception("Invalid refresh token.");
+
+      default:
+        // Handle any other status codes
+        print("Failed to refresh access token. Status code: ${response.statusCode}");
+        throw Exception("Failed to refresh access token.");
+    }
+  } on FormatException catch (formatException) {
+    print('Format Exception: ${formatException.message}');
+    print('Invalid response format.');
+    throw Exception('Invalid response format.');
+  } on HttpException catch (httpException) {
+    print('HTTP Exception: ${httpException.message}');
+    throw Exception('Network error occurred while refreshing token.');
+  } catch (e) {
+    print('General Exception: ${e.toString()}');
+    if (e is Error) {
+      print('Stack Trace: ${e.stackTrace}');
+    }
+    throw Exception('An unexpected error occurred while refreshing the token.');
   }
+
+  return '';
+}
 
   Future<void> updateServiceProfile(
     String? name,

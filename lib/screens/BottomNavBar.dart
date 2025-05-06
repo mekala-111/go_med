@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/auth_provider.dart';
-import 'package:go_med/screens/Service_engineer_services.dart';
+import 'package:go_med/screens/serviceEngineer_screens/Service_engineer_services.dart';
 import 'package:go_med/screens/dashboard.dart';
-import 'package:go_med/screens/Distributor_products_Bookings.dart';
-import 'package:go_med/screens/products_scrren.dart';
+import 'package:go_med/screens/Ditributor_screens/Distributor_products_Bookings.dart';
+import 'package:go_med/screens/Ditributor_screens/products_scrren.dart';
 import 'package:go_med/screens/settings.dart';
-import 'package:go_med/screens/serviceEngineerProductsscreen.dart';
-import 'package:go_med/screens/Distributor_sparepartbookings.dart';
-import '../screens/serviceEngineerBookingsservicesScreeen.dart';
+import 'package:go_med/screens/serviceEngineer_screens/serviceEngineerProductsscreen.dart';
+import 'package:go_med/screens/Ditributor_screens/Distributor_sparepartbookings.dart';
+import 'serviceEngineer_screens/serviceEngineerBookingsservicesScreeen.dart';
 
 class BottomNavBar extends ConsumerWidget {
   const BottomNavBar({super.key});

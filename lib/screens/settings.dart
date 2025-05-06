@@ -6,7 +6,7 @@ import 'package:go_med/screens/dashboard.dart';
 import 'package:go_med/screens/Profile.dart';
 import '../providers/logout_notifier.dart';
 import '../screens/LoginPage.dart';
-import '../screens/wallet_screen.dart';
+import 'Ditributor_screens/wallet_screen.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
