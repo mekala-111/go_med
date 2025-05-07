@@ -24,7 +24,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   // List<String> sparepartIds = [];
   late String sparepartIds;
   String? parentId;
-  String? distributorId;
+  late String distributorId;
   double? price;
 
   GoogleMapController? _mapController;

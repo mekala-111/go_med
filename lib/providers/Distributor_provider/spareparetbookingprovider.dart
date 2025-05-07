@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../loader.dart';
 import 'package:http/retry.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
   final Ref ref; // To access other providers
@@ -21,9 +22,10 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       String? serviceEngineerId,
       double? quantity,
       String? parentId,
-      String? distributorId) async {
+      String distributorId,
+      double? price) async {
     print(
-        'Booking Details: Address-$address, Location-$location, Service Engineer ID-$serviceEngineerId, Quantity-$quantity, Spare Part ID-$sparepartId,distributorId:$distributorId');
+        'Booking Details: Address-$address, Location-$location, Service Engineer ID-$serviceEngineerId, Quantity-$quantity, Spare Part ID-$sparepartId,distributorId:$distributorId,price:$price');
 
     final loadingState = ref.read(loadingProvider.notifier);
 
@@ -58,6 +60,13 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
       print('Retrieved Token: $token');
 
+      //    List<String> extractedSparepartIds = sparepartId!.map((product) => product['productId'].toString()).toList();
+      // print('Extracted product IDs: $extractedSparepartIds');
+      //  List<String> extractedDistributorIds = sparepartId.map((product) => product['distributorId'].toString()).toList();
+      // print('Extracted distributor IDs: $extractedDistributorIds');
+      //      List<String> extractedPrice = sparepartId.map((product) => product['price'].toString()).toList();
+      // print('Extracted price: $extractedPrice');
+
       // Initialize RetryClient for retrying requests on failure
       final client = RetryClient(
         http.Client(),
@@ -91,12 +100,12 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
           'status': "pending",
           'products': [
             {
-              'distributorId':distributorId,
+              'distributorId': distributorId,
               'productId': sparepartId, // Spare Part ID
               'parentId': parentId, // Example parentId (replace as needed)
               // 'drRequestId': "68031f0be36c9278cb559940", // Example drRequestId (replace as needed)
               'quantity': quantity, // Quantity of the spare part
-              'bookingStatus': "pending" // Default booking status
+              'bookingStatus': "pending", // Default booking status
             }
           ],
         }),
@@ -107,6 +116,38 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       print('Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        // final Map<String, dynamic> responseBody = jsonDecode(response.body);
+        final DatabaseReference dbRef =
+            FirebaseDatabase.instance.ref().child('bookings');
+
+        final DatabaseReference distributorRef = dbRef.child(distributorId);
+
+        final DataSnapshot snapshot = await distributorRef.get();
+        final int totalPrice = ((price ?? 0) * 90 / 100).round();
+        if (snapshot.exists) {
+          // Add to existing wallet
+          final currentData = snapshot.value as Map;
+          final int currentWallet =
+              int.tryParse(currentData['wallet'].toString()) ?? 0;
+          final int updatedWallet = currentWallet + totalPrice;
+
+          await distributorRef.update({
+            'wallet': updatedWallet,
+          });
+
+          print(
+              "Updated wallet for distributor $distributorId: $updatedWallet");
+        } else {
+          // Create new record
+          await distributorRef.set({
+            'distributor_id': distributorId,
+            'wallet': totalPrice,
+          });
+
+          print(
+              "Created new wallet record for distributor $distributorId: $price");
+        }
+
         print("SparepartBooking updated successfully!");
       } else {
         // Handle errors
@@ -263,18 +304,15 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       throw Exception("Error deleting sparepartbooking: $error");
     }
   }
-  Future<bool> updateSparepartBookings(
-    String? bookingId,
-    String? bookingStatus,
-    String? sparepartId,
-    String? parentId,
-     String? distributorId,
-    { required quantity}
-    ) async {
+
+  Future<bool> updateSparepartBookings(String? bookingId, String? bookingStatus,
+      String? sparepartId, String? parentId, String? distributorId,
+      {required quantity}) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
-    print('Booking Data: , bookingId=$bookingId,quantity:$quantity,status:$bookingStatus, productId:$sparepartId,parentId:$parentId,distributorId-$distributorId');
+    print(
+        'Booking Data: , bookingId=$bookingId,quantity:$quantity,status:$bookingStatus, productId:$sparepartId,parentId:$parentId,distributorId-$distributorId');
 
     try {
       // Retrieve the token
@@ -303,15 +341,14 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
       // Debugging: Print full request
       print('API URL: $apiUrl');
-      
+
       print('Body: ${jsonEncode({
-            
-            'bookingStatus':bookingStatus,
+            'bookingStatus': bookingStatus,
             // 'quantity':quantity,
-             if (quantity != null) "quantity": quantity,
-            'productId':sparepartId,
-            'parentId':parentId,
-            'distributorId':distributorId
+            if (quantity != null) "quantity": quantity,
+            'productId': sparepartId,
+            'parentId': parentId,
+            'distributorId': distributorId
           })}');
 
       // Initialize RetryClient
@@ -319,27 +356,26 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
         return response.statusCode == 401 || response.statusCode == 404;
       });
 
-     final response = await client.patch(
-  apiUrl,
-  headers: {
-    "Authorization": "Bearer $token",
-    "Content-Type": "application/json",
-  },
-  body: jsonEncode({
-    "products": [
-      {
-        "productId": sparepartId,
-        // "quantity": quantity,
-        if (quantity != null) "quantity": quantity,
-        "bookingStatus": bookingStatus,
-        'parentId':parentId,
-        'distributorId':distributorId
-      }
-    ],
-    // "status": bookingStatus, // Optional if you want to update root status
-  }),
-);
-
+      final response = await client.patch(
+        apiUrl,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "products": [
+            {
+              "productId": sparepartId,
+              // "quantity": quantity,
+              if (quantity != null) "quantity": quantity,
+              "bookingStatus": bookingStatus,
+              'parentId': parentId,
+              'distributorId': distributorId
+            }
+          ],
+          // "status": bookingStatus, // Optional if you want to update root status
+        }),
+      );
 
       print('Update Status Code: ${response.statusCode}');
       print('Update Response Body: ${response.body}');
@@ -361,14 +397,6 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       loadingState.state = false;
     }
   }
-
-
-
-
-
-
-
-
 }
 
 // Define productProvider with ref

@@ -12,7 +12,7 @@ class RazorpayPaymentPage extends ConsumerStatefulWidget {
   final double? quantity;
   final String? parentId;
   final double? price;
-  final String? distributorId;
+  final String distributorId;
 
   const RazorpayPaymentPage({
     Key? key,
@@ -24,7 +24,7 @@ class RazorpayPaymentPage extends ConsumerStatefulWidget {
     required this.quantity,
     this.parentId,
     this.price,
-    this.distributorId
+    required this.distributorId
   }) : super(key: key);
 
   @override
@@ -33,6 +33,7 @@ class RazorpayPaymentPage extends ConsumerStatefulWidget {
 
 class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
   late Razorpay _razorpay;
+  
 
   @override
   void initState() {
@@ -45,14 +46,21 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
   }
 
   void _startPayment() {
+    final amountInRupees = widget.price ?? 0;
+  final amountInPaise = (amountInRupees * 100).toInt();
+
+  print('Price in rupees: $amountInRupees');
+  print('Amount sent to Razorpay (paise): $amountInPaise');
     var options = {
+
       'key': 'rzp_live_6tvrYJlTwFFGiV', // your actual Razorpay key
-      'amount': (widget.price),
+      'amount': amountInPaise,
       'name': 'Gomed',
       'description': 'Product Booking',
       'prefill': {
         'contact': '9391696616',
         'email': 'ravya@gmail.com',
+       
       },
     };
 
@@ -74,7 +82,9 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
           widget.engineerId,
           widget.quantity,
           widget.parentId,
-          widget.distributorId
+          widget.distributorId,
+          widget.price
+          
         );
 
     ScaffoldMessenger.of(context).showSnackBar(
