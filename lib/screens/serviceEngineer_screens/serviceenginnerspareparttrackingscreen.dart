@@ -10,16 +10,19 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final trackingSteps = ['Booked', 'shipped', 'Completed'];
+    final trackingSteps = ['Booked', 'shipped','outfordelivery', 'Completed'];
 
     int mapStatusToStep(String? status) {
       switch (status?.toLowerCase()) {
         case 'pending':
           return 0;
-        case 'confirmed':
+        case 'start delivery':
           return 1;
-        case 'completed':
+        case 'confirmed':
           return 2;
+        case 'completed':
+          return 3;
+          
         default:
           return 0;
       }
@@ -98,7 +101,8 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
                         const SizedBox(height: 16),
 
                         // Cancel Booking Button
-                        if ((part.bookingStatus?.toLowerCase() ?? '') == 'pending')
+                        if ((part.bookingStatus?.toLowerCase() ?? '') == 'pending'||
+                             (part.bookingStatus?.toLowerCase() ?? '') == 'start delivery')
                           ElevatedButton(
                             onPressed: () {
                               _showConfirmationDialog(

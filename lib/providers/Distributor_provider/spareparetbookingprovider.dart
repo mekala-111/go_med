@@ -23,9 +23,15 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       double? quantity,
       String? parentId,
       String distributorId,
-      double? price) async {
+      double? originalPrice,
+      double? finalPrice,
+      double? totalPrice,
+      double? finalUnitPrice,
+      String? paymentMethod,
+      
+      ) async {
     print(
-        'Booking Details: Address-$address, Location-$location, Service Engineer ID-$serviceEngineerId, Quantity-$quantity, Spare Part ID-$sparepartId,distributorId:$distributorId,price:$price');
+        'Booking Details: Address-$address, Location-$location, Service Engineer ID-$serviceEngineerId, Quantity-$quantity, Spare Part ID-$sparepartId,distributorId:$distributorId,price:$originalPrice');
 
     final loadingState = ref.read(loadingProvider.notifier);
 
@@ -123,7 +129,7 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
         final DatabaseReference distributorRef = dbRef.child(distributorId);
 
         final DataSnapshot snapshot = await distributorRef.get();
-        final int totalPrice = ((price ?? 0) * 90 / 100).round();
+        final int totalPrice = ((originalPrice ?? 0) * 90 / 100).round();
         if (snapshot.exists) {
           // Add to existing wallet
           final currentData = snapshot.value as Map;
@@ -144,8 +150,8 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
             'wallet': totalPrice,
           });
 
-          print(
-              "Created new wallet record for distributor $distributorId: $price");
+          // print(
+              // "Created new wallet record for distributor $distributorId: $price");
         }
 
         print("SparepartBooking updated successfully!");

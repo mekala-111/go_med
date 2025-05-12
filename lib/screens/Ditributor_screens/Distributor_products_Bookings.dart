@@ -17,6 +17,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
   String? bookingId;
   int selectedIndex = 0;
   final List<String> filterOptions = ["All", "Upcoming", "Past"];
+  final TextEditingController otpController = TextEditingController();
 
   @override
   void initState() {
@@ -56,7 +57,6 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
     }
     final loginData = ref.watch(loginProvider);
     final distributorId = loginData.data?.first.details?.sId;
-    print('distributorId....................$distributorId');
 
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
@@ -165,7 +165,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                   ...booking.productIds.map((product) {
                                     return SizedBox(
                                       width: double.infinity,
-                                      height: 260,
+                                      height: 360,
                                       child: Card(
                                         elevation: 4,
                                         margin: const EdgeInsets.symmetric(
@@ -179,15 +179,13 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                             crossAxisAlignment:
                                                 CrossAxisAlignment.start,
                                             children: [
-                                              Text(
-                                                  "${product.productName}",
+                                              Text("${product.productName}",
                                                   style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold)),
                                               Text(
                                                   "Description: ${product.productDescription}"),
-                                              Text(
-                                                  "Qty: ${product.quantity}"),
+                                              Text("Qty: ${product.quantity}"),
                                               Text.rich(
                                                 TextSpan(
                                                   text: "Price: ₹",
@@ -211,86 +209,122 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                               Text(
                                                   "Status: ${product.bookingStatus}"),
                                               const SizedBox(height: 10),
-                                              if (product.bookingStatus ==
-                                                  "pending")
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    bool confirm =
-                                                        await _showConfirmationDialog(
-                                                            context);
-                                                    if (confirm) {
-                                                      try {
-                                                        await ref
-                                                            .read(bookingProvider
-                                                                .notifier)
-                                                            .updateBookings(
+                                             if (product.bookingStatus == "pending")
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                bool confirm = await _showConfirmationDialog(context);
+                                                if (confirm) {
+                                                  try {
+                                                    await ref.read(bookingProvider.notifier).updateBookings(
+                                                          booking.id,
+                                                          quantity: product.quantity,
+                                                          successQuantity:null,
+                                                          price:null,
+                                                          "confirmed",
+                                                          product.id,
+                                                          distributorId,
+                                                          otp:null,
+                                                          type:"COD"
+                                                        );
+                                                  } catch (e) {
+                                                    _showSnackBar(context, e.toString());
+                                                  }
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.grey,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child: const Text("Booking Accept"),
+                                            )
+
+                                          else if (product.bookingStatus == "confirmed")...[
+                                             
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                bool confirm = await _showConfirmationDialog(context);
+                                                if (confirm) {
+                                                  try {
+                                                    await ref.read(bookingProvider.notifier).updateBookings(
+                                                          booking.id,
+                                                          quantity: null,
+                                                          successQuantity:null,
+                                                                price:null,
+                                                          "start delivery",
+                                                          product.id,
+                                                          distributorId,
+                                                           otp:null,
+                                                           type:"COD"
+                                                        );
+                                                  } catch (e) {
+                                                    _showSnackBar(context, e.toString());
+                                                  }
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.grey,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child: const Text("Start Delivery"),
+                                            )
+                                            ]
+
+                                          else if (product.bookingStatus == "start delivery") ...[
+                                           TextFormField(
+                                              controller: otpController,
+                                              keyboardType: TextInputType.number,
+                                              maxLength: 4,
+                                              decoration: const InputDecoration(
+                                                labelText: "Enter 4-digit OTP",
+                                                border: OutlineInputBorder(),
+                                                counterText: "",
+                                              ),
+                                              onChanged: (value) {
+                                                setState(() {});
+                                              },
+                                            ),
+                                            
+                                            ElevatedButton(
+                                              onPressed: otpController.text.length == 4
+                                                  ? () async {
+                                                      bool confirm = await _showConfirmationDialog(context);
+                                                      if (confirm) {
+                                                        try {
+                                                          await ref.read(bookingProvider.notifier).updateBookings(
                                                                 booking.id,
-                                                                quantity:product
-                                                                    .quantity,
-                                                                "confirmed",
-                                                                product.id,
-                                                              distributorId);
-                                                      } catch (e) {
-                                                        _showSnackBar(context,
-                                                            e.toString());
-                                                      }
-                                                    }
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.grey,
-                                                    foregroundColor:
-                                                        Colors.white,
-                                                  ),
-                                                  child: const Text(
-                                                      "Booking Accept"),
-                                                )
-                                              else if (product.bookingStatus ==
-                                                  "confirmed")
-                                                ElevatedButton(
-                                                  onPressed: () async {
-                                                    bool confirm =
-                                                        await _showConfirmationDialog(
-                                                            context);
-                                                    if (confirm) {
-                                                      try {
-                                                        await ref
-                                                            .read(bookingProvider
-                                                                .notifier)
-                                                            .updateBookings(
-                                                                booking.id,
-                                                                quantity:null,
+                                                                quantity: null,
+                                                                successQuantity:product.quantity,
+                                                                price:product.price,
                                                                 "completed",
                                                                 product.id,
-                                                                distributorId);
-                                                        _showSnackBar(context,
-                                                            "Product marked as delivered");
-                                                      } catch (e) {
-                                                        _showSnackBar(context,
-                                                            e.toString());
+                                                                distributorId,
+                                                                otp:otpController,
+                                                                type:"COD"
+                                                              );
+                                                          _showSnackBar(
+                                                              context, "Product marked as delivered");
+                                                        } catch (e) {
+                                                          _showSnackBar(context, e.toString());
+                                                        }
                                                       }
                                                     }
-                                                  },
-                                                  style:
-                                                      ElevatedButton.styleFrom(
-                                                    backgroundColor:
-                                                        Colors.green,
-                                                    foregroundColor:
-                                                        Colors.white,
-                                                  ),
-                                                  child: const Text(
-                                                      "Delivery complete"),
-                                                )
-                                              else if (product.bookingStatus ==
-                                                  "completed")
-                                                const Text(
-                                                  " Product Delivered Successfully",
-                                                  style: TextStyle(
-                                                    color: Colors.green,
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
+                                                  : null,
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.green,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child: const Text("Delivery Completed"),
+                                            ),
+                                          ]
+
+                                          else if (product.bookingStatus == "completed")
+                                            const Text(
+                                              "Product Delivered Successfully",
+                                              style: TextStyle(
+                                                color: Colors.green,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
                                             ],
                                           ),
                                         ),
@@ -340,18 +374,22 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
   Future<bool> _showConfirmationDialog(BuildContext context) async {
     return await showDialog<bool>(
           context: context,
-          builder: (context) => AlertDialog(
-            title: const Text('Confirm'),
-            content: const Text('Are you sure you want to continue?'),
-            actions: [
-              TextButton(
-                  onPressed: () => Navigator.of(context).pop(false),
-                  child: const Text('Cancel')),
-              ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(true),
-                  child: const Text('Confirm')),
-            ],
-          ),
+          builder: (context) {
+            return AlertDialog(
+              title: const Text('Confirmation'),
+              content: const Text('Are you sure you want to proceed?'),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context, false),
+                  child: const Text('Cancel'),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.pop(context, true),
+                  child: const Text('Yes'),
+                ),
+              ],
+            );
+          },
         ) ??
         false;
   }
@@ -362,4 +400,3 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
     );
   }
 }
-

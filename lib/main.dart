@@ -8,20 +8,19 @@ import 'package:go_med/screens/product_edit.dart';
 import 'screens/LoginPage.dart';
 import 'firebase_options.dart';
 import 'package:go_med/providers/auth_provider.dart';
-import 'package:go_med/screens/Distributor_products_Bookings.dart';
-import '../screens/wallet_screen.dart';
+import 'package:go_med/screens/Ditributor_screens/Distributor_products_Bookings.dart';
+import 'screens/Ditributor_screens/wallet_screen.dart';
 
 import 'package:go_med/screens/Profile.dart';
 import 'package:go_med/screens/Profile_setup.dart';
 import 'package:go_med/screens/Register.dart';
 import 'package:go_med/screens/Services.dart';
 
-import 'package:go_med/screens/products_scrren.dart';
+import 'package:go_med/screens/Ditributor_screens/products_scrren.dart';
 import 'package:go_med/screens/services_edit.dart';
-import 'package:go_med/screens/Distributor_sparepartbookings.dart';
+import 'package:go_med/screens/Ditributor_screens/Distributor_sparepartbookings.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:flutter/services.dart'; // Required for screen orientation
-
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -40,7 +39,6 @@ void main() async {
   );
 }
 
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -58,10 +56,15 @@ class MyApp extends StatelessWidget {
             final accessToken = authState.data?.isNotEmpty == true
                 ? authState.data![0].accessToken
                 : null;
-
+            final status = authState.data?.isNotEmpty == true
+                ? authState.data![0].details?.status
+                : null;
             print('token/main $accessToken');
+            print('status...$status');
             // Check if the user has a valid refresh token
-            if (accessToken != null && accessToken.isNotEmpty) {
+            if (accessToken != null && accessToken.isNotEmpty 
+            // && status=='Active'
+            ) {
               print('navigate to the dashboard....................');
               return const DashboardPage(); // User is authenticated, redirect to Home
             } else {
@@ -84,9 +87,9 @@ class MyApp extends StatelessWidget {
                 } else if (snapshot.hasData &&
                     snapshot.data == true &&
                     (accessToken != null && accessToken.isNotEmpty) &&
+                    //  authState.data![0].details!.status=='Active'&&
                     (authState.data![0].details!.role == "distributor" ||
-                        authState.data![0].details!.role ==
-                            "serviceEngineer")) {
+                     authState.data![0].details!.role =="serviceEngineer")) {
                   // If auto-login is successful and refresh token is available, go to Dashboard
                   return const DashboardPage();
                 } else {
@@ -103,14 +106,14 @@ class MyApp extends StatelessWidget {
           "loginscreen": (context) => LoginScreen(),
           "dashboardpage": (context) => const DashboardPage(),
           "bookingpage": (context) => const BookingsScreen(),
-          "profilesetuppage": (context) => const ProfileSetupPage(),
+          // "profilesetuppage": (context) => const ProfileSetupPage(),
           "profilepage": (context) => const ProfilePage(),
           "registrationpage": (context) => const RegistrationPage(),
           // "servicepageedit": (context) => const ServicesPageEdit(),
           // "servicepage": (context) => const ServicesPage(),
           "settingspage": (context) => const SettingsPage(),
-          "distributorsparepartbooking": (context) => const DistributorSparepartbookings(),
-
+          "distributorsparepartbooking": (context) =>
+              const DistributorSparepartbookings(),
         });
     // This trailing comma makes auto-formatting nicer for build methods.
   }

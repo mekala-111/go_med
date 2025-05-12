@@ -144,10 +144,10 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                         child: Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
                       ),
                     ): const SizedBox(
-      height: 150,
-      width: 280,
-      child: Center(child: Icon(Icons.image_not_supported, size: 50)),
-    ),
+                    height: 150,
+                    width: 280,
+                    child: Center(child: Icon(Icons.image_not_supported, size: 50)),
+                  ),
 
                     
                   Padding(

@@ -25,7 +25,11 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   late String sparepartIds;
   String? parentId;
   late String distributorId;
-  double? price;
+  double? originalPrice;
+  double? finalPrice;
+  double? totalPrice;
+  double? finalUnitPrice;
+  String? paymentMethod;
 
   GoogleMapController? _mapController;
   LatLng? _currentPosition;
@@ -51,12 +55,21 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
       // quantity = args['quantity']?.toString();
       enteredQuantity = args['enteredQuantity'];
       parentId = args['parentId'];
-      price = args['price'];
+      originalPrice = args['originalprice'];
+      totalPrice = args['totalPrice'];
+      finalPrice = args['finalPrice'];
       distributorId = args['distributorId'];
+      finalUnitPrice = args['finalUnitPrice'];
+      paymentMethod = args['paymentMethod'];
+
       print('🛠️ Received Spare Part ID: $sparepartIds');
       print('📦 Received Quantity: $enteredQuantity');
-      print('price of sparepart...$price');
+      print('price of sparepart original price...$originalPrice');
+      print('price of sparepart finalprice...$finalPrice');
+      print('price of sparepart totalprice...$totalPrice');
       print('distributor id...$distributorId');
+       print('paymentmethod...$paymentMethod');
+       print('price finalunitprice...$finalUnitPrice');
     } else {
       print('⚠️ No arguments received.');
     }
@@ -261,8 +274,19 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
                               engineerId: loggedInEngineerId,
                               quantity: enteredQuantity,
                               parentId: parentId,
-                              price: price,
-                              distributorId:distributorId),
+                              distributorId: distributorId,
+                              originalPrice: originalPrice,
+                              totalPrice:totalPrice ,
+                              finalPrice:finalPrice ,
+                              finalUnitPrice:finalUnitPrice,
+                              paymentMethod:paymentMethod
+      //                          totalPrice = args['totalPrice'];
+      // finalPrice = args['finalPrice'];
+     
+      // finalUnitPrice = args['finalUnitPrice'];
+      // paymentMethod = args['paymentMethod'];
+                              
+                              ),
                         ),
                       );
                     } else {

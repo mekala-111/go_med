@@ -37,6 +37,7 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
     final allItems = productState.data ?? [];
     final mainProducts = allItems.where((item) => item.parentId == null).toList();
     final spareParts = allItems.where((item) => item.parentId != null).toList();
+    
 
     return Scaffold(
       appBar: AppBar(
@@ -82,6 +83,8 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                         final relatedSpareParts = spareParts
                             .where((sp) => sp.parentId == product.productId)
                             .toList();
+                            final double finalPrice = (product.price ?? 0) * 1.10;
+
 
                         return Card(
                           margin: EdgeInsets.symmetric(vertical: screenHeight * 0.01),
@@ -117,14 +120,16 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                         ),
                                 ),
                                 SizedBox(height: screenHeight * 0.005),
-                                Text(
-                                  "₹${product.price?.toStringAsFixed(2) ?? "0.00"}",
+                               Text(
+                                  "₹${finalPrice.toStringAsFixed(2)}",
                                   style: TextStyle(
                                     fontSize: screenWidth * 0.04,
                                     fontWeight: FontWeight.bold,
                                     color: Colors.green,
                                   ),
                                 ),
+
+
                                 SizedBox(height: screenHeight * 0.005),
                                 Text(
                                   "Description: ${product.productDescription ?? "No description"}",
@@ -160,6 +165,8 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                               itemCount: relatedSpareParts.length,
                                               itemBuilder: (context, spIndex) {
                                                 final sparePart = relatedSpareParts[spIndex];
+                                                final double sparePartFinalPrice = (sparePart.price ?? 0) * 1.10;
+
                                                 return GestureDetector(
                                                    onTap: () {
                                                 Navigator.push(
@@ -168,7 +175,8 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                     builder: (context) =>
                                                         SparePartDetailScreen(
                                                             sparePart:
-                                                                sparePart),
+                                                                sparePart,finalPrice: sparePartFinalPrice,
+                                                                originalPrice: sparePart.price,),
                                                   ),
                                                 );
                                                },
@@ -190,7 +198,7 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                                 ? Image.network(
                                                                     sparePart.productImages!.first,
                                                                     width: screenWidth * 0.2,
-                                                                    height: screenWidth * 0.1,
+                                                                    height: screenWidth * 0.2,
                                                                     fit: BoxFit.cover,
                                                                   )
                                                                 : Container(
@@ -214,32 +222,36 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
                                                           ),
-                                                          Text(
-                                                            "₹${sparePart.price?.toStringAsFixed(2) ?? "0.00"}",
-                                                            style: TextStyle(
-                                                              fontSize: screenWidth * 0.025,
-                                                              color: Colors.green,
-                                                            ),
+                                                         Text(
+                                                          "₹${sparePartFinalPrice.toStringAsFixed(2)}",
+                                                          style: TextStyle(
+                                                            fontSize: screenWidth * 0.025,
+                                                            color: Colors.green,
                                                           ),
-                                                          SizedBox(height: screenHeight * 0.005),
+                                                        ),
+
+                                                          
+                                                         
                                                           SizedBox(
                                                             width: screenWidth * 0.2,
                                                             child: Text(
                                                               sparePart.productDescription ?? "No description",
                                                               style: TextStyle(fontSize: screenWidth * 0.025),
-                                                              maxLines: 2,
+                                                              maxLines: 1,
                                                               overflow: TextOverflow.ellipsis,
                                                             ),
                                                           ),
+                                                           SizedBox(height: screenHeight * 0.005),
                                                           SizedBox(
-                                                            width: screenWidth * 0.2,
+                                                           
                                                             child: ElevatedButton(
                                                               onPressed: () {
                                                                 Navigator.push(
                                                                   context,
                                                                   MaterialPageRoute(
                                                                     builder: (context) =>  SparePartDetailScreen(sparePart:
-                                                                sparePart),
+                                                                sparePart,finalPrice: finalPrice,
+                                                                originalPrice: sparePart.price,),
                                                                     // settings: RouteSettings(arguments: {
                                                                     //   'sparePartIds': sparePart.productId,
                                                                     //   'quantity':sparePart.quantity
@@ -247,10 +259,13 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                                   ),
                                                                 );
                                                               },
-                                                              style: ElevatedButton.styleFrom(
-                                                                backgroundColor:
-                                                                    const Color.fromARGB(255, 150, 170, 238),
-                                                              ),
+                                                               style: ElevatedButton.styleFrom(
+                                                                    backgroundColor: const Color.fromARGB(255, 150, 170, 238),
+                                                                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 0),
+                                                                    minimumSize: Size.zero, // removes default minimum button size
+                                                                    tapTargetSize: MaterialTapTargetSize.shrinkWrap, // makes it tighter
+                                                                  ),
+                                                             
                                                               child: Text(
                                                                 "Next",
                                                                 style: TextStyle(

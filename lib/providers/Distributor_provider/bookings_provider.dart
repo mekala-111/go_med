@@ -95,7 +95,8 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     String? bookingStatus,
     String? productId,
     String? distributorId,
-    { required quantity}
+    
+    { required quantity,required otp,required successQuantity,required price,required type}
     ) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
@@ -160,7 +161,8 @@ class BookingsProvider extends StateNotifier<BookingModel> {
         // "quantity": quantity,
         if (quantity != null) "quantity": quantity,
         "bookingStatus": bookingStatus,
-        "distributorId":distributorId
+        "distributorId":distributorId,
+        if (otp != null) "otp": otp,
       }
     ],
     // "status": bookingStatus, // Optional if you want to update root status
@@ -172,6 +174,15 @@ class BookingsProvider extends StateNotifier<BookingModel> {
       print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        if(bookingStatus=='completed'){
+          if(type=='COD'){
+            
+
+          }
+          else if(type=='Netbanking') {
+            
+          }       
+          }
         print("Booking updated successfully!");
         getBookings(); // Refresh bookings list
         return true;
