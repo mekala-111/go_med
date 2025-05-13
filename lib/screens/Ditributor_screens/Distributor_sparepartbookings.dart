@@ -27,7 +27,7 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
     final sparepartBookingState = ref.watch(sparepartBookingProvider);
     final isLoading = sparepartBookingState.statusCode == 0;
     final loginData = ref.watch(loginProvider);
-    final distributorId = loginData.data?.first.details?.sId;
+    final  distributorId = loginData.data?.first.details?.sId;
     print('distributorId....................$distributorId');
 
     return Scaffold(
@@ -154,7 +154,8 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                             "confirmed",
                                                             sparePart.sId,
                                                             sparePart.parentId,
-                                                            distributorId);
+                                                            distributorId,
+                                                            sparePart.price);
                                                   } catch (e) {
                                                     _showSnackBar(
                                                         context, e.toString());
@@ -187,7 +188,8 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                             "completed",
                                                             sparePart.sId,
                                                             sparePart.parentId,
-                                                            distributorId);
+                                                            distributorId,
+                                                            sparePart.price);
                                                     _showSnackBar(context,
                                                         "sparepart marked as delivered");
                                                   } catch (e) {
