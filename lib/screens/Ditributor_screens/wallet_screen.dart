@@ -99,16 +99,19 @@ class WalletScreen extends ConsumerWidget {
     );
   }
 
+
   void _showWithdrawForm(
       BuildContext context, WidgetRef ref, String distributorId) {
     final walletBalance = ref.read(walletProvider(distributorId)).value ?? 0;
-    print('wallet balance.............$walletBalance');
 
     final _formKey = GlobalKey<FormState>();
     final amountController = TextEditingController();
     final ifscController = TextEditingController();
     final accountNumberController = TextEditingController();
     final nameController = TextEditingController();
+    final upiIdController = TextEditingController();
+
+    ValueNotifier<String> method = ValueNotifier<String>('Banking');
 
     showModalBottomSheet(
       context: context,
@@ -123,132 +126,192 @@ class WalletScreen extends ConsumerWidget {
         child: Form(
           key: _formKey,
           child: SingleChildScrollView(
-            child: Column(
-              children: [
-                const Text(
-                  'Withdraw Details',
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 20),
+            child: ValueListenableBuilder<String>(
+              valueListenable: method,
+              builder: (context, selectedMethod, _) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Center(
+                      child: Text(
+                        'Withdraw Details',
+                        style:
+                            TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
 
-                // Amount Field
-                TextFormField(
-                  controller: amountController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount (₹)',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    final amount = double.tryParse(value ?? '');
-                    if (amount == null ||
-                        amount <= 0 ||
-                        value!.trim().isEmpty) {
-                      return 'Enter a valid amount';
-                    }
-                    if (amount > walletBalance) {
-                      // Display the wallet balance in the error message
-                      return 'Amount exceeds wallet balance ₹$walletBalance';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
+                    // Radio Buttons
+                    Row(
+                      children: [
+                        Radio<String>(
+                          value: 'Banking',
+                          groupValue: selectedMethod,
+                          onChanged: (value) => method.value = value!,
+                        ),
+                        const Text('Banking'),
+                        Radio<String>(
+                          value: 'UPI',
+                          groupValue: selectedMethod,
+                          onChanged: (value) => method.value = value!,
+                        ),
+                        const Text('UPI'),
+                      ],
+                    ),
+                    const SizedBox(height: 10),
 
-                // IFSC Field
-                TextFormField(
-                  controller: ifscController,
-                  decoration: const InputDecoration(
-                    labelText: 'IFSC Code',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.isEmpty || value.length < 5) {
-                      return 'Enter valid IFSC code';
-                    }
-                    final pattern = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
-                    if (!pattern.hasMatch(value.trim().toUpperCase())) {
-                      return 'Enter a valid IFSC code';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                // Account Number Field
-                TextFormField(
-                  controller: accountNumberController,
-                  keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
-                    labelText: 'Account Number',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.length < 6) {
-                      return 'Enter valid account number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 12),
-
-                // Account Holder Name
-                TextFormField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Account Holder Name',
-                    border: OutlineInputBorder(),
-                  ),
-                  validator: (value) {
-                    if (value == null || value.trim().isEmpty) {
-                      return 'Enter account holder name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-
-                SizedBox(
-                  width: double.infinity,
-                  height: 48,
-                  child: ElevatedButton(
-                    onPressed: () async {
-                      if (_formKey.currentState!.validate()) {
-                        try {
-                          await ref
-                              .read(walletDataProvider.notifier)
-                              .addWalletData(
-                                  distributorId,
-                                  amountController.text,
-                                  ifscController.text,
-                                  accountNumberController.text,
-                                  nameController.text);
-                          accountNumberController.clear();
-
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content:
-                                    Text('✅ wallet data  goes successfully!')),
-                          );
-
-                          Navigator.pop(context);
-                        } catch (e) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error sending data: $e')),
-                          );
-                          Navigator.pop(context);
+                    // Amount Field
+                    TextFormField(
+                      controller: amountController,
+                      keyboardType: TextInputType.number,
+                      decoration: const InputDecoration(
+                        labelText: 'Amount (₹)',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        final amount = double.tryParse(value ?? '');
+                        if (amount == null ||
+                            amount <= 0 ||
+                            value!.trim().isEmpty) {
+                          return 'Enter a valid amount';
                         }
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Withdrawal request submitted')),
-                        );
-                      }
-                    },
-                    child: const Text('Submit Withdrawal'),
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
+                        if (amount > walletBalance) {
+                          return 'Amount exceeds wallet balance ₹$walletBalance';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Common Field: Name
+                    TextFormField(
+                      controller: nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Account Holder Name',
+                        border: OutlineInputBorder(),
+                      ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return 'Enter account holder name';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 12),
+
+                    // Banking-specific fields
+                    if (selectedMethod == 'Banking') ...[
+                      TextFormField(
+                        controller: ifscController,
+                        decoration: const InputDecoration(
+                          labelText: 'IFSC Code',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null ||
+                              value.isEmpty ||
+                              value.length < 5) {
+                            return 'Enter valid IFSC code';
+                          }
+                          final pattern =
+                              RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
+                          // if (!pattern.hasMatch(value.trim().toUpperCase())) {
+                          //   return 'Enter a valid IFSC code';
+                          // }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      TextFormField(
+                        controller: accountNumberController,
+                        keyboardType: TextInputType.number,
+                        decoration: const InputDecoration(
+                          labelText: 'Account Number',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.length < 6) {
+                            return 'Enter valid account number';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+
+                    // UPI-specific fields
+                    if (selectedMethod == 'UPI') ...[
+                      TextFormField(
+                        controller: upiIdController,
+                        decoration: const InputDecoration(
+                          labelText: 'UPI ID',
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (value == null || !value.contains('@')) {
+                            return 'Enter valid UPI ID';
+                          }
+                          return null;
+                        },
+                      ),
+                    ],
+
+                    const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 48,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          if (_formKey.currentState!.validate()) {
+                            try {
+                              if (selectedMethod == 'Banking') {
+                                await ref
+                                    .read(walletDataProvider.notifier)
+                                    .addWalletData(
+                                      distributorId,
+                                      amountController.text,
+                                      nameController.text,
+                                      ifscNumber:ifscController.text,
+                                      accountNUmber:accountNumberController.text,
+                                      upi:null,
+                                      selectedMethod
+                                    );
+                              } else {
+                                await ref
+                                    .read(walletDataProvider.notifier)
+                                    .addWalletData(
+                                      distributorId,
+                                      amountController.text,
+                                      nameController.text,
+                                      upi:upiIdController.text,
+                                      ifscNumber:null,
+                                      accountNUmber:null,
+                                      selectedMethod
+                                      
+                                    );
+                              }
+
+                              Navigator.pop(context);
+
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                    content: Text(
+                                        '✅ Withdrawal request submitted!')),
+                              );
+                            } catch (e) {
+                              Navigator.pop(context);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Error: $e')),
+                              );
+                            }
+                          }
+                        },
+                        child: const Text('Submit Withdrawal'),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                );
+              },
             ),
           ),
         ),

@@ -66,12 +66,7 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
       print('Retrieved Token: $token');
 
-      //    List<String> extractedSparepartIds = sparepartId!.map((product) => product['productId'].toString()).toList();
-      // print('Extracted product IDs: $extractedSparepartIds');
-      //  List<String> extractedDistributorIds = sparepartId.map((product) => product['distributorId'].toString()).toList();
-      // print('Extracted distributor IDs: $extractedDistributorIds');
-      //      List<String> extractedPrice = sparepartId.map((product) => product['price'].toString()).toList();
-      // print('Extracted price: $extractedPrice');
+     
 
       // Initialize RetryClient for retrying requests on failure
       final client = RetryClient(
@@ -105,14 +100,15 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
           'serviceEngineerId': serviceEngineerId,
           'status': "pending",
           'type':paymentMethod,
-          '...............':originalPrice,
+          
           'userPrice':finalPrice,
-           if (paymentMethod == 'COD') '.........': finalUnitPrice,
+           if (paymentMethod == 'COD')'paidprice': finalUnitPrice,
           'totalPrice':totalPrice,
+          "Otp": "5765",
           'products': [
             {
               'distributorId': distributorId,
-              
+              'userPrice':finalPrice,
               'productId': sparepartId, // Spare Part ID
               'parentId': parentId, // Example parentId (replace as needed)
               // 'drRequestId': "68031f0be36c9278cb559940", // Example drRequestId (replace as needed)
@@ -130,36 +126,36 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         // final Map<String, dynamic> responseBody = jsonDecode(response.body);
-        final DatabaseReference dbRef =
-            FirebaseDatabase.instance.ref().child('bookings');
+        // final DatabaseReference dbRef =
+        //     FirebaseDatabase.instance.ref().child('bookings');
 
-        final DatabaseReference distributorRef = dbRef.child(distributorId);
+        // final DatabaseReference distributorRef = dbRef.child(distributorId);
 
-        final DataSnapshot snapshot = await distributorRef.get();
-        final int totalPrice = ((originalPrice ?? 0) * 90 / 100).round();
-        if (snapshot.exists) {
-          // Add to existing wallet
-          final currentData = snapshot.value as Map;
-          final int currentWallet =
-              int.tryParse(currentData['wallet'].toString()) ?? 0;
-          final int updatedWallet = currentWallet + totalPrice;
+        // final DataSnapshot snapshot = await distributorRef.get();
+        // final int totalPrice = ((originalPrice ?? 0) * 90 / 100).round();
+        // if (snapshot.exists) {
+        //   // Add to existing wallet
+        //   final currentData = snapshot.value as Map;
+        //   final int currentWallet =
+        //       int.tryParse(currentData['wallet'].toString()) ?? 0;
+        //   final int updatedWallet = currentWallet + totalPrice;
 
-          await distributorRef.update({
-            'wallet': updatedWallet,
-          });
+        //   await distributorRef.update({
+        //     'wallet': updatedWallet,
+        //   });
 
-          print(
-              "Updated wallet for distributor $distributorId: $updatedWallet");
-        } else {
-          // Create new record
-          await distributorRef.set({
-            'distributor_id': distributorId,
-            'wallet': totalPrice,
-          });
+        //   print(
+        //       "Updated wallet for distributor $distributorId: $updatedWallet");
+        // } else {
+        //   // Create new record
+        //   await distributorRef.set({
+        //     'distributor_id': distributorId,
+        //     'wallet': totalPrice,
+        //   });
 
-          // print(
-              // "Created new wallet record for distributor $distributorId: $price");
-        }
+        //   // print(
+        //       // "Created new wallet record for distributor $distributorId: $price");
+        // }
 
         print("SparepartBooking added successfully!");
       } else {
@@ -319,8 +315,9 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
   }
 
   Future<bool> updateSparepartBookings(String? bookingId, String? bookingStatus,
-      String? sparepartId, String? parentId, String? distributorId,int? price,
-      {required quantity}) async {
+      String? sparepartId, String? parentId, String? distributorId,int? price,String? type,
+      double? paidprice,double? totalprice,
+      {required quantity,required otp}) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
@@ -361,7 +358,8 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
             if (quantity != null) "quantity": quantity,
             'productId': sparepartId,
             'parentId': parentId,
-            'distributorId': distributorId
+            'distributorId': distributorId,
+            'type':type
           })}');
 
       // Initialize RetryClient
@@ -379,14 +377,17 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
           "products": [
             {
               "productId": sparepartId,
-              // "quantity": quantity,
-              if (quantity != null) "quantity": quantity,
+               if (quantity != null) "quantity": quantity,
               "bookingStatus": bookingStatus,
               'parentId': parentId,
               'distributorId': distributorId
+              ,'type':type
             }
           ],
           // "status": bookingStatus, // Optional if you want to update root status
+           if (otp != null) 'otp':otp,
+           'type':type
+
         }),
       );
 
@@ -394,36 +395,36 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // final DatabaseReference dbRef =
-        //     FirebaseDatabase.instance.ref().child('bookings');
+        final DatabaseReference dbRef =
+            FirebaseDatabase.instance.ref().child('bookings');
 
-        // final DatabaseReference distributorRef = dbRef.child(distributorId!);
+        final DatabaseReference distributorRef = dbRef.child(distributorId!);
 
-        // final DataSnapshot snapshot = await distributorRef.get();
-        // final int totalPrice = ((price ?? 0) * 90 / 100).round();
-        // if (snapshot.exists) {
-        //   // Add to existing wallet
-        //   final currentData = snapshot.value as Map;
-        //   final int currentWallet =
-        //       int.tryParse(currentData['wallet'].toString()) ?? 0;
-        //   final int updatedWallet = currentWallet + totalPrice;
+        final DataSnapshot snapshot = await distributorRef.get();
+        final int totalPrice = ((price ?? 0) * 90 / 100).round();
+        if (snapshot.exists) {
+          // Add to existing wallet
+          final currentData = snapshot.value as Map;
+          final int currentWallet =
+              int.tryParse(currentData['wallet'].toString()) ?? 0;
+          final int updatedWallet = currentWallet + totalPrice;
 
-        //   await distributorRef.update({
-        //     'wallet': updatedWallet,
-        //   });
+          await distributorRef.update({
+            'wallet': updatedWallet,
+          });
 
-        //   print(
-        //       "Updated wallet for distributor $distributorId: $updatedWallet");
-        // } else {
-        //   // Create new record
-        //   await distributorRef.set({
-        //     'distributor_id': distributorId,
-        //     'wallet': totalPrice,
-        //   });
+          print(
+              "Updated wallet for distributor $distributorId: $updatedWallet");
+        } else {
+          // Create new record
+          await distributorRef.set({
+            'distributor_id': distributorId,
+            'wallet': totalPrice,
+          });
 
-        //   // print(
-        //       // "Created new wallet record for distributor $distributorId: $price");
-        // }
+          print(
+              "Created new wallet record for distributor $distributorId: $price");
+        }
 
         print(" sparepart Booking updated successfully!");
         getSparepartBooking(); // Refresh bookings list

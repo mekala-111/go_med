@@ -165,7 +165,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                   ...booking.productIds.map((product) {
                                     return SizedBox(
                                       width: double.infinity,
-                                      height: 360,
+                                      // height: 240,
                                       child: Card(
                                         elevation: 4,
                                         margin: const EdgeInsets.symmetric(
@@ -184,11 +184,13 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                       fontWeight:
                                                           FontWeight.bold)),
                                               Text(
-                                                  "Description: ${product.productDescription}"),
+                                                  "Description: ${product.productDescription}",
+                                                   maxLines: 1,
+                                                  overflow: TextOverflow.ellipsis,),
                                               Text("Qty: ${product.quantity}"),
                                               Text.rich(
                                                 TextSpan(
-                                                  text: "Price: ₹",
+                                                  text: "Price:₹",
                                                   style: const TextStyle(
                                                       fontSize: 12,
                                                       color: Colors.black),
@@ -206,6 +208,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                   ],
                                                 ),
                                               ),
+                                              Text("AvailableStock:${product.availableStock??0}"),
                                               Text(
                                                   "Status: ${product.bookingStatus}"),
                                               const SizedBox(height: 10),
@@ -217,14 +220,14 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                   try {
                                                     await ref.read(bookingProvider.notifier).updateBookings(
                                                           booking.id,
-                                                          quantity: product.quantity,
+                                                          quantity: null,
                                                           successQuantity:null,
                                                           price:null,
                                                           "confirmed",
                                                           product.id,
                                                           distributorId,
                                                           otp:null,
-                                                          type:"COD"
+                                                          type:"cod"
                                                         );
                                                   } catch (e) {
                                                     _showSnackBar(context, e.toString());
@@ -247,14 +250,14 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                   try {
                                                     await ref.read(bookingProvider.notifier).updateBookings(
                                                           booking.id,
-                                                          quantity: null,
+                                                          quantity: product.quantity,
                                                           successQuantity:null,
                                                                 price:null,
-                                                          "start delivery",
+                                                          "startDelivery",
                                                           product.id,
                                                           distributorId,
                                                            otp:null,
-                                                           type:"COD"
+                                                           type:"cod"
                                                         );
                                                   } catch (e) {
                                                     _showSnackBar(context, e.toString());
@@ -269,7 +272,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                             )
                                             ]
 
-                                          else if (product.bookingStatus == "start delivery") ...[
+                                          else if (product.bookingStatus == "startDelivery") ...[
                                            TextFormField(
                                               controller: otpController,
                                               keyboardType: TextInputType.number,
@@ -298,7 +301,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                                 "completed",
                                                                 product.id,
                                                                 distributorId,
-                                                                otp:otpController,
+                                                                otp:otpController.text.trim(),
                                                                 type:"COD"
                                                               );
                                                           _showSnackBar(

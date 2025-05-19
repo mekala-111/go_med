@@ -78,11 +78,24 @@ class QuantityPartsProvider extends StateNotifier<QuantityPartsModel> {
       //   }),
         
       // );
-      final cleanedProducts = selectedData.map((item) => {
-  'productId': item['productId'],
-  'price': item['price'],
-  'quantity': item['quantity'],
+//       final cleanedProducts = selectedData.map((item) => {
+//   'productId': item['productId'],
+//   'price': item['price'],
+//   'quantity': item['quantity'],
+//   'parentId': item['parentId'],
+// }).toList();
+final cleanedProducts = selectedData.map((item) {
+  final map = {
+    'productId': item['productId'],
+    'price': item['price'],
+    'quantity': item['quantity'],
+  };
+  if (item['parentId'] != null) {
+    map['parentId'] = item['parentId'];
+  }
+  return map;
 }).toList();
+
 
 final request = await client.post(
   apiUrl,

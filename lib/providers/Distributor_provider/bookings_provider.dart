@@ -101,7 +101,7 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
-    print('Booking Data: , bookingId=$bookingId,quantity:$quantity,status:$bookingStatus, productId:$productId, booking id:::$bookingId,distributorId:$distributorId');
+    print('Booking Data: , bookingId=$bookingId,quantity:$quantity,status:$bookingStatus, productId:$productId, distributorId:$distributorId,otp:$otp,,type:$type');
 
     try {
       // Retrieve the token
@@ -179,7 +179,7 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             
 
           }
-          else if(type=='Netbanking') {
+          else if(type=='onlinepayment') {
             
           }       
           }

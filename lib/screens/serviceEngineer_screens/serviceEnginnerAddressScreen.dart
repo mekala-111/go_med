@@ -111,6 +111,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
 
     await _getAddressFromLatLng(position.latitude, position.longitude);
   }
+  
 
   Future<void> _getAddressFromLatLng(double lat, double lng) async {
     try {
@@ -127,6 +128,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
       setState(() => _currentAddress = "Failed to fetch address.");
     }
   }
+  
 
   @override
   Widget build(BuildContext context) {

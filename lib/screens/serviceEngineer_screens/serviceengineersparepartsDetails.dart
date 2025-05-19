@@ -169,14 +169,14 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               ),
             ),
             RadioListTile<String>(
-              title: const Text("Net Banking"),
-              value: "Net Banking",
+              title: const Text("online banking"),
+              value: "onlinepayment",
               groupValue: _selectedPaymentMethod,
               onChanged: (value) => setState(() => _selectedPaymentMethod = value),
             ),
             RadioListTile<String>(
-              title: const Text("COD"),
-              value: "COD",
+              title: const Text("cod"),
+              value: "cod",
               groupValue: _selectedPaymentMethod,
               onChanged: (value) => setState(() => _selectedPaymentMethod = value),
             ),
@@ -189,7 +189,7 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                     ? () {
                         double finalUnitPrice;
 
-                        if (_selectedPaymentMethod == "COD") {
+                        if (_selectedPaymentMethod == "cod") {
                           // final price = widget.sparePart.price ?? 0;
                           // final discounted = price * 0.90; // 10% off
                           // finalUnitPrice = discounted * 1.025; // +2.5% tax

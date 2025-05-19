@@ -1,5 +1,3 @@
-
-
 class BookingModel {
   final int statusCode;
   final bool success;
@@ -40,7 +38,7 @@ class BookingData {
   final String id;
   final User userId;
   final List<Product> productIds;
-   String? location;
+  String? location;
   String? address;
   String? status;
   String? createdAt;
@@ -50,7 +48,7 @@ class BookingData {
     required this.id,
     required this.userId,
     required this.productIds,
-   this.location,
+    this.location,
     this.address,
     this.status,
     this.createdAt,
@@ -65,8 +63,8 @@ class BookingData {
               ?.map((item) => Product.fromJson(item))
               .toList() ??
           [],
-       location: json['location'] ?? 'No Location',  // ✅ FIXED
-      address: json['address'] ?? 'No Address',  // ✅ FIXED
+      location: json['location'] ?? 'No Location', // ✅ FIXED
+      address: json['address'] ?? 'No Address', // ✅ FIXED
       status: json['status'] ?? 'Pending',
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
@@ -126,21 +124,22 @@ class Product {
   final String category;
   final bool spareParts;
   final List<String> productImages;
-  final String distributorId;
+  final Distributor  distributorId;
   String? bookingStatus;
+  int? availableStock;
 
-  Product({
-    required this.id,
-    required this.productName,
-    required this.productDescription,
-    required this.price,
-    required this.quantity,
-    required this.category,
-    required this.spareParts,
-    required this.productImages,
-    required this.distributorId,
-    required this.bookingStatus
-  });
+  Product(
+      {required this.id,
+      required this.productName,
+      required this.productDescription,
+      required this.price,
+      required this.quantity,
+      required this.category,
+      required this.spareParts,
+      required this.productImages,
+      required this.distributorId,
+      required this.bookingStatus,
+      required this.availableStock});
 
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
@@ -148,14 +147,16 @@ class Product {
       productName: json['productName'] ?? 'N/A',
       productDescription: json['productDescription'] ?? 'N/A',
       price: json['price'] ?? 0,
-      bookingStatus : json['bookingStatus']?? 'N/A',
-      quantity:json['quantity'] ?? 0,
+      bookingStatus: json['bookingStatus'] ?? 'N/A',
+      quantity: json['quantity'] ?? 0,
       category: json['category'] ?? 'N/A',
       spareParts: json['spareParts'] == "true",
       productImages: (json['productImages'] as List<dynamic>?)
               ?.map((e) => e.toString())
               .toList() ??
-          [], distributorId: '',
+          [],
+      distributorId: Distributor.fromJson(json['distributorId'] ?? {}),
+      availableStock:json['availableStock'] ?? 0,
       // distributorId: Distributor.fromJson(json['distributorId'] ?? {}),
     );
   }

@@ -27,8 +27,10 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
     final sparepartBookingState = ref.watch(sparepartBookingProvider);
     final isLoading = sparepartBookingState.statusCode == 0;
     final loginData = ref.watch(loginProvider);
-    final  distributorId = loginData.data?.first.details?.sId;
+    final distributorId = loginData.data?.first.details?.sId;
     print('distributorId....................$distributorId');
+    final TextEditingController otpController = TextEditingController();
+    final booking = sparepartBookingState.data;
 
     return Scaffold(
       appBar: AppBar(
@@ -148,14 +150,19 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                             sparepartBookingProvider
                                                                 .notifier)
                                                         .updateSparepartBookings(
-                                                            booking.sId,
-                                                            quantity: sparePart
-                                                                .quantity,
-                                                            "confirmed",
-                                                            sparePart.sId,
-                                                            sparePart.parentId,
-                                                            distributorId,
-                                                            sparePart.price);
+                                                          booking.sId,
+                                                          quantity: sparePart
+                                                              .quantity,
+                                                          "confirmed",
+                                                          sparePart.sId,
+                                                          sparePart.parentId,
+                                                          distributorId,
+                                                          sparePart.price,
+                                                          otp: null,
+                                                          booking.type,
+                                                          booking.paidPrice,
+                                                          booking.totalPrice
+                                                        );
                                                   } catch (e) {
                                                     _showSnackBar(
                                                         context, e.toString());
@@ -185,11 +192,71 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                         .updateSparepartBookings(
                                                             booking.sId,
                                                             quantity: null,
-                                                            "completed",
+                                                            "startDelivery",
                                                             sparePart.sId,
                                                             sparePart.parentId,
                                                             distributorId,
-                                                            sparePart.price);
+                                                            sparePart.price,
+                                                            otp: null,booking.type,
+                                                            booking.paidPrice,
+                                                          booking.totalPrice);
+                                                    _showSnackBar(context,
+                                                        "sparepart marked as delivered");
+                                                  } catch (e) {
+                                                    _showSnackBar(
+                                                        context, e.toString());
+                                                  }
+                                                }
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: Colors.green,
+                                                foregroundColor: Colors.white,
+                                              ),
+                                              child:
+                                                  const Text("start Delivery"),
+                                            )
+                                          else if (sparePart.bookingStatus ==
+                                              "startDelivery") ...[
+                                            TextFormField(
+                                              controller: otpController,
+                                              keyboardType:
+                                                  TextInputType.number,
+                                              maxLength: 4,
+                                              decoration: const InputDecoration(
+                                                labelText: "Enter 4-digit OTP",
+                                                border: OutlineInputBorder(),
+                                                counterText: "",
+                                              ),
+                                              onChanged: (value) {
+                                                setState(() {});
+                                              },
+                                            ),
+                                            ElevatedButton(
+                                              onPressed: () async {
+                                                bool confirm =
+                                                    await _showConfirmationDialog(
+                                                        context);
+                                                if (confirm) {
+                                                  try {
+                                                    await ref
+                                                        .read(
+                                                            sparepartBookingProvider
+                                                                .notifier)
+                                                        .updateSparepartBookings(
+                                                          booking.sId,
+                                                          quantity: null,
+                                                          "completed",
+                                                          sparePart.sId,
+                                                          sparePart.parentId,
+                                                          distributorId,
+                                                          sparePart.price,
+                                                          otp: otpController
+                                                              .text
+                                                              .trim(),
+                                                              booking.type,
+                                                              booking.paidPrice,
+                                                          booking.totalPrice
+                                                        );
                                                     _showSnackBar(context,
                                                         "sparepart marked as delivered");
                                                   } catch (e) {
@@ -203,9 +270,9 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                 foregroundColor: Colors.white,
                                               ),
                                               child: const Text(
-                                                  "Delivery complete"),
+                                                  "Delivery Completed"),
                                             )
-                                          else if (sparePart.bookingStatus ==
+                                          ] else if (sparePart.bookingStatus ==
                                               "completed")
                                             const Text(
                                               " sparepart Delivered Successfully",
