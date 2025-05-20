@@ -4,7 +4,7 @@ import 'package:go_med/model/DIstributor_models/bookings_state.dart';
 import 'package:go_med/utils/gomed_api.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/retry.dart';
-
+import 'package:firebase_database/firebase_database.dart';
 import '../loader.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../auth_provider.dart';
@@ -26,14 +26,12 @@ class BookingsProvider extends StateNotifier<BookingModel> {
       }
       final Map<String, dynamic> userData = jsonDecode(userDataString);
 
-
-       String? token = userData['accessToken'] ??
-        (userData['data'] != null &&
-            (userData['data'] as List).isNotEmpty &&
-            userData['data'][0]['access_token'] != null
-        ? userData['data'][0]['access_token']
-        : null);
-
+      String? token = userData['accessToken'] ??
+          (userData['data'] != null &&
+                  (userData['data'] as List).isNotEmpty &&
+                  userData['data'][0]['access_token'] != null
+              ? userData['data'][0]['access_token']
+              : null);
 
       if (token == null || token.isEmpty) {
         throw Exception("User token is invalid. Please log in again.");
@@ -53,17 +51,16 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             String? newAccessToken =
                 await ref.read(loginProvider.notifier).restoreAccessToken();
 
-            await prefs.setString('accessToken',newAccessToken);
+            await prefs.setString('accessToken', newAccessToken);
             token = newAccessToken;
             req.headers['Authorization'] = 'Bearer $newAccessToken';
             print("New Token: $newAccessToken");
-                    }
+          }
         },
       );
       final authState = ref.watch(loginProvider).data;
-      final String? distributorId =
-          authState?[0].details!.sId; 
-          // Get distributor ID
+      final String? distributorId = authState?[0].details!.sId;
+      // Get distributor ID
 
       final response = await client.get(
         Uri.parse("${Bbapi.bookingsGet}/$distributorId"),
@@ -90,18 +87,18 @@ class BookingsProvider extends StateNotifier<BookingModel> {
     }
   }
 
-  Future<bool> updateBookings(
-    String? bookingId,
-    String? bookingStatus,
-    String? productId,
-    String? distributorId,
-    
-    { required quantity,required otp,required successQuantity,required price,required type}
-    ) async {
+  Future<bool> updateBookings(String? bookingId, String? bookingStatus,
+      String? productId, String? distributorId,
+      {required quantity,
+      required otp,
+      required successQuantity,
+      required price,
+      required type}) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
-    print('Booking Data: , bookingId=$bookingId,quantity:$quantity,status:$bookingStatus, productId:$productId, distributorId:$distributorId,otp:$otp,,type:$type');
+    print(
+        'Booking Data: , bookingId=$bookingId,quantity:$quantity,status:$bookingStatus, productId:$productId, distributorId:$distributorId,otp:$otp,,type:$type');
 
     try {
       // Retrieve the token
@@ -135,12 +132,10 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             "Content-Type": "application/json",
           })}');
       print('Body: ${jsonEncode({
-            
-            'bookingStatus':bookingStatus,
+            'bookingStatus': bookingStatus,
             // 'quantity':quantity,
-             if (quantity != null) "quantity": quantity,
-            'productId':productId
-
+            if (quantity != null) "quantity": quantity,
+            'productId': productId
           })}');
 
       // Initialize RetryClient
@@ -148,41 +143,109 @@ class BookingsProvider extends StateNotifier<BookingModel> {
         return response.statusCode == 401 || response.statusCode == 404;
       });
 
-     final response = await client.patch(
-  apiUrl,
-  headers: {
-    "Authorization": "Bearer $token",
-    "Content-Type": "application/json",
-  },
-  body: jsonEncode({
-    "products": [
-      {
-        "productId": productId,
-        // "quantity": quantity,
-        if (quantity != null) "quantity": quantity,
-        "bookingStatus": bookingStatus,
-        "distributorId":distributorId,
-        if (otp != null) "otp": otp,
-      }
-    ],
-    // "status": bookingStatus, // Optional if you want to update root status
-  }),
-);
-
+      final response = await client.patch(
+        apiUrl,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "products": [
+            {
+              "productId": productId,
+              // "quantity": quantity,
+              if (quantity != null) "quantity": quantity,
+              "bookingStatus": bookingStatus,
+              "distributorId": distributorId,
+              if (otp != null) "otp": otp,
+            }
+          ],
+          // "status": bookingStatus, // Optional if you want to update root status
+        }),
+      );
 
       print('Update Status Code: ${response.statusCode}');
       print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        if(bookingStatus=='completed'){
-          if(type=='COD'){
+        if (bookingStatus == 'completed') {
+          if (type == 'cod') {
             
+            final DatabaseReference dbRef =
+                FirebaseDatabase.instance.ref().child('bookings');
 
+            final DatabaseReference distributorRef =
+                dbRef.child(distributorId!);
+
+            final DataSnapshot snapshot = await distributorRef.get();
+            // final int totalPrice = ((price ?? 0) * 90 / 100).round();
+           final int totalPrice = price * quantity;
+
+           final double distribitorPrice = totalPrice * 0.125;// Equivalent to subtracting 12.5%
+
+            if (snapshot.exists) {
+              // Add to existing wallet
+              final currentData = snapshot.value as Map;
+              final int currentWallet =
+                  int.tryParse(currentData['wallet'].toString()) ?? 0;
+              final double updatedWallet = double.parse((currentWallet - distribitorPrice).toStringAsFixed(2));
+
+
+              await distributorRef.update({
+                'wallet': updatedWallet,
+              });
+
+              print(
+                  "Updated wallet for distributor $distributorId: $updatedWallet");
+            } else {
+              // Create new record
+              await distributorRef.set({
+                'distributor_id': distributorId,
+                'wallet': distribitorPrice,
+              });
+
+              print(
+                  "Created new wallet record for distributor $distributorId: $price");
+            }
+          } else if (type == 'onlinepayment') {
+            final DatabaseReference dbRef =
+                FirebaseDatabase.instance.ref().child('bookings');
+
+            final DatabaseReference distributorRef =
+                dbRef.child(distributorId!);
+
+            final DataSnapshot snapshot = await distributorRef.get();
+            // final int totalPrice = ((price ?? 0) * 90 / 100).round();
+           final int totalPrice = price * quantity;
+final double distributorPrice = totalPrice * 0.875; // Equivalent to subtracting 12.5%
+
+            if (snapshot.exists) {
+              // Add to existing wallet
+              final currentData = snapshot.value as Map;
+              final int currentWallet =
+                  int.tryParse(currentData['wallet'].toString()) ?? 0;
+              final double updatedWallet = double.parse((currentWallet + distributorPrice).toStringAsFixed(2));
+
+
+              await distributorRef.update({
+                'wallet': updatedWallet,
+              });
+
+              print(
+                  "Updated wallet for distributor $distributorId: $updatedWallet");
+            } else {
+              // Create new record
+              await distributorRef.set({
+                'distributor_id': distributorId,
+                'wallet': distributorPrice,
+              });
+
+              print(
+                  "Created new wallet record for distributor $distributorId: $price");
+            }
           }
-          else if(type=='onlinepayment') {
-            
-          }       
-          }
+        }
+
         print("Booking updated successfully!");
         getBookings(); // Refresh bookings list
         return true;

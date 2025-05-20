@@ -102,7 +102,7 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
           'type':paymentMethod,
           
           'userPrice':finalPrice,
-           if (paymentMethod == 'COD')'paidprice': finalUnitPrice,
+           if (paymentMethod == 'cod')'paidprice': finalUnitPrice,
           'totalPrice':totalPrice,
           "Otp": "5765",
           'products': [
@@ -315,9 +315,9 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
   }
 
   Future<bool> updateSparepartBookings(String? bookingId, String? bookingStatus,
-      String? sparepartId, String? parentId, String? distributorId,int? price,String? type,
+      String? sparepartId, String? parentId, String? distributorId,String? type,
       double? paidprice,double? totalprice,
-      {required quantity,required otp}) async {
+      {required quantity,required otp,required price,required successQuantity}) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
@@ -381,12 +381,12 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
               "bookingStatus": bookingStatus,
               'parentId': parentId,
               'distributorId': distributorId
-              ,'type':type
+              // ,'type':type
             }
           ],
           // "status": bookingStatus, // Optional if you want to update root status
-           if (otp != null) 'otp':otp,
-           'type':type
+           if (otp != null) 'Otp':otp,
+          //  'type':type
 
         }),
       );
@@ -395,35 +395,82 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        final DatabaseReference dbRef =
-            FirebaseDatabase.instance.ref().child('bookings');
+        if (bookingStatus == 'completed') {
+          if (type == 'cod') {
+            
+            final DatabaseReference dbRef =
+                FirebaseDatabase.instance.ref().child('bookings');
 
-        final DatabaseReference distributorRef = dbRef.child(distributorId!);
+            final DatabaseReference distributorRef =
+                dbRef.child(distributorId!);
 
-        final DataSnapshot snapshot = await distributorRef.get();
-        final int totalPrice = ((price ?? 0) * 90 / 100).round();
-        if (snapshot.exists) {
-          // Add to existing wallet
-          final currentData = snapshot.value as Map;
-          final int currentWallet =
-              int.tryParse(currentData['wallet'].toString()) ?? 0;
-          final int updatedWallet = currentWallet + totalPrice;
+            final DataSnapshot snapshot = await distributorRef.get();
+            // final int totalPrice = ((price ?? 0) * 90 / 100).round();
+           final int totalPrice = price * quantity;
 
-          await distributorRef.update({
-            'wallet': updatedWallet,
-          });
+           final double distribitorPrice = totalPrice * 0.125;// Equivalent to subtracting 12.5%
 
-          print(
-              "Updated wallet for distributor $distributorId: $updatedWallet");
-        } else {
-          // Create new record
-          await distributorRef.set({
-            'distributor_id': distributorId,
-            'wallet': totalPrice,
-          });
+            if (snapshot.exists) {
+              // Add to existing wallet
+              final currentData = snapshot.value as Map;
+              final int currentWallet =
+                  int.tryParse(currentData['wallet'].toString()) ?? 0;
+              final double updatedWallet = double.parse((currentWallet - distribitorPrice).toStringAsFixed(2));
 
-          print(
-              "Created new wallet record for distributor $distributorId: $price");
+
+              await distributorRef.update({
+                'wallet': updatedWallet,
+              });
+
+              print(
+                  "Updated wallet for distributor $distributorId: $updatedWallet");
+            } else {
+              // Create new record
+              await distributorRef.set({
+                'distributor_id': distributorId,
+                'wallet': distribitorPrice,
+              });
+
+              print(
+                  "Created new wallet record for distributor $distributorId: $price");
+            }
+          } else if (type == 'onlinepayment') {
+            final DatabaseReference dbRef =
+                FirebaseDatabase.instance.ref().child('bookings');
+
+            final DatabaseReference distributorRef =
+                dbRef.child(distributorId!);
+
+            final DataSnapshot snapshot = await distributorRef.get();
+            // final int totalPrice = ((price ?? 0) * 90 / 100).round();
+           final int totalPrice = price * quantity;
+           final double distributorPrice = totalPrice * 0.875; // Equivalent to subtracting 12.5%
+
+            if (snapshot.exists) {
+              // Add to existing wallet
+              final currentData = snapshot.value as Map;
+              final int currentWallet =
+                  int.tryParse(currentData['wallet'].toString()) ?? 0;
+              final double updatedWallet = double.parse((currentWallet + distributorPrice).toStringAsFixed(2));
+
+
+              await distributorRef.update({
+                'wallet': updatedWallet,
+              });
+
+              print(
+                  "Updated wallet for distributor $distributorId: $updatedWallet");
+            } else {
+              // Create new record
+              await distributorRef.set({
+                'distributor_id': distributorId,
+                'wallet': distributorPrice,
+              });
+
+              print(
+                  "Created new wallet record for distributor $distributorId: $price");
+            }
+          }
         }
 
         print(" sparepart Booking updated successfully!");

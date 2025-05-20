@@ -52,7 +52,7 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
   }
 
   void _startPayment() {
-    final isCOD = widget.paymentMethod == 'COD';
+    final isCOD = widget.paymentMethod == 'cod';
     final selectedPrice = isCOD ? widget.finalUnitPrice ?? 0 : widget.totalPrice ?? 0;
     final amountInPaise = (selectedPrice * 100).toInt();
 
@@ -81,7 +81,7 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
 
   void _handleSuccess(PaymentSuccessResponse response) async {
     try {
-      final isCod = widget.paymentMethod == 'COD';
+      final isCod = widget.paymentMethod == 'cod';
 
       await ref.read(sparepartBookingProvider.notifier).addSparepartBooking(
             widget.address,

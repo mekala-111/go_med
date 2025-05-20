@@ -14,13 +14,23 @@ class DistributorSparepartbookings extends ConsumerStatefulWidget {
 }
 
 class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
-  @override
-  void initState() {
-    super.initState();
-    Future.microtask(() {
-      ref.read(sparepartBookingProvider.notifier).getSparepartBooking();
-    });
-  }
+ late TextEditingController otpController;
+
+@override
+void initState() {
+  super.initState();
+  otpController = TextEditingController();
+  Future.microtask(() {
+    ref.read(sparepartBookingProvider.notifier).getSparepartBooking();
+  });
+}
+
+@override
+void dispose() {
+  otpController.dispose();
+  super.dispose();
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +39,7 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
     final loginData = ref.watch(loginProvider);
     final distributorId = loginData.data?.first.details?.sId;
     print('distributorId....................$distributorId');
-    final TextEditingController otpController = TextEditingController();
+    // final TextEditingController otpController = TextEditingController();
     final booking = sparepartBookingState.data;
 
     return Scaffold(
@@ -55,6 +65,7 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                   itemCount: sparepartBookingState.data!.length,
                   itemBuilder: (context, index) {
                     final booking = sparepartBookingState.data![index];
+
 
                     // Generate Google Maps link
                     String? mapsLink;
@@ -151,13 +162,13 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                                 .notifier)
                                                         .updateSparepartBookings(
                                                           booking.sId,
-                                                          quantity: sparePart
-                                                              .quantity,
+                                                          quantity:null,
+                                                          successQuantity:null,
                                                           "confirmed",
                                                           sparePart.sId,
                                                           sparePart.parentId,
                                                           distributorId,
-                                                          sparePart.price,
+                                                          price:sparePart.price,
                                                           otp: null,
                                                           booking.type,
                                                           booking.paidPrice,
@@ -191,15 +202,17 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                                 .notifier)
                                                         .updateSparepartBookings(
                                                             booking.sId,
-                                                            quantity: null,
-                                                            "startDelivery",
+                                                            quantity:sparePart.quantity,
+                                                             successQuantity:null,
+                                                             "startDelivery",
                                                             sparePart.sId,
                                                             sparePart.parentId,
                                                             distributorId,
-                                                            sparePart.price,
-                                                            otp: null,booking.type,
+                                                            otp: null,
+                                                            booking.type,
                                                             booking.paidPrice,
-                                                          booking.totalPrice);
+                                                          booking.totalPrice,
+                                                          price:sparePart.price,);
                                                     _showSnackBar(context,
                                                         "sparepart marked as delivered");
                                                   } catch (e) {
@@ -227,9 +240,8 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                 border: OutlineInputBorder(),
                                                 counterText: "",
                                               ),
-                                              onChanged: (value) {
-                                                setState(() {});
-                                              },
+                                             onChanged: (_) => setState(() {}),
+
                                             ),
                                             ElevatedButton(
                                               onPressed: () async {
@@ -249,13 +261,14 @@ class _ServiceScreenState extends ConsumerState<DistributorSparepartbookings> {
                                                           sparePart.sId,
                                                           sparePart.parentId,
                                                           distributorId,
-                                                          sparePart.price,
+                                                          price:sparePart.price,
                                                           otp: otpController
                                                               .text
                                                               .trim(),
                                                               booking.type,
                                                               booking.paidPrice,
-                                                          booking.totalPrice
+                                                          booking.totalPrice,
+                                                          successQuantity:sparePart.quantity
                                                         );
                                                     _showSnackBar(context,
                                                         "sparepart marked as delivered");

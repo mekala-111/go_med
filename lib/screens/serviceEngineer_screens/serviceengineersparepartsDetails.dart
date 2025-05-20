@@ -5,11 +5,11 @@ import 'package:go_med/screens/serviceEngineer_screens/serviceEnginnerAddressScr
 class SparePartDetailScreen extends StatefulWidget {
   final Data sparePart;
   final double finalPrice;
-  final  int? originalPrice;
+  final int? originalPrice;
 
   const SparePartDetailScreen({
     super.key,
-    required  this.originalPrice,
+    required this.originalPrice,
     required this.sparePart,
     required this.finalPrice,
   });
@@ -24,6 +24,7 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
   String? _errorText;
   double? _totalPrice;
   String? _selectedPaymentMethod;
+  late double finalUnitPrice;
 
   @override
   void dispose() {
@@ -172,14 +173,53 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               title: const Text("online banking"),
               value: "onlinepayment",
               groupValue: _selectedPaymentMethod,
-              onChanged: (value) => setState(() => _selectedPaymentMethod = value),
+              onChanged: (value) => setState(() {
+                _selectedPaymentMethod = value;
+                _calculateTotalPrice();
+              }),
             ),
             RadioListTile<String>(
               title: const Text("cod"),
               value: "cod",
               groupValue: _selectedPaymentMethod,
-              onChanged: (value) => setState(() => _selectedPaymentMethod = value),
+              onChanged: (value) => setState(() {
+                _selectedPaymentMethod = value;
+                _calculateTotalPrice();
+              }),
             ),
+            SizedBox(height: screenHeight * 0.02),
+            if (_enteredQuantity != null && _selectedPaymentMethod != null)
+              Builder(builder: (_) {
+                if (_selectedPaymentMethod == 'onlinepayment') {
+                  // Show total price (incl 2.5%)
+                  return Text(
+                    "Total Price: ₹${_totalPrice?.toStringAsFixed(2) ?? '0.00'}",
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
+                      color:Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                } else if (_selectedPaymentMethod == 'cod') {
+                   
+                  // Calculate final unit price (90% discount + 2.5% tax) per unit * entered quantity
+                 final price = widget.sparePart.price ?? 0;
+                          final discounted = (price * 0.10)*_enteredQuantity!; // 10% discount
+                          final tax =
+                              _totalPrice! * 0.025; // 2.5% of _totalPrice
+                          finalUnitPrice = discounted + tax;
+                  return Text(
+                    "Total COD Price: ₹${finalUnitPrice .toStringAsFixed(2)}",
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.045,
+                      color:Colors.blue,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }
+                return const SizedBox.shrink();
+              }),
+
             SizedBox(height: screenHeight * 0.02),
 
             // Buy Now Button
@@ -187,21 +227,6 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               child: ElevatedButton(
                 onPressed: (_enteredQuantity != null && _selectedPaymentMethod != null)
                     ? () {
-                        double finalUnitPrice;
-
-                        if (_selectedPaymentMethod == "cod") {
-                          // final price = widget.sparePart.price ?? 0;
-                          // final discounted = price * 0.90; // 10% off
-                          // finalUnitPrice = discounted * 1.025; // +2.5% tax
-                          final price = widget.sparePart.price ?? 0;
-                          final discounted = price * 0.90; // 10% discount
-                          final tax = _totalPrice! * 0.025; // 2.5% of _totalPrice
-                          finalUnitPrice = discounted + tax;
-
-                        } else {
-                          finalUnitPrice = widget.finalPrice;
-                        }
-
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -212,9 +237,8 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                               'parentId': widget.sparePart.parentId,
                               'totalPrice': _totalPrice,
                               'finalPrice': widget.finalPrice,
-                              'finalUnitPrice': finalUnitPrice,
-                              'originalPrice': widget.originalPrice
-                              ,
+                              'finalUnitPrice':finalUnitPrice,
+                              'originalPrice': widget.originalPrice,
                               'distributorId': widget.sparePart.distributorId,
                               'paymentMethod': _selectedPaymentMethod,
                             }),
@@ -228,9 +252,12 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                 ),
                 child: Text(
                   "Buy Now",
-                  style: TextStyle(fontSize: screenWidth * 0.04, color: Colors.white),
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                    color: Colors.white,
+                  ),
                 ),
-              ),
+              )
             ),
           ],
         ),
