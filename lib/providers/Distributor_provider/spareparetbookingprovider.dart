@@ -16,20 +16,19 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
   // Function to add a product and handle the response
   Future<void> addSparepartBooking(
-      String? address,
-      String? location,
-      String? sparepartId,
-      String? serviceEngineerId,
-      double? quantity,
-      String? parentId,
-      String distributorId,
-      double? originalPrice,
-      double? finalPrice,
-      double? totalPrice,
-      double? finalUnitPrice,
-      String? paymentMethod,
-      
-      ) async {
+    String? address,
+    String? location,
+    String? sparepartId,
+    String? serviceEngineerId,
+    double? quantity,
+    String? parentId,
+    String distributorId,
+    double? originalPrice,
+    double? finalPrice,
+    double? totalPrice,
+    double? finalUnitPrice,
+    String? paymentMethod,
+  ) async {
     print(
         'Booking Details: Address-$address, Location-$location, Service Engineer ID-$serviceEngineerId, Quantity-$quantity, Spare Part ID-$sparepartId,distributorId:$distributorId,price:$originalPrice');
 
@@ -66,8 +65,6 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
       print('Retrieved Token: $token');
 
-     
-
       // Initialize RetryClient for retrying requests on failure
       final client = RetryClient(
         http.Client(),
@@ -99,22 +96,20 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
           'location': location,
           'serviceEngineerId': serviceEngineerId,
           'status': "pending",
-          'type':paymentMethod,
-          
-          'userPrice':finalPrice,
-           if (paymentMethod == 'cod')'paidprice': finalUnitPrice,
-          'totalPrice':totalPrice,
+          'type': paymentMethod,
+          'userPrice': finalPrice,
+          if (paymentMethod == 'cod') 'paidprice': finalUnitPrice,
+          'totalPrice': totalPrice,
           "Otp": "5765",
           'products': [
             {
               'distributorId': distributorId,
-              'userPrice':finalPrice,
+              'userPrice': finalPrice,
               'productId': sparepartId, // Spare Part ID
               'parentId': parentId, // Example parentId (replace as needed)
               // 'drRequestId': "68031f0be36c9278cb559940", // Example drRequestId (replace as needed)
               'quantity': quantity, // Quantity of the spare part
               'bookingStatus': "pending", // Default booking status
-
             }
           ],
         }),
@@ -314,10 +309,19 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
     }
   }
 
-  Future<bool> updateSparepartBookings(String? bookingId, String? bookingStatus,
-      String? sparepartId, String? parentId, String? distributorId,String? type,
-      double? paidprice,double? totalprice,
-      {required quantity,required otp,required price,required successQuantity}) async {
+  Future<bool> updateSparepartBookings(
+      String? bookingId,
+      String? bookingStatus,
+      String? sparepartId,
+      String? parentId,
+      String? distributorId,
+      String? type,
+      double? paidprice,
+      double? totalprice,
+      {required quantity,
+      required otp,
+      required price,
+      required successQuantity}) async {
     final loadingState = ref.read(loadingProvider.notifier);
     loadingState.state = true;
 
@@ -359,7 +363,7 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
             'productId': sparepartId,
             'parentId': parentId,
             'distributorId': distributorId,
-            'type':type
+            'type': type
           })}');
 
       // Initialize RetryClient
@@ -377,7 +381,7 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
           "products": [
             {
               "productId": sparepartId,
-               if (quantity != null) "quantity": quantity,
+              if (quantity != null) "quantity": quantity,
               "bookingStatus": bookingStatus,
               'parentId': parentId,
               'distributorId': distributorId
@@ -385,9 +389,8 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
             }
           ],
           // "status": bookingStatus, // Optional if you want to update root status
-           if (otp != null) 'Otp':otp,
+          if (otp != null) 'Otp': otp,
           //  'type':type
-
         }),
       );
 
@@ -395,9 +398,10 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
       print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+        print('after 200 condition  successfull');
         if (bookingStatus == 'completed') {
+          print('entering into the bookingstatus block');
           if (type == 'cod') {
-            
             final DatabaseReference dbRef =
                 FirebaseDatabase.instance.ref().child('bookings');
 
@@ -406,17 +410,20 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
             final DataSnapshot snapshot = await distributorRef.get();
             // final int totalPrice = ((price ?? 0) * 90 / 100).round();
-           final int totalPrice = price * quantity;
+            print("data.........price:$price,quantity:$successQuantity");
+            final int totalPrice = price * successQuantity;
 
-           final double distribitorPrice = totalPrice * 0.125;// Equivalent to subtracting 12.5%
+            final double distribitorPrice =
+                totalPrice * 0.125; // Equivalent to subtracting 12.5%
 
             if (snapshot.exists) {
               // Add to existing wallet
               final currentData = snapshot.value as Map;
-              final int currentWallet =
-                  int.tryParse(currentData['wallet'].toString()) ?? 0;
-              final double updatedWallet = double.parse((currentWallet - distribitorPrice).toStringAsFixed(2));
-
+              final double currentWallet =
+                  double.tryParse(currentData['wallet'].toString()) ?? 0;
+              print('currnet wallet amount...$currentWallet');
+              final double updatedWallet = double.parse(
+                  (currentWallet - distribitorPrice).toStringAsFixed(2));
 
               await distributorRef.update({
                 'wallet': updatedWallet,
@@ -443,16 +450,18 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
 
             final DataSnapshot snapshot = await distributorRef.get();
             // final int totalPrice = ((price ?? 0) * 90 / 100).round();
-           final int totalPrice = price * quantity;
-           final double distributorPrice = totalPrice * 0.875; // Equivalent to subtracting 12.5%
+            final int totalPrice = price * successQuantity;
+            final double distributorPrice =
+                totalPrice * 0.875; // Equivalent to subtracting 12.5%
 
             if (snapshot.exists) {
               // Add to existing wallet
               final currentData = snapshot.value as Map;
-              final int currentWallet =
-                  int.tryParse(currentData['wallet'].toString()) ?? 0;
-              final double updatedWallet = double.parse((currentWallet + distributorPrice).toStringAsFixed(2));
-
+              final double currentWallet =
+                  double.tryParse(currentData['wallet'].toString()) ?? 0;
+                  print('currnet wallet amount...$currentWallet');
+              final double updatedWallet = double.parse(
+                  (currentWallet + distributorPrice).toStringAsFixed(2));
 
               await distributorRef.update({
                 'wallet': updatedWallet,

@@ -11,7 +11,8 @@ class WalletScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final userModel = ref.watch(loginProvider);
     final distributorId = userModel.data?.first.details?.sId ?? '';
-    final walletAsync = ref.watch(walletProvider(distributorId));
+    print('DistributorId........$distributorId');
+    final walletAsync = ref.read(walletProvider(distributorId));
 
     return Scaffold(
       appBar: AppBar(
@@ -23,6 +24,7 @@ class WalletScreen extends ConsumerWidget {
             child: Center(
               child: walletAsync.when(
                 data: (wallet) {
+                  print('walletAmount....$wallet');
                   if (wallet != null) {
                     return Column(
                       mainAxisAlignment: MainAxisAlignment.center,
@@ -30,11 +32,9 @@ class WalletScreen extends ConsumerWidget {
                         const Icon(Icons.account_balance_wallet,
                             size: 80, color: Colors.green),
                         const SizedBox(height: 20),
-                        const Text(
-                          'Wallet Balance:',
-                          style: TextStyle(
-                              fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
+                        wallet == null
+                            ? const CircularProgressIndicator()
+                            : Text('₹${wallet.toString()}'),
                         const SizedBox(height: 10),
                         Text(
                           '₹ $wallet',
@@ -99,7 +99,6 @@ class WalletScreen extends ConsumerWidget {
     );
   }
 
-
   void _showWithdrawForm(
       BuildContext context, WidgetRef ref, String distributorId) {
     final walletBalance = ref.read(walletProvider(distributorId)).value ?? 0;
@@ -135,8 +134,8 @@ class WalletScreen extends ConsumerWidget {
                     const Center(
                       child: Text(
                         'Withdraw Details',
-                        style:
-                            TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -213,8 +212,7 @@ class WalletScreen extends ConsumerWidget {
                               value.length < 5) {
                             return 'Enter valid IFSC code';
                           }
-                          final pattern =
-                              RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
+                          final pattern = RegExp(r'^[A-Z]{4}0[A-Z0-9]{6}$');
                           // if (!pattern.hasMatch(value.trim().toUpperCase())) {
                           //   return 'Enter a valid IFSC code';
                           // }
@@ -267,27 +265,25 @@ class WalletScreen extends ConsumerWidget {
                                 await ref
                                     .read(walletDataProvider.notifier)
                                     .addWalletData(
-                                      distributorId,
-                                      amountController.text,
-                                      nameController.text,
-                                      ifscNumber:ifscController.text,
-                                      accountNUmber:accountNumberController.text,
-                                      upi:null,
-                                      selectedMethod
-                                    );
+                                        distributorId,
+                                        amountController.text,
+                                        nameController.text,
+                                        ifscNumber: ifscController.text,
+                                        accountNUmber:
+                                            accountNumberController.text,
+                                        upi: null,
+                                        selectedMethod);
                               } else {
                                 await ref
                                     .read(walletDataProvider.notifier)
                                     .addWalletData(
-                                      distributorId,
-                                      amountController.text,
-                                      nameController.text,
-                                      upi:upiIdController.text,
-                                      ifscNumber:null,
-                                      accountNUmber:null,
-                                      selectedMethod
-                                      
-                                    );
+                                        distributorId,
+                                        amountController.text,
+                                        nameController.text,
+                                        upi: upiIdController.text,
+                                        ifscNumber: null,
+                                        accountNUmber: null,
+                                        selectedMethod);
                               }
 
                               Navigator.pop(context);

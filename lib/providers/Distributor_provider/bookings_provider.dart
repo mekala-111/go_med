@@ -186,8 +186,8 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             if (snapshot.exists) {
               // Add to existing wallet
               final currentData = snapshot.value as Map;
-              final int currentWallet =
-                  int.tryParse(currentData['wallet'].toString()) ?? 0;
+              final double currentWallet =
+                  double.tryParse(currentData['wallet'].toString()) ?? 0;
               final double updatedWallet = double.parse((currentWallet - distribitorPrice).toStringAsFixed(2));
 
 
@@ -222,8 +222,8 @@ final double distributorPrice = totalPrice * 0.875; // Equivalent to subtracting
             if (snapshot.exists) {
               // Add to existing wallet
               final currentData = snapshot.value as Map;
-              final int currentWallet =
-                  int.tryParse(currentData['wallet'].toString()) ?? 0;
+              final double currentWallet =
+                  double.tryParse(currentData['wallet'].toString()) ?? 0;
               final double updatedWallet = double.parse((currentWallet + distributorPrice).toStringAsFixed(2));
 
 

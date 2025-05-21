@@ -11,7 +11,7 @@ final firebaseDatabaseProvider = Provider<FirebaseDatabase>((ref) {
 });
 
 // This provider fetches the wallet value for a given distributor ID
-final walletProvider = FutureProvider.family<int?, String>((ref, distributorId) async {
+final walletProvider = FutureProvider.family<double?, String>((ref, distributorId) async {
   final db = ref.watch(firebaseDatabaseProvider); // Use the configured instance
   final dbRef = db.ref('bookings');
 
@@ -21,7 +21,7 @@ final walletProvider = FutureProvider.family<int?, String>((ref, distributorId) 
     for (final child in snapshot.children) {
       final walletValue = child.child('wallet').value;
       if (walletValue != null) {
-        return int.tryParse(walletValue.toString());
+        return double.tryParse(walletValue.toString());
       }
     }
   }

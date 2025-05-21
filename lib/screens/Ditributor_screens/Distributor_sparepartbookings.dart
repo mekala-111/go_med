@@ -36,6 +36,7 @@ void dispose() {
   Widget build(BuildContext context) {
     final sparepartBookingState = ref.watch(sparepartBookingProvider);
     final isLoading = sparepartBookingState.statusCode == 0;
+
     final loginData = ref.watch(loginProvider);
     final distributorId = loginData.data?.first.details?.sId;
     print('distributorId....................$distributorId');
@@ -141,6 +142,9 @@ void dispose() {
                                           ),
                                           Text(
                                             "quantity: ${sparePart.quantity ?? 'N/A'}",
+                                          ),
+                                          Text(
+                                            "Available Stock: ${sparePart.availableStock?? 'N/A'}",
                                           ),
                                           Text(
                                             "status: ${sparePart.bookingStatus ?? 'N/A'}",

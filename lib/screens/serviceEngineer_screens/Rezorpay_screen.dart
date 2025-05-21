@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/Distributor_provider/spareparetbookingprovider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
+import '../../screens/serviceEngineer_screens/serviceEngineerProductsscreen.dart';
 
 class RazorpayPaymentPage extends ConsumerStatefulWidget {
   final String address;
@@ -34,7 +35,8 @@ class RazorpayPaymentPage extends ConsumerStatefulWidget {
   }) : super(key: key);
 
   @override
-  ConsumerState<RazorpayPaymentPage> createState() => _RazorpayPaymentPageState();
+  ConsumerState<RazorpayPaymentPage> createState() =>
+      _RazorpayPaymentPageState();
 }
 
 class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
@@ -53,7 +55,8 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
 
   void _startPayment() {
     final isCOD = widget.paymentMethod == 'cod';
-    final selectedPrice = isCOD ? widget.finalUnitPrice ?? 0 : widget.totalPrice ?? 0;
+    final selectedPrice =
+        isCOD ? widget.finalUnitPrice ?? 0 : widget.totalPrice ?? 0;
     final amountInPaise = (selectedPrice * 100).toInt();
 
     print('Payment Method: ${widget.paymentMethod}');
@@ -101,8 +104,7 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('✅ Spare part booked successfully!')),
       );
-
-      Navigator.pop(context);
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>ServiceEngineerProductsPage()));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error sending data: $e')),
