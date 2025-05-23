@@ -10,19 +10,22 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final trackingSteps = ['Booked', 'confirmed','outfordelivery', 'Completed'];
+    final trackingSteps = ['Booked', 'Confirmed', 'OutforDelivery', 'Completed'];
+    
 
     int mapStatusToStep(String? status) {
-      switch (status?.toLowerCase()) {
+      final normalized = status?.toLowerCase().trim(); // Normalize status
+      print('Booking Status: $normalized'); // Debug log
+
+      switch (normalized) {
         case 'pending':
           return 0;
         case 'confirmed':
           return 1;
-        case 'startDelivery':
+        case 'startdelivery':
           return 2;
         case 'completed':
           return 3;
-          
         default:
           return 0;
       }
@@ -34,13 +37,13 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         child: ListView(
           children: [
-            Text("Order ID: ${booking.sId}",
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+            Text("Order ID: ${booking.sId}", style: const TextStyle(fontWeight: FontWeight.bold)),
             Text("Order Date: ${booking.createdAt}"),
             const SizedBox(height: 20),
 
             ...booking.sparePartIds?.map((part) {
-              final currentStep = mapStatusToStep(part.bookingStatus ?? '');
+              final currentStep = mapStatusToStep(part.bookingStatus);
+              print('Current Step: $currentStep'); // Debug
 
               return Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16),
@@ -58,15 +61,15 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
                         Text("Quantity: ${part.quantity}"),
                         const SizedBox(height: 16),
 
-                        // Step tracker
+                        // Step tracker UI
                         Row(
                           children: List.generate(trackingSteps.length * 2 - 1, (index) {
                             if (index.isOdd) {
-                              final isActive = index ~/ 2 < currentStep;
+                              final isLineActive = index ~/ 2 < currentStep;
                               return Expanded(
                                 child: Container(
                                   height: 2,
-                                  color: isActive ? Colors.blue : Colors.grey[300],
+                                  color: isLineActive ? Colors.blue : Colors.grey[300],
                                 ),
                               );
                             } else {
@@ -87,7 +90,7 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
                                   Text(
                                     trackingSteps[stepIndex],
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 9,
                                       fontWeight: FontWeight.w500,
                                       color: isActive ? Colors.blue : Colors.grey,
                                     ),
@@ -101,8 +104,8 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
                         const SizedBox(height: 16),
 
                         // Cancel Booking Button
-                        if ((part.bookingStatus?.toLowerCase() ?? '') == 'pending'||
-                             (part.bookingStatus?.toLowerCase() ?? '') == 'confirmed')
+                        if ((part.bookingStatus?.toLowerCase().trim() ?? '') == 'pending' ||
+                            (part.bookingStatus?.toLowerCase().trim() ?? '') == 'confirmed')
                           ElevatedButton(
                             onPressed: () {
                               _showConfirmationDialog(
@@ -147,8 +150,9 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
             }).toList() ?? [],
 
             const SizedBox(height: 24),
+            
 
-            // Optional: Review button at the bottom
+            // Review Button
             ElevatedButton(
               onPressed: () {
                 // Add review logic here
@@ -165,7 +169,8 @@ class ServiceEngineerSparePartTrackingScreen extends ConsumerWidget {
     );
   }
 
-  void _showConfirmationDialog(BuildContext context, String action, String message, VoidCallback onConfirmed) {
+  void _showConfirmationDialog(
+      BuildContext context, String action, String message, VoidCallback onConfirmed) {
     showDialog(
       context: context,
       builder: (BuildContext context) {

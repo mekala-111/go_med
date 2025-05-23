@@ -6,6 +6,13 @@ class SparepartBookingState {
 
   SparepartBookingState({this.statusCode, this.success, this.messages, this.data});
 
+  factory SparepartBookingState.initial() => SparepartBookingState(
+        statusCode: 0,
+        success: false,
+        messages: [],
+        data: [],
+      );
+
   SparepartBookingState copyWith({
     int? statusCode,
     bool? success,
@@ -20,17 +27,10 @@ class SparepartBookingState {
     );
   }
 
-  static SparepartBookingState initial() => SparepartBookingState(
-        statusCode: null,
-        success: null,
-        messages: [],
-        data: [],
-      );
-
   SparepartBookingState.fromJson(Map<String, dynamic> json) {
     statusCode = json['statusCode'];
     success = json['success'];
-    messages = json['messages'].cast<String>();
+    messages = json['messages']?.cast<String>();
     if (json['data'] != null) {
       data = <Data>[];
       json['data'].forEach((v) {
@@ -41,9 +41,9 @@ class SparepartBookingState {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['statusCode'] = this.statusCode;
-    data['success'] = this.success;
-    data['messages'] = this.messages;
+    data['statusCode'] = statusCode;
+    data['success'] = success;
+    data['messages'] = messages;
     if (this.data != null) {
       data['data'] = this.data!.map((v) => v.toJson()).toList();
     }
@@ -62,7 +62,7 @@ class Data {
   String? status;
   String? createdAt;
   String? updatedAt;
-  dynamic paidPrice;
+  double? paidPrice;
   String? type;
 
   Data({
@@ -80,6 +80,21 @@ class Data {
     this.type,
   });
 
+  factory Data.initial() => Data(
+        sId: '',
+        serviceEngineer: ServiceEngineer.initial(),
+        otp: '',
+        totalPrice: 0.0,
+        sparePartIds: [],
+        location: '',
+        address: '',
+        status: '',
+        createdAt: '',
+        updatedAt: '',
+        paidPrice: 0.0,
+        type: '',
+      );
+
   Data copyWith({
     String? sId,
     ServiceEngineer? serviceEngineer,
@@ -91,7 +106,7 @@ class Data {
     String? status,
     String? createdAt,
     String? updatedAt,
-    dynamic paidPrice,
+    double? paidPrice,
     String? type,
   }) {
     return Data(
@@ -110,30 +125,13 @@ class Data {
     );
   }
 
-  static Data initial() => Data(
-        sId: null,
-        serviceEngineer: ServiceEngineer.initial(),
-        otp: '',
-        totalPrice: 0.0,
-        sparePartIds: [],
-        location: '',
-        address: '',
-        status: '',
-        createdAt: '',
-        updatedAt: '',
-        paidPrice: null,
-        type: '',
-      );
-
   Data.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     serviceEngineer = json['serviceEngineer'] != null
         ? ServiceEngineer.fromJson(json['serviceEngineer'])
         : null;
     otp = json['Otp'];
-    totalPrice = (json['totalPrice'] != null)
-        ? double.tryParse(json['totalPrice'].toString())
-        : null;
+    totalPrice = (json['totalPrice'] as num?)?.toDouble();
     if (json['sparePartIds'] != null) {
       sparePartIds = <SparePartIds>[];
       json['sparePartIds'].forEach((v) {
@@ -145,29 +143,28 @@ class Data {
     status = json['status'];
     createdAt = json['createdAt'];
     updatedAt = json['updatedAt'];
-    paidPrice = json['paidPrice'];
+    paidPrice = (json['paidPrice'] as num?)?.toDouble();
     type = json['type'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['_id'] = this.sId;
-    if (this.serviceEngineer != null) {
-      data['serviceEngineer'] = this.serviceEngineer!.toJson();
+    data['_id'] = sId;
+    if (serviceEngineer != null) {
+      data['serviceEngineer'] = serviceEngineer!.toJson();
     }
-    data['Otp'] = this.otp;
-    data['totalPrice'] = this.totalPrice;
-    if (this.sparePartIds != null) {
-      data['sparePartIds'] =
-          this.sparePartIds!.map((v) => v.toJson()).toList();
+    data['Otp'] = otp;
+    data['totalPrice'] = totalPrice;
+    if (sparePartIds != null) {
+      data['sparePartIds'] = sparePartIds!.map((v) => v.toJson()).toList();
     }
-    data['location'] = this.location;
-    data['address'] = this.address;
-    data['status'] = this.status;
-    data['createdAt'] = this.createdAt;
-    data['updatedAt'] = this.updatedAt;
-    data['paidPrice'] = this.paidPrice;
-    data['type'] = this.type;
+    data['location'] = location;
+    data['address'] = address;
+    data['status'] = status;
+    data['createdAt'] = createdAt;
+    data['updatedAt'] = updatedAt;
+    data['paidPrice'] = paidPrice;
+    data['type'] = type;
     return data;
   }
 }
@@ -180,6 +177,14 @@ class ServiceEngineer {
   String? role;
 
   ServiceEngineer({this.sId, this.name, this.email, this.mobile, this.role});
+
+  factory ServiceEngineer.initial() => ServiceEngineer(
+        sId: '',
+        name: '',
+        email: '',
+        mobile: '',
+        role: '',
+      );
 
   ServiceEngineer copyWith({
     String? sId,
@@ -197,14 +202,6 @@ class ServiceEngineer {
     );
   }
 
-  static ServiceEngineer initial() => ServiceEngineer(
-        sId: '',
-        name: '',
-        email: '',
-        mobile: '',
-        role: '',
-      );
-
   ServiceEngineer.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     name = json['name'];
@@ -215,11 +212,11 @@ class ServiceEngineer {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['_id'] = this.sId;
-    data['name'] = this.name;
-    data['email'] = this.email;
-    data['mobile'] = this.mobile;
-    data['role'] = this.role;
+    data['_id'] = sId;
+    data['name'] = name;
+    data['email'] = email;
+    data['mobile'] = mobile;
+    data['role'] = role;
     return data;
   }
 }
@@ -235,6 +232,7 @@ class SparePartIds {
   int? quantity;
   int? availableStock;
   DistributorId? distributorId;
+  double? userPrice;
 
   SparePartIds({
     this.sId,
@@ -247,7 +245,22 @@ class SparePartIds {
     this.quantity,
     this.availableStock,
     this.distributorId,
+    this.userPrice,
   });
+
+  factory SparePartIds.initial() => SparePartIds(
+        sId: '',
+        parentId: '',
+        sparePartName: '',
+        description: '',
+        sparePartImages: [],
+        bookingStatus: '',
+        price: 0,
+        quantity: 0,
+        availableStock: 0,
+        distributorId: DistributorId.initial(),
+        userPrice: 0.0,
+      );
 
   SparePartIds copyWith({
     String? sId,
@@ -260,6 +273,7 @@ class SparePartIds {
     int? quantity,
     int? availableStock,
     DistributorId? distributorId,
+    double? userPrice,
   }) {
     return SparePartIds(
       sId: sId ?? this.sId,
@@ -272,28 +286,16 @@ class SparePartIds {
       quantity: quantity ?? this.quantity,
       availableStock: availableStock ?? this.availableStock,
       distributorId: distributorId ?? this.distributorId,
+      userPrice: userPrice ?? this.userPrice,
     );
   }
-
-  static SparePartIds initial() => SparePartIds(
-        sId: '',
-        parentId: '',
-        sparePartName: '',
-        description: '',
-        sparePartImages: [],
-        bookingStatus: '',
-        price: 0,
-        quantity: 0,
-        availableStock: 0,
-        distributorId: DistributorId.initial(),
-      );
 
   SparePartIds.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     parentId = json['parentId'];
     sparePartName = json['sparePartName'];
     description = json['description'];
-    sparePartImages = json['sparePartImages'].cast<String>();
+    sparePartImages = json['sparePartImages']?.cast<String>();
     bookingStatus = json['bookingStatus'];
     price = json['price'];
     quantity = json['quantity'];
@@ -301,22 +303,24 @@ class SparePartIds {
     distributorId = json['distributorId'] != null
         ? DistributorId.fromJson(json['distributorId'])
         : null;
+    userPrice = (json['userPrice'] as num?)?.toDouble();
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['_id'] = this.sId;
-    data['parentId'] = this.parentId;
-    data['sparePartName'] = this.sparePartName;
-    data['description'] = this.description;
-    data['sparePartImages'] = this.sparePartImages;
-    data['bookingStatus'] = this.bookingStatus;
-    data['price'] = this.price;
-    data['quantity'] = this.quantity;
-    data['availableStock'] = this.availableStock;
-    if (this.distributorId != null) {
-      data['distributorId'] = this.distributorId!.toJson();
+    data['_id'] = sId;
+    data['parentId'] = parentId;
+    data['sparePartName'] = sparePartName;
+    data['description'] = description;
+    data['sparePartImages'] = sparePartImages;
+    data['bookingStatus'] = bookingStatus;
+    data['price'] = price;
+    data['quantity'] = quantity;
+    data['availableStock'] = availableStock;
+    if (distributorId != null) {
+      data['distributorId'] = distributorId!.toJson();
     }
+    data['userPrice'] = userPrice;
     return data;
   }
 }
@@ -327,6 +331,12 @@ class DistributorId {
   String? ownerName;
 
   DistributorId({this.sId, this.firmName, this.ownerName});
+
+  factory DistributorId.initial() => DistributorId(
+        sId: '',
+        firmName: '',
+        ownerName: '',
+      );
 
   DistributorId copyWith({
     String? sId,
@@ -340,12 +350,6 @@ class DistributorId {
     );
   }
 
-  static DistributorId initial() => DistributorId(
-        sId: '',
-        firmName: '',
-        ownerName: '',
-      );
-
   DistributorId.fromJson(Map<String, dynamic> json) {
     sId = json['_id'];
     firmName = json['firmName'];
@@ -354,9 +358,9 @@ class DistributorId {
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = {};
-    data['_id'] = this.sId;
-    data['firmName'] = this.firmName;
-    data['ownerName'] = this.ownerName;
+    data['_id'] = sId;
+    data['firmName'] = firmName;
+    data['ownerName'] = ownerName;
     return data;
   }
 }

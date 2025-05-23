@@ -48,21 +48,32 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
           SizedBox(
             width: screenWidth * 0.3,
             height: screenWidth * 0.1,
-            child: ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const Serviceenginnersparepartbooking()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor:  const Color.fromARGB(255, 211, 218, 241)
-              ),
-              child: Text(
-                "Sparepart Booking",
-                style: TextStyle(
-                  fontSize: screenWidth * 0.019,
-                  color: const Color.fromARGB(255, 22, 20, 20),
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const Serviceenginnersparepartbooking()),
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor:  const Color.fromARGB(255, 150, 170, 238),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 7), 
+                  //  minimumSize: const Size(200, 48), // Force a minimum width and height// Adjust padding
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(5), // Slightly rectangular
+      ),
+                ),
+                child: const Text(
+                  "SparepartBooking",
+                  style: TextStyle(
+                    fontSize:10,
+                    color: const Color.fromARGB(255, 22, 20, 20),
+                    overflow: TextOverflow.ellipsis, // optional: to clip overflow
+                  ),
+                   maxLines: 1, // This ensures it stays on one line
+                  softWrap: false, // Disables wrapping
                 ),
               ),
             ),

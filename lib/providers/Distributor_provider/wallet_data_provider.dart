@@ -90,31 +90,17 @@ class WalletDataProvider extends StateNotifier<ServiceModel> {
       print('Response Status Code: ${response.statusCode}');
       print('Response Body (raw): "${response.body}"');
 
-      final rawBody = response.body.trim();
-
-      // Check if response is valid JSON
-      if (!rawBody.startsWith('{') && !rawBody.startsWith('[')) {
-        print('❌ Response is not valid JSON.');
-        throw Exception('Response is not valid JSON: $rawBody');
-      }
-
-      // Try parsing JSON
-      try {
-        final parsed = json.decode(rawBody);
-        print('✅ Parsed JSON response: $parsed');
-
+     
+      
         if (response.statusCode == 200 || response.statusCode == 201) {
+          
           print("✅ Wallet data successfully sent to the API.");
           // Update state or do other processing if needed here
         } else {
           print(
               "❌ Failed to send data to the API. Status code: ${response.statusCode}");
         }
-      } catch (e) {
-        print('❌ Failed to parse JSON: $e');
-        print('❌ Raw response: $rawBody');
-        throw Exception("Invalid JSON response format.");
-      }
+      
     } catch (e) {
       print('❌ Invalid response format: $e');
       throw Exception("Invalid response format.");

@@ -12,7 +12,7 @@ class WalletScreen extends ConsumerWidget {
     final userModel = ref.watch(loginProvider);
     final distributorId = userModel.data?.first.details?.sId ?? '';
     print('DistributorId........$distributorId');
-    final walletAsync = ref.read(walletProvider(distributorId));
+    final walletAsync = ref.watch(walletProvider(distributorId));
 
     return Scaffold(
       appBar: AppBar(
@@ -32,9 +32,9 @@ class WalletScreen extends ConsumerWidget {
                         const Icon(Icons.account_balance_wallet,
                             size: 80, color: Colors.green),
                         const SizedBox(height: 20),
-                        wallet == null
-                            ? const CircularProgressIndicator()
-                            : Text('₹${wallet.toString()}'),
+                        // wallet == null
+                            // ? const CircularProgressIndicator()
+                            Text('₹${wallet.toString()}'),
                         const SizedBox(height: 10),
                         Text(
                           '₹ $wallet',

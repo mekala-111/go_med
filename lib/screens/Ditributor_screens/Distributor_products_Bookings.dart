@@ -61,7 +61,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFE8F7F2),
       appBar: AppBar(
-        title: const Text("Bookings", style: TextStyle(color: Colors.white)),
+        title: const Text("Bookings", style: TextStyle(color: Colors.white,)),
         backgroundColor: const Color(0xFF6BC37A),
       ),
       body: Column(
