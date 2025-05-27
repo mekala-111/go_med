@@ -105,11 +105,16 @@ class SettingsPage extends ConsumerWidget {
                 ),
               ),
               onTap: () {
+                if(role == 'distributor'){
                 // Navigate to Wallet
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => const WalletScreen()),
-                );
+                  );
+                }else{
+
+                }
+                
               },
             ),
             const SizedBox(height: 20),
