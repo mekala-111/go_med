@@ -25,7 +25,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
   late String sparepartIds;
   String? parentId;
   late String distributorId;
-  double? originalPrice;
+  int? originalPrice;
   double? finalPrice;
   double? totalPrice;
   double? finalUnitPrice;
@@ -55,7 +55,7 @@ class _AddressScreenState extends ConsumerState<AddressScreen> {
       // quantity = args['quantity']?.toString();
       enteredQuantity = args['enteredQuantity'];
       parentId = args['parentId'];
-      originalPrice = args['originalprice'];
+      originalPrice = args['originalPrice'];
       totalPrice = args['totalPrice'];
       finalPrice = args['finalPrice'];
       distributorId = args['distributorId'];

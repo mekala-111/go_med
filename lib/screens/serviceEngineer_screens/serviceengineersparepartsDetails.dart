@@ -227,6 +227,9 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
               child: ElevatedButton(
                 onPressed: (_enteredQuantity != null && _selectedPaymentMethod != null)
                     ? () {
+                      final priceToSend = (_selectedPaymentMethod == 'cod')
+            ? finalUnitPrice
+            : _totalPrice;
                         Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -237,7 +240,7 @@ class _SparePartDetailScreenState extends State<SparePartDetailScreen> {
                               'parentId': widget.sparePart.parentId,
                               'totalPrice': _totalPrice,
                               'finalPrice': widget.finalPrice,
-                              'finalUnitPrice':finalUnitPrice,
+                              'finalUnitPrice':priceToSend,
                               'originalPrice': widget.originalPrice,
                               'distributorId': widget.sparePart.distributorId,
                               'paymentMethod': _selectedPaymentMethod,

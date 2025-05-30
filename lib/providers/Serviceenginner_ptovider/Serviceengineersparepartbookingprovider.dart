@@ -149,6 +149,105 @@ class ServiceEnginnersparepartBookingProvider extends StateNotifier<Serviceengin
       throw Exception("Error deleting sparepartbooking: $error");
     }
   }
+  Future<bool> updateSparepartBookings(
+      String? bookingId,
+      String? bookingStatus,
+      
+      String? sparepartId,
+      String? parentId,
+      DistributorId? distributorId,
+      ) async {
+    final loadingState = ref.read(loadingProvider.notifier);
+    loadingState.state = true;
+
+    print(
+        'Booking Data: , bookingId=$bookingId,status:$bookingStatus,');
+        // distributorId-$distributorId
+        
+
+    try {
+      // Retrieve the token
+      final prefs = await SharedPreferences.getInstance();
+      final apiUrl = Uri.parse("${Bbapi.sparepartBookingUpdate}/$bookingId");
+      String? userDataString = prefs.getString('userData');
+
+      if (userDataString == null || userDataString.isEmpty) {
+        throw Exception("User token is missing. Please log in again.");
+      }
+
+      final Map<String, dynamic> userData = jsonDecode(userDataString);
+      String? token = userData['accessToken'];
+
+      if (token == null || token.isEmpty) {
+        token = (userData['data'] is List && userData['data'].isNotEmpty)
+            ? userData['data'][0]['access_token']
+            : null;
+      }
+
+      if (token == null || token.isEmpty) {
+        throw Exception("User token is invalid. Please log in again.");
+      }
+
+      print('Retrieved Token: $token');
+
+      // Debugging: Print full request
+      print('API URL: $apiUrl');
+
+      print('Body: ${jsonEncode({
+            'bookingStatus': 'cancelled',
+            // 'distributorId': distributorId,
+            
+          })}');
+
+      // Initialize RetryClient
+      final client = RetryClient(http.Client(), retries: 3, when: (response) {
+        return response.statusCode == 401 || response.statusCode == 404;
+      });
+
+      final response = await client.patch(
+        apiUrl,
+        headers: {
+          "Authorization": "Bearer $token",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "products": [
+            {
+              
+              "bookingStatus": 'cancelled',
+              'distributorId':distributorId,
+              "productId":sparepartId,
+              'parentId':parentId,
+
+              
+             }
+          ],
+          
+        }),
+      );
+
+      print('Update Status Code: ${response.statusCode}');
+      print('Update Response Body: ${response.body}');
+
+      if (response.statusCode == 200 || response.statusCode == 201) {
+       
+
+        print(" sparepart Booking updated successfully!");
+        fetchSparepartBookings(); // Refresh bookings list
+        return true;
+      } else {
+        final errorBody = jsonDecode(response.body);
+        final errorMessage =
+            errorBody['message'] ?? 'Unexpected error occurred.';
+        throw Exception("Error updating Booking: $errorMessage");
+      }
+    } catch (error) {
+      print("Failed to update sparepartBooking: $error");
+      rethrow;
+    } finally {
+      loadingState.state = false;
+    }
+  }
 }
 
 // Define productProvider with ref

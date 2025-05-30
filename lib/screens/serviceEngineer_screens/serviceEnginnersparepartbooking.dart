@@ -30,6 +30,9 @@ class _ServiceScreenState
   Widget build(BuildContext context) {
     final sparepartBookingState = ref.watch(serciceEngineerSparepartBookingProvider);
     final isLoading = sparepartBookingState.statusCode == 0;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+
 
     return Scaffold(
       appBar: AppBar(
@@ -77,11 +80,28 @@ class _ServiceScreenState
                                                 BorderRadius.circular(10),
                                             child: Image.network(
                                               sparePart.sparePartImages!.first,
-                                              height: 150,
-                                              width: double.infinity,
+                                              width: screenWidth * 0.2,
+                                              height: screenWidth * 0.2,
                                               fit: BoxFit.cover,
+                                              loadingBuilder: (context, child, loadingProgress) {
+                                                if (loadingProgress == null) return child;
+                                                return SizedBox(
+                                                  width: screenWidth * 0.2,
+                                                  height: screenWidth * 0.2,
+                                                  child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                );
+                                              },
+                                              errorBuilder: (context, error, stackTrace) {
+                                                return Container(
+                                                  width: screenWidth * 0.2,
+                                                  height: screenWidth * 0.2,
+                                                  color: Colors.grey[300],
+                                                  child: const Center(child: Icon(Icons.broken_image, size: 30, color: Colors.red)),
+                                                );
+                                              },
+                                            )
+
                                             ),
-                                          ),
                                         const SizedBox(height: 8),
                                         Text(
                                           sparePart.sparePartName ?? 'N/A',

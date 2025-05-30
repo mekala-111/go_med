@@ -123,7 +123,22 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                           width: double.infinity,
                                           height: screenHeight * 0.18,
                                           fit: BoxFit.cover,
+                                          loadingBuilder: (context, child, loadingProgress) {
+                                            if (loadingProgress == null) return child;
+                                            return SizedBox(
+                                              height: screenHeight * 0.18,
+                                              child: Center(child: CircularProgressIndicator()),
+                                            );
+                                          },
+                                          errorBuilder: (context, error, stackTrace) {
+                                            return Container(
+                                              height: screenHeight * 0.18,
+                                              color: Colors.grey[300],
+                                              child: const Center(child: Icon(Icons.broken_image, size: 40, color: Colors.red)),
+                                            );
+                                          },
                                         )
+
                                       : Container(
                                           height: screenHeight * 0.18,
                                           color: Colors.grey[300],
@@ -206,12 +221,29 @@ class _ServiceScreenState extends ConsumerState<ServiceEngineerProductsPage> {
                                                             borderRadius: BorderRadius.circular(6),
                                                             child: sparePart.productImages != null &&
                                                                     sparePart.productImages!.isNotEmpty
-                                                                ? Image.network(
-                                                                    sparePart.productImages!.first,
+                                                                ?Image.network(
+                                                                sparePart.productImages!.first,
+                                                                width: screenWidth * 0.2,
+                                                                height: screenWidth * 0.2,
+                                                                fit: BoxFit.cover,
+                                                                loadingBuilder: (context, child, loadingProgress) {
+                                                                  if (loadingProgress == null) return child;
+                                                                  return SizedBox(
                                                                     width: screenWidth * 0.2,
                                                                     height: screenWidth * 0.2,
-                                                                    fit: BoxFit.cover,
-                                                                  )
+                                                                    child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                                                                  );
+                                                                },
+                                                                errorBuilder: (context, error, stackTrace) {
+                                                                  return Container(
+                                                                    width: screenWidth * 0.2,
+                                                                    height: screenWidth * 0.2,
+                                                                    color: Colors.grey[300],
+                                                                    child: const Center(child: Icon(Icons.broken_image, size: 30, color: Colors.red)),
+                                                                  );
+                                                                },
+                                                              )
+
                                                                 : Container(
                                                                     width: screenWidth * 0.15,
                                                                     height: screenWidth * 0.15,

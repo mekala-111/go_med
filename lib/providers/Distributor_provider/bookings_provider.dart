@@ -135,7 +135,8 @@ class BookingsProvider extends StateNotifier<BookingModel> {
             'bookingStatus': bookingStatus,
             // 'quantity':quantity,
             if (quantity != null) "quantity": quantity,
-            'productId': productId
+            'productId': productId,
+            if (otp != null) "otp": otp,
           })}');
 
       // Initialize RetryClient
@@ -153,14 +154,16 @@ class BookingsProvider extends StateNotifier<BookingModel> {
           "products": [
             {
               "productId": productId,
-              // "quantity": quantity,
+              
               if (quantity != null) "quantity": quantity,
               "bookingStatus": bookingStatus,
               "distributorId": distributorId,
-              if (otp != null) "otp": otp,
-            }
+              
+            },
+            
           ],
-          // "status": bookingStatus, // Optional if you want to update root status
+          
+          if (otp != null) "Otp": otp,
         }),
       );
 
@@ -168,6 +171,8 @@ class BookingsProvider extends StateNotifier<BookingModel> {
       print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
+
+
         if (bookingStatus == 'completed') {
           if (type == 'cod') {
             
@@ -252,7 +257,10 @@ final double distributorPrice = totalPrice * 0.875; // Equivalent to subtracting
       } else {
         final errorBody = jsonDecode(response.body);
         final errorMessage =
-            errorBody['message'] ?? 'Unexpected error occurred.';
+    errorBody['messages'] != null && errorBody['messages'].isNotEmpty
+        ? errorBody['messages'][0]
+        : 'Unexpected error occurred.';
+
         throw Exception("Error updating Booking: $errorMessage");
       }
     } catch (error) {

@@ -23,7 +23,7 @@ class SparepartBookingProvider extends StateNotifier<SparepartBookingState> {
     double? quantity,
     String? parentId,
     String distributorId,
-    double? originalPrice,
+    int? originalPrice,
     double? finalPrice,
     double? totalPrice,
     double? finalUnitPrice,

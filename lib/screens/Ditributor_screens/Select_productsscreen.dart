@@ -28,7 +28,7 @@ class _SelectedProductsScreenState
       backgroundColor: const Color(0xFFE8F7F2),
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
-        title: const Text('Product Booking', style: TextStyle(color: Colors.black)),
+        title: const Text('Product Bookings', style: TextStyle(color: Colors.black)),
       ),
       body: Form(
         key: _formKey,
@@ -328,6 +328,14 @@ class _SelectedProductsScreenState
             print("Selected Items: $selectedItems");
             try {
               await ref.read(quantityPartsProvider.notifier).addQuatity(selectedItems);
+
+               ScaffoldMessenger.of(
+                                                                context)
+                                                            .showSnackBar(
+                                                                const SnackBar(
+                                                                    content: Text(
+                                                                        "Products and Spareparts Requested To Admin",style: TextStyle(color: Colors.blue),)
+                                                                        ));
               // Navigate to next screen after successful booking
         Navigator.push(
           context,

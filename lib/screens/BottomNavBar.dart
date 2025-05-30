@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/serviceEngineer_screens/Service_engineer_services.dart';
-import 'package:go_med/screens/dashboard.dart';
+import 'package:go_med/screens/Ditributor_screens/dashboard.dart';
 import 'package:go_med/screens/Ditributor_screens/Distributor_products_Bookings.dart';
 import 'package:go_med/screens/Ditributor_screens/products_scrren.dart';
 import 'package:go_med/screens/settings.dart';
 import 'package:go_med/screens/serviceEngineer_screens/serviceEngineerProductsscreen.dart';
 import 'package:go_med/screens/Ditributor_screens/Distributor_sparepartbookings.dart';
 import 'serviceEngineer_screens/serviceEngineerBookingsservicesScreeen.dart';
+import '.././screens/serviceEngineer_screens/ServiceEngineerDashboard.dart';
 
 class BottomNavBar extends ConsumerWidget {
   const BottomNavBar({super.key});
@@ -27,7 +28,9 @@ class BottomNavBar extends ConsumerWidget {
     Widget page;
     switch (index) {
       case 0:
-        page = const DashboardPage();
+        page = (role == 'serviceEngineer')
+            ? const DashboardPage()
+            : const DashboardDistributorScreen();
         break;
       case 1:
         page = (role == 'serviceEngineer')
@@ -101,10 +104,10 @@ class BottomNavBar extends ConsumerWidget {
         BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Product'),
         // BottomNavigationBarItem(
         //     icon: Icon(Icons.miscellaneous_services), label: 'Spare Parts'),
-         BottomNavigationBarItem(
-      icon: const Icon(Icons.miscellaneous_services),
-      label: role == 'serviceEngineer' ? 'Services' : 'Spare Parts',
-    ),
+        BottomNavigationBarItem(
+          icon: const Icon(Icons.miscellaneous_services),
+          label: role == 'serviceEngineer' ? 'Services' : 'Spare Parts',
+        ),
         BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
       ],
     );

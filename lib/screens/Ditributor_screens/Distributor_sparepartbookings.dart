@@ -178,6 +178,7 @@ void dispose() {
                                                           booking.paidPrice,
                                                           booking.totalPrice
                                                         );
+                                                         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("SprepartBooking Confirmed")));
                                                   } catch (e) {
                                                     _showSnackBar(
                                                         context, e.toString());
@@ -217,6 +218,7 @@ void dispose() {
                                                             booking.paidPrice,
                                                           booking.totalPrice,
                                                           price:sparePart.price,);
+                                                           ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("start the spareart Delivering")));
                                                     _showSnackBar(context,
                                                         "sparepart marked as delivered");
                                                   } catch (e) {
@@ -226,7 +228,7 @@ void dispose() {
                                                 }
                                               },
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.green,
+                                                backgroundColor: const Color.fromARGB(255, 205, 191, 44),
                                                 foregroundColor: Colors.white,
                                               ),
                                               child:

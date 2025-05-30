@@ -12,7 +12,7 @@ class RazorpayPaymentPage extends ConsumerStatefulWidget {
   final double? quantity;
   final String? parentId;
   final String distributorId;
-  final double? originalPrice;
+  final int? originalPrice;
   final double? totalPrice;
   final double? finalPrice;
   final double? finalUnitPrice;
@@ -41,27 +41,36 @@ class RazorpayPaymentPage extends ConsumerStatefulWidget {
 
 class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
   late Razorpay _razorpay;
+  bool _paymentStarted = false;
 
   @override
   void initState() {
     super.initState();
-    _razorpay = Razorpay();
-    _razorpay.on(Razorpay.EVENT_PAYMENT_SUCCESS, _handleSuccess);
-    _razorpay.on(Razorpay.EVENT_PAYMENT_ERROR, _handleError);
-    _razorpay.on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternal);
+    _razorpay = Razorpay()
+      ..on(Razorpay.EVENT_PAYMENT_SUCCESS, _handleSuccess)
+      ..on(Razorpay.EVENT_PAYMENT_ERROR, _handleError)
+      ..on(Razorpay.EVENT_EXTERNAL_WALLET, _handleExternal);
 
-    _startPayment();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_paymentStarted) {
+        _startPayment();
+        _paymentStarted = true;
+      }
+    });
   }
 
   void _startPayment() {
     final isCOD = widget.paymentMethod == 'cod';
-    final selectedPrice =
-        isCOD ? widget.finalUnitPrice ?? 0 : widget.totalPrice ?? 0;
-    final amountInPaise = (selectedPrice * 100).toInt();
+    final amount = isCOD ? widget.finalUnitPrice ?? 0 : widget.totalPrice ?? 0;
+    final amountInPaise = (amount * 100).toInt();
 
-    print('Payment Method: ${widget.paymentMethod}');
-    print('Price selected: $selectedPrice');
-    print('Amount sent to Razorpay (paise): $amountInPaise');
+    if (amountInPaise <= 0) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Invalid payment amount")),
+      );
+      Navigator.pop(context);
+      return;
+    }
 
     var options = {
       'key': 'rzp_live_6tvrYJlTwFFGiV',
@@ -77,12 +86,14 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
     try {
       _razorpay.open(options);
     } catch (e) {
-      print('Error: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Payment error: $e')),
+      );
       Navigator.pop(context);
     }
   }
 
-  void _handleSuccess(PaymentSuccessResponse response) async {
+  Future<void> _handleSuccess(PaymentSuccessResponse response) async {
     try {
       final isCod = widget.paymentMethod == 'cod';
 
@@ -94,20 +105,26 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
             widget.quantity,
             widget.parentId,
             widget.distributorId,
-            widget.originalPrice,
+            widget.originalPrice ,
             widget.finalPrice,
             widget.totalPrice,
             isCod ? widget.finalUnitPrice : null,
             widget.paymentMethod,
           );
 
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('✅ Spare part booked successfully!')),
       );
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>ServiceEngineerProductsPage()));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => ServiceEngineerProductsPage()),
+      );
     } catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error sending data: $e')),
+        SnackBar(content: Text('❌ Failed to book: $e')),
       );
       Navigator.pop(context);
     }
@@ -121,7 +138,7 @@ class _RazorpayPaymentPageState extends ConsumerState<RazorpayPaymentPage> {
   }
 
   void _handleExternal(ExternalWalletResponse response) {
-    Navigator.pop(context);
+    debugPrint("External wallet selected: ${response.walletName}");
   }
 
   @override

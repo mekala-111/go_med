@@ -32,6 +32,8 @@ class BookingModel {
           [],
     );
   }
+
+  // bool get isLoading => null;
 }
 
 class BookingData {

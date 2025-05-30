@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 import 'package:go_med/providers/firebase_auth.dart';
-import 'package:go_med/screens/dashboard.dart';
+import 'package:go_med/screens/Ditributor_screens/dashboard.dart';
 import 'package:go_med/screens/product_edit.dart';
 import 'screens/LoginPage.dart';
 import 'firebase_options.dart';
@@ -63,10 +63,10 @@ class MyApp extends StatelessWidget {
             print('status...$status');
             // Check if the user has a valid refresh token
             if (accessToken != null && accessToken.isNotEmpty 
-            // && status=='Active'
+            // && (status=='Active'||status=='active')
             ) {
               print('navigate to the dashboard....................');
-              return const DashboardPage(); // User is authenticated, redirect to Home
+              return const DashboardDistributorScreen(); // User is authenticated, redirect to Home
             } else {
               print('No valid refresh token, trying auto-login');
             }
@@ -87,11 +87,11 @@ class MyApp extends StatelessWidget {
                 } else if (snapshot.hasData &&
                     snapshot.data == true &&
                     (accessToken != null && accessToken.isNotEmpty) &&
-                    //  authState.data![0].details!.status=='Active'&&
+                    //  (authState.data![0].details!.status=='Active'||authState.data![0].details!.status=='active')&&
                     (authState.data![0].details!.role == "distributor" ||
                      authState.data![0].details!.role =="serviceEngineer")) {
                   // If auto-login is successful and refresh token is available, go to Dashboard
-                  return const DashboardPage();
+                  return const DashboardDistributorScreen();
                 } else {
                   // If auto-login fails or no token, redirect to LoginScreen
                   return LoginScreen();
@@ -104,7 +104,7 @@ class MyApp extends StatelessWidget {
           // "addproductscreen": (context) => const AddProductScreen(),
           "productscreen": (context) => const ProductScreen(),
           "loginscreen": (context) => LoginScreen(),
-          "dashboardpage": (context) => const DashboardPage(),
+          "dashboardpage": (context) => const DashboardDistributorScreen(),
           "bookingpage": (context) => const BookingsScreen(),
           // "profilesetuppage": (context) => const ProfileSetupPage(),
           "profilepage": (context) => const ProfilePage(),

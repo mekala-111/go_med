@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
-import 'package:go_med/screens/dashboard.dart';
+import 'package:go_med/screens/Ditributor_screens/dashboard.dart';
 import 'package:go_med/screens/Profile.dart';
 import '../providers/logout_notifier.dart';
 import '../screens/LoginPage.dart';
@@ -28,7 +28,7 @@ class SettingsPage extends ConsumerWidget {
           onPressed: () {
             Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => const DashboardPage()),
+              MaterialPageRoute(builder: (context) => const DashboardDistributorScreen()),
             );
           },
         ),
