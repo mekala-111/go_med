@@ -261,7 +261,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                                 product.id,
                                                                 distributorId,
                                                                 otp: null,
-                                                                type: "cod");
+                                                                type: booking.type);
                                                         ScaffoldMessenger.of(
                                                                 context)
                                                             .showSnackBar(
@@ -308,7 +308,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                                 product.id,
                                                                 distributorId,
                                                                 otp: null,
-                                                                type: "cod");
+                                                                type: booking.type);
                                                         ScaffoldMessenger.of(
                                                                 context)
                                                             .showSnackBar(
@@ -380,7 +380,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                                           .text
                                                                           .trim(),
                                                                       type:
-                                                                          "COD");
+                                                                          booking.type);
                                                                   if (success) {
                                             setState(() {
                                               OtpSubmitted[index] = true;

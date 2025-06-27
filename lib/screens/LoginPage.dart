@@ -4,7 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:async';
 import '../providers/firebase_auth.dart';
 import '../providers/loader.dart';
-import 'dashboard.dart';
+import 'Ditributor_screens/dashboard.dart';
 import '../screens/Register.dart';
 import '../providers/auth_provider.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -62,10 +62,17 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authState = ref.watch(loadingProvider);
-    final authNotifier = ref.read(loginProvider.notifier);
+    final authNotifier = ref.watch(loginProvider.notifier);
+    final authNotifierLogin = ref.watch(loginProvider);
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
     isKeyboardVisible = bottomInset > 0;
+    final accessToken = authNotifierLogin.data?.isNotEmpty == true
+                ?authNotifierLogin.data![0].accessToken
+                : null;
+            final status = authNotifierLogin.data?.isNotEmpty == true
+                ? authNotifierLogin.data![0].details?.status
+                : null;
 
     return Scaffold(
       resizeToAvoidBottomInset: true,
@@ -93,7 +100,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: Container(
                 width: 300,
                 height: 100,
-                child: Image.asset('images/logo.jpg', fit: BoxFit.cover),
+                child: Image.asset('assets/images/logo1.jpg', fit: BoxFit.cover),
               ),
             ),
           ),
@@ -216,10 +223,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 await 
                                 ref.read(loginProvider.notifier).signInWithPhoneNumber(otpController.text.trim(), ref);
                                 // ✅ Stop the Timer
-                                     if (_timer!.isActive) {
-                                            _timer!.cancel();
-                                      }
+                                     if (_timer != null && _timer!.isActive) {
+                                          _timer!.cancel();
+                                        }
+
+                                      
                                 ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("OTP Verified Successfully!")));
+                                if (context.mounted&& (accessToken != null && accessToken.isNotEmpty) 
+                                // && (authNotifierLogin.data![0].details!.status=='Active'||authNotifierLogin.data![0].details!.status=='active')
+                                ) {
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>const DashboardDistributorScreen()));
+                                    }
+
+                                
                                 } on FirebaseAuthException catch (e) {
                                   setState(() {
                                  isLoggingIn  = false;
@@ -238,7 +254,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                     backgroundColor: Colors.red,
                                ),
                                );
-                                // Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
+                                
                               } catch (e,stackTrace) {
                                    setState(() {
                                      isLoggingIn  = false; // Stop loading if there was an error

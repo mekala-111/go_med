@@ -154,15 +154,11 @@ class BookingsProvider extends StateNotifier<BookingModel> {
           "products": [
             {
               "productId": productId,
-              
               if (quantity != null) "quantity": quantity,
               "bookingStatus": bookingStatus,
               "distributorId": distributorId,
-              
             },
-            
           ],
-          
           if (otp != null) "Otp": otp,
         }),
       );
@@ -171,11 +167,13 @@ class BookingsProvider extends StateNotifier<BookingModel> {
       print('Update Response Body: ${response.body}');
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-
-
+        print('after 200 condition  successfull');
         if (bookingStatus == 'completed') {
+          print('completed...........');
+          print('Booking type: $type');
+
           if (type == 'cod') {
-            
+            print('completed...........cod');
             final DatabaseReference dbRef =
                 FirebaseDatabase.instance.ref().child('bookings');
 
@@ -184,17 +182,25 @@ class BookingsProvider extends StateNotifier<BookingModel> {
 
             final DataSnapshot snapshot = await distributorRef.get();
             // final int totalPrice = ((price ?? 0) * 90 / 100).round();
-           final int totalPrice = price * quantity;
+            print("data.........price:$price,quantity:$successQuantity");
 
-           final double distribitorPrice = totalPrice * 0.125;// Equivalent to subtracting 12.5%
+            final int safePrice = price ?? 0;
+            final int safeQuantity = successQuantity ?? 0;
+            final int totalPrice = safePrice * safeQuantity;
+
+            print("data.........price:$price,quantity:$successQuantity");
+
+            final double distribitorPrice =
+                totalPrice * 0.125; // Equivalent to subtracting 12.5%
 
             if (snapshot.exists) {
               // Add to existing wallet
               final currentData = snapshot.value as Map;
               final double currentWallet =
                   double.tryParse(currentData['wallet'].toString()) ?? 0;
-              final double updatedWallet = double.parse((currentWallet - distribitorPrice).toStringAsFixed(2));
-
+              print('currnet wallet amount...$currentWallet');
+              final double updatedWallet = double.parse(
+                  (currentWallet - distribitorPrice).toStringAsFixed(2));
 
               await distributorRef.update({
                 'wallet': updatedWallet,
@@ -213,6 +219,7 @@ class BookingsProvider extends StateNotifier<BookingModel> {
                   "Created new wallet record for distributor $distributorId: $price");
             }
           } else if (type == 'onlinepayment') {
+            print('completed..........onlinpayment.');
             final DatabaseReference dbRef =
                 FirebaseDatabase.instance.ref().child('bookings');
 
@@ -221,16 +228,22 @@ class BookingsProvider extends StateNotifier<BookingModel> {
 
             final DataSnapshot snapshot = await distributorRef.get();
             // final int totalPrice = ((price ?? 0) * 90 / 100).round();
-           final int totalPrice = price * quantity;
-final double distributorPrice = totalPrice * 0.875; // Equivalent to subtracting 12.5%
+             print("data.........price:$price,quantity:$successQuantity");
+            final int safePrice = price ?? 0;
+            final int safeQuantity = successQuantity ?? 0;
+            final int totalPrice = safePrice * safeQuantity;
+
+            final double distributorPrice =
+                totalPrice * 0.875; // Equivalent to subtracting 12.5%
 
             if (snapshot.exists) {
               // Add to existing wallet
               final currentData = snapshot.value as Map;
               final double currentWallet =
                   double.tryParse(currentData['wallet'].toString()) ?? 0;
-              final double updatedWallet = double.parse((currentWallet + distributorPrice).toStringAsFixed(2));
-
+                  print('currnet wallet amount...$currentWallet');
+              final double updatedWallet = double.parse(
+                  (currentWallet + distributorPrice).toStringAsFixed(2));
 
               await distributorRef.update({
                 'wallet': updatedWallet,
@@ -251,15 +264,15 @@ final double distributorPrice = totalPrice * 0.875; // Equivalent to subtracting
           }
         }
 
-        print("Booking updated successfully!");
+        print("product Booking updated successfully!");
         getBookings(); // Refresh bookings list
         return true;
       } else {
         final errorBody = jsonDecode(response.body);
         final errorMessage =
-    errorBody['messages'] != null && errorBody['messages'].isNotEmpty
-        ? errorBody['messages'][0]
-        : 'Unexpected error occurred.';
+            errorBody['messages'] != null && errorBody['messages'].isNotEmpty
+                ? errorBody['messages'][0]
+                : 'Unexpected error occurred.';
 
         throw Exception("Error updating Booking: $errorMessage");
       }
