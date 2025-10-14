@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/serviceEngineer_screens/Service_engineer_services.dart';
 import 'package:go_med/screens/Ditributor_screens/dashboard.dart';
@@ -91,12 +92,12 @@ class BottomNavBar extends ConsumerWidget {
 
     return BottomNavigationBar(
       currentIndex: _getCurrentIndex(context),
-      backgroundColor: const Color(0xFF6BC37A),
+      backgroundColor: AppColors.gomedcolor,
       type: BottomNavigationBarType.fixed,
-      selectedItemColor: Colors.black,
-      unselectedItemColor: Colors.white,
-      selectedIconTheme: const IconThemeData(color: Colors.black, size: 28),
-      unselectedIconTheme: const IconThemeData(color: Colors.white, size: 24),
+      selectedItemColor: AppColors.black,
+      unselectedItemColor: AppColors.white,
+      selectedIconTheme: const IconThemeData(color: AppColors.black, size: 28),
+      unselectedIconTheme: const IconThemeData(color: AppColors.white, size: 24),
       onTap: (index) => navigateTo(context, index, role),
       items: [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),

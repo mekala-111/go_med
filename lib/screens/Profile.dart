@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -91,20 +92,20 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
     final role = userModel.data?.first.details?.role ?? '';
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F7F2),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A),
+        backgroundColor: AppColors.gomedcolor,
         elevation: 0,
         title: Row(
           children: [
             const Text(
               "Profile",
               style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  TextStyle(color: AppColors.white, fontWeight: FontWeight.bold),
             ),
             const Spacer(),
             IconButton(
-              icon: const Icon(Icons.notifications, color: Colors.white),
+              icon: const Icon(Icons.notifications, color: AppColors.white),
               onPressed: () {},
             ),
           ],
@@ -112,7 +113,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
           child: Container(
-            color: Colors.grey,
+            color: AppColors.grey,
             height: 1.0,
           ),
         ),
@@ -140,7 +141,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                             ? const Icon(
                                 Icons.person,
                                 size: 50,
-                                color: Colors.grey,
+                                color: AppColors.grey,
                               )
                             : null,
                       ),
@@ -222,7 +223,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                     });
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: isEditing ? Colors.green : Colors.blue,
+                    backgroundColor: isEditing ? AppColors.gomedcolor : AppColors.info,
                     padding: EdgeInsets.symmetric(
                       vertical: MediaQuery.of(context).size.height * 0.015,
                       horizontal: MediaQuery.of(context).size.width * 0.3,
@@ -234,7 +235,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
                   child: Text(
                     isEditing ? 'Save' : 'Edit Profile',
                     style: const TextStyle(
-                      color: Colors.white,
+                      color: AppColors.white,
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                     ),
@@ -265,7 +266,7 @@ class _ProfilePageState extends ConsumerState<ProfilePage> {
           decoration: InputDecoration(
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             filled: true,
-            fillColor: isEditing ? Colors.white : Colors.grey[200],
+            fillColor: isEditing ? AppColors.white : AppColors.grey,
           ),
         ),
       ],

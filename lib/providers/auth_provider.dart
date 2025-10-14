@@ -545,6 +545,7 @@ class PhoneAuthNotifier extends StateNotifier<UserModel> {
         print("serviceengineerProfile updated successfully.");
 
         var userDetails = json.decode(response.body);
+        
         UserModel user = UserModel.fromJson(userDetails);
         print(" updated Response: ${response.body}");
 

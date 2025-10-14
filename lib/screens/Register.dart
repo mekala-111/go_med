@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import '../providers/Register.dart'; // Assuming your RegisterNotifier is here
@@ -152,7 +153,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
         title: const Text(
           'Register',
         ),
-        backgroundColor: Color(0xFF6EE883),
+        backgroundColor: AppColors.gomedcolor,
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -166,7 +167,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
     width: 90, // Adjust width as needed
     height: 150, // Adjust height as needed
     decoration: BoxDecoration(
-      color: Colors.grey[300], // Background color if no image is selected
+      color: AppColors.grey, // Background color if no image is selected
       borderRadius: BorderRadius.circular(10), // Optional: Rounded corners
       image: _selectedImage != null
           ? DecorationImage(
@@ -179,7 +180,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
         ? const Icon(
             Icons.camera_alt_sharp,
             size: 50,
-            color: Colors.grey,
+            color: AppColors.grey,
           )
         : null,
   ),
@@ -277,7 +278,7 @@ class _RegistrationPageState extends ConsumerState<RegistrationPage> {
               ElevatedButton(
                 onPressed: _register,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Color(0xFF6EE883), // Set button color
+                  backgroundColor: AppColors.gomedcolor, // Set button color
                 ),
                 child: const Text('Register'),
               )

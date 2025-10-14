@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
+import 'package:go_med/screens/serviceEngineer_screens/ServiceEngineerDashboard.dart';
 import 'dart:async';
 import '../providers/firebase_auth.dart';
 import '../providers/loader.dart';
@@ -85,7 +87,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Color(0xFF6EE883), Color(0xFFFFFFFF)],
+                  colors: [AppColors.gomedcolor, AppColors.white],
                 ),
               ),
             ),
@@ -116,11 +118,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               width: double.infinity,
               decoration: const BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [Color(0xFF8ED6F8), Color(0xFFFEFFF9)],
+                  colors: [Color(0xFF8ED6F8), AppColors.white],
                 ),
                 borderRadius: BorderRadius.only(topLeft: Radius.circular(160)),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
+              // padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 50),
+              padding: const EdgeInsets.fromLTRB(50, 50, 50, 80), // ⬅️ Increase bottom padding here
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -132,7 +135,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     decoration: InputDecoration(
                       hintText: 'Enter your phone number',
                       filled: true,
-                      fillColor: Colors.grey[200],
+                      fillColor: AppColors.grey,
                       border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
                     ),
                     keyboardType: TextInputType.phone,
@@ -149,7 +152,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           decoration: InputDecoration(
                             hintText: 'Enter OTP',
                             filled: true,
-                            fillColor: Colors.grey[200],
+                            fillColor: AppColors.grey,
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10), borderSide: BorderSide.none),
                           ),
                           keyboardType: TextInputType.number,
@@ -164,9 +167,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 setState(() {
                                   isSendingOtp = true;
                      });
-                               
-
-                                final phoneNumber = phoneController.text.trim();
+                               final phoneNumber = phoneController.text.trim();
                                 final isValid = phoneNumber.startsWith("+91") &&
 
                                     phoneNumber.length == 13 &&
@@ -197,9 +198,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 30),
                         ),
                         child: isSendingOtp
-                            ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2)
+                            ? const CircularProgressIndicator(color: AppColors.white, strokeWidth: 2)
                             : Text(countdown > 0 ? '$countdown sec'  : (lastPhoneNumber == phoneController.text.trim() ? 'Resend OTP' : 'Send OTP'),
-                            style: const TextStyle(color: Colors.white, fontSize: 16),
+                            style: const TextStyle(color: AppColors.white, fontSize: 16),
                                         ),
                       ),
                     ],
@@ -232,7 +233,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                 if (context.mounted&& (accessToken != null && accessToken.isNotEmpty) 
                                 // && (authNotifierLogin.data![0].details!.status=='Active'||authNotifierLogin.data![0].details!.status=='active')
                                 ) {
-                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) =>const DashboardDistributorScreen()));
+                                  final role = authNotifierLogin.data![0].details?.role?.toLowerCase();
+                                      if (role == 'distributor') {
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DashboardDistributorScreen()));
+                                    } else if (role == 'serviceEngineer') {
+                                      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const DashboardPage()));
+                                    
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Unknown role. Please contact support.')),
+                                      );
+                                    }
+                                    
+                                    
                                     }
 
                                 
@@ -251,7 +264,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                    ScaffoldMessenger.of(context).showSnackBar(
                                    SnackBar(
                                    content: Text(errorMessage),
-                                    backgroundColor: Colors.red,
+                                    backgroundColor: AppColors.error,
                                ),
                                );
                                 
@@ -264,14 +277,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                                   // Show error message if OTP verification fails
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(content: Text("An error occurred: $e"),
-                                    backgroundColor: Colors.red,),
+                                    backgroundColor: AppColors.error,),
                                   );
                                 
                               } 
                               }else {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(content: Text("Please enter the OTP."),
-                                  backgroundColor: Colors.red,),
+                                  backgroundColor: AppColors.error,),
                                 );
                               }
                               setState(() {
@@ -280,11 +293,11 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             }
                           : null,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: isOtpEntered ? const Color(0xFF0E7AAB) : Colors.grey,
+                        backgroundColor: isOtpEntered ? AppColors.info : AppColors.grey,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
-                      child: isLoggingIn ? const CircularProgressIndicator(color: Colors.white, strokeWidth: 2) : const Text('Verify'),
+                      child: isLoggingIn ? const CircularProgressIndicator(color: AppColors.white, strokeWidth: 2) : const Text('Verify'),
                     ),
                   ),
                   const SizedBox(height: 19),

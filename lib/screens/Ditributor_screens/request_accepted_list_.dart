@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import '../../providers/Distributor_provider/request_accepted_list_provider.dart';
 import '../../model/DIstributor_models/request_accepted_list_model.dart';
 
@@ -53,22 +54,22 @@ class _RequestAcceptProductScreenState
     final spareParts = allProducts.where((p) => p.parentId != null).toList();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F7F2),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A),
+        backgroundColor: AppColors.gomedcolor,
         elevation: 0,
         title: const Text('Requested Products',
-            style: TextStyle(color: Colors.black)),
+            style: TextStyle(color: AppColors.black)),
       ),
       body: Column(
         children: [
           Container(
-            color: const Color.fromARGB(255, 255, 248, 242),
+            color: AppColors.white,
             child: TabBar(
               controller: _tabController,
               tabs: tabs.map((e) => Tab(text: e)).toList(),
-              labelColor: Colors.black,
-              indicatorColor: const Color.fromARGB(255, 14, 234, 87),
+              labelColor: AppColors.black,
+              indicatorColor: AppColors.gomedcolor,
             ),
           ),
           Expanded(
@@ -173,7 +174,7 @@ class _RequestAcceptProductScreenState
                     padding: const EdgeInsets.symmetric(
                         horizontal: 10, vertical: 8),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade200,
+                      color: AppColors.grey,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Column(
@@ -218,7 +219,7 @@ class _RequestAcceptProductScreenState
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 4),
             Text('Parent Product: ${parent.productName ?? 'Unknown'}',
-                style: const TextStyle(color: Colors.grey)),
+                style: const TextStyle(color: AppColors.grey)),
             const SizedBox(height: 4),
             Row(
               children: [

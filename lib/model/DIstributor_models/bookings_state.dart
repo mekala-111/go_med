@@ -43,15 +43,19 @@ class BookingData {
   String? location;
   String? address;
   String? status;
+  String? type;
   String? createdAt;
   String? updatedAt;
-
+   double? totalPrice;
+  double? paidPrice;
+ 
   BookingData({
     required this.id,
     required this.userId,
     required this.productIds,
     this.location,
     this.address,
+    this.type,
     this.status,
     this.createdAt,
     this.updatedAt,
@@ -68,6 +72,7 @@ class BookingData {
       location: json['location'] ?? 'No Location', // ✅ FIXED
       address: json['address'] ?? 'No Address', // ✅ FIXED
       status: json['status'] ?? 'Pending',
+      type : json['type'],
       createdAt: json['createdAt'] ?? '',
       updatedAt: json['updatedAt'] ?? '',
     );
@@ -76,12 +81,14 @@ class BookingData {
   BookingData copyWith({
     String? id,
     User? userId,
+    String? type,
     List<Product>? productIds,
     String? status,
   }) {
     return BookingData(
       id: id ?? this.id,
       userId: userId ?? this.userId,
+       type: type ?? this.type,
       productIds: productIds ?? this.productIds,
       status: status ?? this.status,
     );

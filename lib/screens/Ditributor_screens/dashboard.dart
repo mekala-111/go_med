@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:go_med/screens/Ditributor_screens/Distributor_products_Bookings.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
 import 'package:go_med/screens/Services.dart';
@@ -73,8 +74,8 @@ class DashboardDistributorScreen extends ConsumerWidget {
       Container(
         width: 50,
         height: 50,
-        decoration: BoxDecoration(
-          color: Colors.black,
+        decoration: const BoxDecoration(
+          color: AppColors.black,
           shape: BoxShape.circle,
         ),
         child: Padding(
@@ -89,7 +90,7 @@ class DashboardDistributorScreen extends ConsumerWidget {
       ),
       // Notification Icon
       IconButton(
-        icon: const Icon(Icons.notifications_active, color: Colors.black,size: 30,),
+        icon: const Icon(Icons.notifications_active, color: AppColors.black,size: 30,),
         onPressed: () {},
       ),
     ],
@@ -213,7 +214,7 @@ class DashboardButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
         decoration: BoxDecoration(
-          color: const Color(0xFF0E7AAB),
+          color: AppColors.buttonPrimary,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -221,7 +222,7 @@ class DashboardButton extends StatelessWidget {
           textAlign: TextAlign.center,
           style: TextStyle(
             fontWeight: FontWeight.bold,
-            color: Colors.white,
+            color: AppColors.white,
             fontSize: fontSize,
           ),
         ),
@@ -239,7 +240,7 @@ class NotificationsHeader extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text("Alerts and Notifications", style: TextStyle(fontWeight: FontWeight.bold)),
-        Text("View all", style: TextStyle(color: Colors.blue)),
+        Text("View all", style: TextStyle(color: AppColors.buttonPrimary)),
       ],
     );
   }
@@ -253,7 +254,7 @@ class NotificationsContainer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(128, 138, 197,230),
+        color: AppColors.textSecondary,
         borderRadius: BorderRadius.circular(16),
       ),
       child: const Column(
@@ -291,7 +292,7 @@ class OverviewItems extends StatelessWidget {
     Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(128, 138, 197,230),
+        color: AppColors.textSecondary,
         borderRadius: BorderRadius.circular(16),
       ),
       child:Column(

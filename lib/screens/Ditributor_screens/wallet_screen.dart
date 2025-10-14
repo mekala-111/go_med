@@ -1,5 +1,8 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:go_med/providers/Distributor_provider/wallet_data_provider.dart';
 import '../../providers/Distributor_provider/wallet_provider.dart';
 import '../../providers/auth_provider.dart';
@@ -30,7 +33,7 @@ class WalletScreen extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.account_balance_wallet,
-                            size: 80, color: Colors.green),
+                            size: 80, color: AppColors.gomedcolor),
                         const SizedBox(height: 20),
                         // wallet == null
                             // ? const CircularProgressIndicator()
@@ -38,8 +41,8 @@ class WalletScreen extends ConsumerWidget {
                         const SizedBox(height: 10),
                         Text(
                           '₹ $wallet',
-                          style: const TextStyle(
-                              fontSize: 32, color: Colors.black87),
+                          style: TextStyle(
+                              fontSize: 32, color: AppColors.black),
                         ),
                       ],
                     );

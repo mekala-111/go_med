@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import '../../model/DIstributor_models/Distributor_products_model.dart';
 import '../../providers/Distributor_provider/Distributor_products_provider.dart';
 import '../BottomNavBar.dart';
@@ -32,13 +33,13 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
     final products = productState.data ?? [];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F7F2),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A),
+        backgroundColor: AppColors.gomedcolor,
         elevation: 0,
         title: const Text(
           'Products',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: AppColors.black),
         ),
         actions: [
           SizedBox(
@@ -65,7 +66,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                 "Bookings",
                 style: TextStyle(
                   fontSize: MediaQuery.of(context).size.width * 0.04,
-                  color: const Color.fromARGB(255, 22, 20, 20),
+                  color: AppColors.black,
                 ),
               ),
             ),
@@ -116,7 +117,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
           Expanded(
             child: Container(
               decoration: BoxDecoration(
-                color: Colors.white,
+                color:AppColors.white,
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
@@ -141,7 +142,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                       ),
                       errorWidget: (context, url, error) => const SizedBox(
                         height: 150,
-                        child: Center(child: Icon(Icons.broken_image, size: 50, color: Colors.grey)),
+                        child: Center(child: Icon(Icons.broken_image, size: 50, color: AppColors.grey)),
                       ),
                     ): const SizedBox(
                     height: 150,
@@ -235,11 +236,11 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(175, 193, 199, 201),
+        color: AppColors.grey,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.2),
+            color: AppColors.grey,
             blurRadius: 5,
             offset: const Offset(0, 3),
           ),
@@ -260,7 +261,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
             ),
             errorWidget: (context, url, error) => const SizedBox(
               height: 100,
-              child: Center(child: Icon(Icons.broken_image, size: 40, color: Colors.grey)),
+              child: Center(child: Icon(Icons.broken_image, size: 40, color: AppColors.grey)),
             ),
           ),
 
@@ -282,7 +283,7 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
   Widget _buildBottomButtons() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-      color: Colors.white,
+      color: AppColors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -299,16 +300,16 @@ class _ProductScreenState extends ConsumerState<ProductScreen> {
                       ),
                     );
                   },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.gomedcolor),
             child:
-                const Text("Continue", style: TextStyle(color: Colors.white)),
+                const Text("Continue", style: TextStyle(color: AppColors.white)),
           ),
           ElevatedButton(
             onPressed: () {
               // Implement email functionality if required
             },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-            child: const Text("Email", style: TextStyle(color: Colors.white)),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.info),
+            child: const Text("Email", style: TextStyle(color: AppColors.white)),
           ),
         ],
       ),

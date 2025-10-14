@@ -75,9 +75,10 @@ final Map<String, String> productIdNameMap = {
       appBar: AppBar(
         backgroundColor: const Color(0xFF6BC37A),
         elevation: 0,
-        title: const Text(
+        title:  Text(
           'Service Bookings',
-          style: TextStyle(color: Colors.black),
+          style: TextField.materialMisspelledTextStyle
+          // TextStyle(color: Colors.black),
         ),
       ),
       body:

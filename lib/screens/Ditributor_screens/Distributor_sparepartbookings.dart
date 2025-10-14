@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:go_med/providers/Distributor_provider/spareparetbookingprovider.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
@@ -49,7 +50,7 @@ void dispose() {
         elevation: 0,
         title: const Text(
           'Spare Part Bookings',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: AppColors.black),
         ),
       ),
       body: isLoading
@@ -138,7 +139,7 @@ void dispose() {
                                             style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.green),
+                                                color: AppColors.gomedcolor),
                                           ),
                                           Text(
                                             "quantity: ${sparePart.quantity ?? 'N/A'}",
@@ -186,8 +187,8 @@ void dispose() {
                                                 }
                                               },
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.grey,
-                                                foregroundColor: Colors.white,
+                                                backgroundColor: AppColors.textSecondary,
+                                                foregroundColor: AppColors.white,
                                               ),
                                               child:
                                                   const Text("Booking Accept"),
@@ -228,8 +229,8 @@ void dispose() {
                                                 }
                                               },
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: const Color.fromARGB(255, 205, 191, 44),
-                                                foregroundColor: Colors.white,
+                                                backgroundColor: AppColors.warning,
+                                                foregroundColor: AppColors.white,
                                               ),
                                               child:
                                                   const Text("start Delivery"),
@@ -285,8 +286,8 @@ void dispose() {
                                                 }
                                               },
                                               style: ElevatedButton.styleFrom(
-                                                backgroundColor: Colors.green,
-                                                foregroundColor: Colors.white,
+                                                backgroundColor: AppColors.gomedcolor,
+                                                foregroundColor: AppColors.white,
                                               ),
                                               child: const Text(
                                                   "Delivery Completed"),
@@ -296,7 +297,7 @@ void dispose() {
                                             const Text(
                                               " sparepart Delivered Successfully",
                                               style: TextStyle(
-                                                color: Colors.green,
+                                                color: AppColors.gomedcolor,
                                                 fontWeight: FontWeight.bold,
                                               ),
                                             ),
@@ -353,7 +354,7 @@ void dispose() {
                                         ),
                                         child: const Text(
                                           "Share",
-                                          style: TextStyle(color: Colors.white),
+                                          style: TextStyle(color: AppColors.white),
                                         ),
                                       ),
                                     ],
@@ -392,7 +393,7 @@ void dispose() {
       SnackBar(
         content: Text(message),
         backgroundColor:
-            message == "Please fill all fields." ? Colors.red : Colors.blue,
+            message == "Please fill all fields." ? AppColors.error : AppColors.info,
         behavior: SnackBarBehavior.floating,
       ),
     );

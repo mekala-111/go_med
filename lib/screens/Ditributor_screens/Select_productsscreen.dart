@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:go_med/providers/Distributor_provider/Quantity_parts_provider.dart';
 import '../../model/DIstributor_models/Distributor_products_model.dart';
 import '../../providers/Distributor_provider/Distributor_products_provider.dart';
@@ -25,10 +26,10 @@ class _SelectedProductsScreenState
     final productState = ref.watch(distributorProductProvider);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F7F2),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A),
-        title: const Text('Product Bookings', style: TextStyle(color: Colors.black)),
+        backgroundColor: AppColors.gomedcolor,
+        title: const Text('Product Bookings', style: TextStyle(color: AppColors.black)),
       ),
       body: Form(
         key: _formKey,
@@ -91,9 +92,9 @@ class _SelectedProductsScreenState
           margin: const EdgeInsets.symmetric(vertical: 8),
           padding: const EdgeInsets.all(10),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: AppColors.white,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: Colors.grey),
+            border: Border.all(color: AppColors.grey),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -321,7 +322,7 @@ class _SelectedProductsScreenState
   Widget _buildBottomButton() {
     return Container(
       padding: const EdgeInsets.all(12),
-      color: Colors.white,
+      color: AppColors.white,
       child: ElevatedButton(
         onPressed: () async {
           if (_formKey.currentState!.validate()) {
@@ -334,7 +335,7 @@ class _SelectedProductsScreenState
                                                             .showSnackBar(
                                                                 const SnackBar(
                                                                     content: Text(
-                                                                        "Products and Spareparts Requested To Admin",style: TextStyle(color: Colors.blue),)
+                                                                        "Products and Spareparts Requested To Admin",style: TextStyle(color: AppColors.info),)
                                                                         ));
               // Navigate to next screen after successful booking
         Navigator.push(
@@ -347,10 +348,10 @@ class _SelectedProductsScreenState
           }
         },
         style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.green,
+          backgroundColor: AppColors.gomedcolor,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: const Text('Request to Book', style: TextStyle(color: Colors.white, fontSize: 16)),
+        child: const Text('Request to Book', style: TextStyle(color: AppColors.white, fontSize: 16)),
       ),
     );
   }

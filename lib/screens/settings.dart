@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:go_med/screens/BottomNavBar.dart';
 import 'package:go_med/screens/Ditributor_screens/dashboard.dart';
@@ -19,12 +20,12 @@ class SettingsPage extends ConsumerWidget {
     final String? role = userModel.data?[0].details?.role;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F7F2),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF6BC37A),
+        backgroundColor: AppColors.gomedcolor,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color:AppColors.black),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -34,11 +35,11 @@ class SettingsPage extends ConsumerWidget {
         ),
         title: const Text(
           "Settings",
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(color: AppColors.black),
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.black),
+            icon: const Icon(Icons.notifications, color: AppColors.black),
             onPressed: () {
               // Handle notification press
             },
@@ -56,7 +57,7 @@ class SettingsPage extends ConsumerWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: Colors.black,
+                  color: AppColors.black,
                 ),
               ),
               onTap: () {
@@ -73,7 +74,7 @@ class SettingsPage extends ConsumerWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: Colors.black,
+                  color: AppColors.black,
                 ),
               ),
               onTap: () {
@@ -87,7 +88,7 @@ class SettingsPage extends ConsumerWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: Colors.black,
+                  color: AppColors.black,
                 ),
               ),
               onTap: () {
@@ -101,7 +102,7 @@ class SettingsPage extends ConsumerWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
-                  color: Colors.black,
+                  color: AppColors.black,
                 ),
               ),
               onTap: () {
@@ -149,7 +150,7 @@ class SettingsPage extends ConsumerWidget {
                   );
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFF1BA4CA), // Button color
+                  backgroundColor: AppColors.info, // Button color
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10), // Rounded corners
                   ),
@@ -162,7 +163,7 @@ class SettingsPage extends ConsumerWidget {
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
-                    color: Colors.white, // Text color
+                    color: AppColors.white, // Text color
                   ),
                 ),
               ),
@@ -176,7 +177,7 @@ class SettingsPage extends ConsumerWidget {
                 "Leave a Review",
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  color: Color.fromARGB(255, 79, 177, 137),
+                  color: AppColors.gomedcolor,
                   fontWeight: FontWeight.bold,
                   fontSize: 15,
                 ),
@@ -192,7 +193,7 @@ class SettingsPage extends ConsumerWidget {
                 child: Text(
                   "Delete Account",
                   style: TextStyle(
-                    color: Colors.red,
+                    color: AppColors.error,
                     fontWeight: FontWeight.bold,
                     fontSize: 20,
                   ),
@@ -248,7 +249,7 @@ class SettingsPage extends ConsumerWidget {
 
                 _removeAccount(context);
               },
-              child: const Text('Delete', style: TextStyle(color: Colors.red)),
+              child: const Text('Delete', style: TextStyle(color: AppColors.error)),
             ),
           ],
         );

@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_med/constants/app_colors.dart';
 import 'package:go_med/providers/auth_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../providers/Distributor_provider/bookings_provider.dart';
@@ -65,17 +66,17 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
       appBar: AppBar(
         title: const Text("Bookings",
             style: TextStyle(
-              color: Colors.white,
+              color: AppColors.white,
             )),
-        backgroundColor: const Color(0xFF6BC37A),
+        backgroundColor: AppColors.gomedcolor,
       ),
       body: Column(
         children: [
           ToggleButtons(
             isSelected: List.generate(
                 filterOptions.length, (index) => index == selectedIndex),
-            selectedColor: Colors.white,
-            fillColor: Colors.green,
+            selectedColor: AppColors.white,
+            fillColor: AppColors.gomedcolor,
             borderRadius: BorderRadius.circular(20),
             children: filterOptions
                 .map((option) => Padding(
@@ -135,12 +136,12 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                               const TextSpan(
                                                   text: "Location: ",
                                                   style: TextStyle(
-                                                      color: Colors.black,
+                                                      color: AppColors.black,
                                                       fontSize: 20)),
                                               TextSpan(
                                                 text: mapsLink,
                                                 style: const TextStyle(
-                                                  color: Colors.blue,
+                                                  color: AppColors.info,
                                                   fontSize: 20,
                                                 ),
                                                 recognizer:
@@ -166,7 +167,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                       style: TextStyle(
                                           fontSize: 18,
                                           fontWeight: FontWeight.bold)),
-                                  Divider(color: Colors.grey.shade300),
+                                  Divider(color: AppColors.buttonDisabled),
                                   ...booking.productIds.map((product) {
                                     return SizedBox(
                                       width: double.infinity,
@@ -199,7 +200,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                   text: "Price:₹",
                                                   style: const TextStyle(
                                                       fontSize: 12,
-                                                      color: Colors.black),
+                                                      color: AppColors.black),
                                                   children: [
                                                     TextSpan(
                                                       text: "${product.price}",
@@ -208,7 +209,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                         fontWeight:
                                                             FontWeight.bold,
                                                         color:
-                                                            Color(0xFF6BC37A),
+                                                            AppColors.gomedcolor,
                                                       ),
                                                     ),
                                                   ],
@@ -222,7 +223,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                   const TextSpan(
                                                     text: 'Status: ',
                                                     style: TextStyle(
-                                                      color: Colors.black, // fixed color for label
+                                                      color: AppColors.black, // fixed color for label
                                                       fontWeight: FontWeight.bold,
                                                     ),
                                                   ),
@@ -417,7 +418,7 @@ class _BookingsScreenState extends ConsumerState<BookingsScreen> {
                                                 const Text(
                                                   "Product Delivered Successfully",
                                                   style: TextStyle(
-                                                    color: Colors.green,
+                                                    color: AppColors.gomedcolor,
                                                     fontWeight: FontWeight.bold,
                                                   ),
                                                 ),

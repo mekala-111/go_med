@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 import 'package:go_med/providers/firebase_auth.dart';
 import 'package:go_med/screens/Ditributor_screens/dashboard.dart';
 import 'package:go_med/screens/product_edit.dart';
+import 'package:go_med/screens/serviceEngineer_screens/ServiceEngineerDashboard.dart';
 import 'screens/LoginPage.dart';
 import 'firebase_options.dart';
 import 'package:go_med/providers/auth_provider.dart';
@@ -80,22 +81,30 @@ class MyApp extends StatelessWidget {
                 print('Token after auto-login attempt: $accessToken');
 
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  // While waiting for auto-login to finish, show loading indicator
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                } else if (snapshot.hasData &&
-                    snapshot.data == true &&
-                    (accessToken != null && accessToken.isNotEmpty) &&
-                    //  (authState.data![0].details!.status=='Active'||authState.data![0].details!.status=='active')&&
-                    (authState.data![0].details!.role == "distributor" ||
-                     authState.data![0].details!.role =="serviceEngineer")) {
-                  // If auto-login is successful and refresh token is available, go to Dashboard
-                  return const DashboardDistributorScreen();
-                } else {
-                  // If auto-login fails or no token, redirect to LoginScreen
-                  return LoginScreen();
-                }
+              // Show loading indicator while waiting
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasData &&
+                snapshot.data == true &&
+                accessToken != null &&
+                accessToken.isNotEmpty &&
+                authState.data != null &&
+                authState.data!.isNotEmpty) {
+              
+              final role = authState.data![0].details?.role?.toLowerCase();
+
+              if (role == "distributor") {
+                return const DashboardDistributorScreen();
+              } else if (role == "serviceengineer") {
+                return const DashboardPage(); // replace with your actual screen
+              } else {
+                // Unknown role fallback
+                return LoginScreen();
+              }
+            } else {
+              // Login failed or token not found
+              return LoginScreen();
+            }
+
               },
             );
           },
