@@ -61,9 +61,9 @@ class DashboardDistributorScreen extends ConsumerWidget {
     final lowStockCount = products.where((p) => p.stock <= 5).length;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFE8F7F2),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
-  backgroundColor:const Color(0xFF6BC37A),// light greenish like your screenshot
+  backgroundColor:AppColors.gomedcolor,// light greenish like your screenshot
   elevation: 0, // no shadow, matches flat design
   toolbarHeight: 60, // adjust as needed
   automaticallyImplyLeading: false,
@@ -214,7 +214,7 @@ class DashboardButton extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 0),
         decoration: BoxDecoration(
-          color: AppColors.buttonPrimary,
+          color: AppColors.info,
           borderRadius: BorderRadius.circular(12),
         ),
         child: Text(
@@ -254,7 +254,7 @@ class NotificationsContainer extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.textSecondary,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child: const Column(
@@ -292,7 +292,7 @@ class OverviewItems extends StatelessWidget {
     Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.textSecondary,
+        color: AppColors.white,
         borderRadius: BorderRadius.circular(16),
       ),
       child:Column(
