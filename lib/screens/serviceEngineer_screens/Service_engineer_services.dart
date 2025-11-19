@@ -26,13 +26,21 @@ class ServiceScreenState extends ConsumerState<ServicesEngineerPage> {
 
   @override
   Widget build(BuildContext context) {
+    // LOGIN DATA
     final loginData = ref.watch(loginProvider).data ?? [];
     loggedInEngineerId =
         loginData.isNotEmpty ? loginData[0].details?.sId : null;
 
+    // PROVIDERS
     final engineers = ref.watch(engineerServiceProvider);
     final services = ref.watch(serviceProvider);
 
+    // LOADING CHECK FOR BOTH PROVIDERS
+    final engineerLoading = engineers.statusCode == 0;
+    final serviceLoading = services.statusCode == 0;
+    final isLoading = engineerLoading || serviceLoading;
+
+    // GET LOGGED-IN ENGINEER DETAILS
     final loggedInEngineer = engineers.data
                 ?.where((engineer) => engineer.sId == loggedInEngineerId)
                 .isNotEmpty ==
@@ -41,86 +49,96 @@ class ServiceScreenState extends ConsumerState<ServicesEngineerPage> {
             .firstWhere((engineer) => engineer.sId == loggedInEngineerId)
         : null;
 
+    // FILTER SERVICES BASED ON engineer.serviceIds
     final filteredServices = services.data
             ?.where((service) =>
                 loggedInEngineer?.serviceIds?.contains(service.sId) ?? false)
             .toList() ??
         [];
-final isLoading = services.statusCode == 0;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("My Services"),
         backgroundColor: const Color(0xFF6BC37A),
       ),
-      body: 
-      isLoading ?
-       const Center(child: CircularProgressIndicator()):
-      loggedInEngineer == null
-          ? const Center(child: Text("No service engineer found."))
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Welcome, ${loggedInEngineer.name ?? "Engineer"}",
-                    style: const TextStyle(
-                        fontSize: 20, fontWeight: FontWeight.bold),
+
+      // BODY SECTION
+      body: isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : loggedInEngineer == null
+              ? const Center(child: Text("No service engineer found."))
+              : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        "Welcome, ${loggedInEngineer.name ?? "Engineer"}",
+                        style: const TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 10),
+
+                      filteredServices.isEmpty
+                          ? const Text("No services found for this engineer.")
+                          : Expanded(
+                              child: ListView.builder(
+                                itemCount: filteredServices.length,
+                                itemBuilder: (context, index) {
+                                  final service = filteredServices[index];
+
+                                  return Card(
+                                    margin:
+                                        const EdgeInsets.symmetric(vertical: 8),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(10)),
+                                    elevation: 3,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          InkWell(
+                                            onTap: () {
+                                              print("SERVICE: ${service.name}");
+                                            },
+                                            child: Text(
+                                              service.name ?? "Service",
+                                              style: const TextStyle(
+                                                  fontSize: 20,
+                                                  fontWeight:
+                                                      FontWeight.bold),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            service.details ??
+                                                "No description",
+                                            style: const TextStyle(
+                                                fontSize: 14,
+                                                color: Colors.grey),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Text(
+                                            "₹${service.price ?? "0.00"}",
+                                            style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.green),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                    ],
                   ),
-                  const SizedBox(height: 10),
-                  filteredServices.isEmpty
-                      ? const Text("No services found for this engineer.")
-                      : Expanded(
-                          child: ListView.builder(
-                            itemCount: filteredServices.length,
-                            itemBuilder: (context, index) {
-                              final service = filteredServices[index];
-                              return Card(
-                                margin: const EdgeInsets.symmetric(vertical: 8),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(10)),
-                                elevation: 3,
-                                child: Padding(
-                                  padding: const EdgeInsets.all(16.0),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      InkWell(
-                                        onTap: () {
-                                          print("SERVICE ${service.name}");
-                                        },
-                                        child: Text(
-                                          service.name ?? "Service",
-                                          style: const TextStyle(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.bold),
-                                        ),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        service.details ?? "No description",
-                                        style: const TextStyle(
-                                            fontSize: 14, color: Colors.grey),
-                                      ),
-                                      const SizedBox(height: 5),
-                                      Text(
-                                        "₹${service.price ?? "0.00"}",
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.green),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                ],
-              ),
-            ),
+                ),
+
       bottomNavigationBar: const BottomNavBar(),
     );
   }

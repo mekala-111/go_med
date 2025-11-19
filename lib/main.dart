@@ -52,60 +52,104 @@ class MyApp extends StatelessWidget {
             print("build main.dart");
 
             final authState = ref.watch(loginProvider);
+            final user = authState.data?.isNotEmpty == true ? authState.data![0] : null;
             // Watch the authentication state
             // Check for a valid access token
-            final accessToken = authState.data?.isNotEmpty == true
-                ? authState.data![0].accessToken
-                : null;
-            final status = authState.data?.isNotEmpty == true
-                ? authState.data![0].details?.status
-                : null;
+            final accessToken = user?.accessToken;
+            final role = user?.details?.role?.toLowerCase();
+            final status = user?.details?.status?.toLowerCase();
+
             print('token/main $accessToken');
             print('status...$status');
             // Check if the user has a valid refresh token
-            if (accessToken != null && accessToken.isNotEmpty 
-            // && (status=='Active'||status=='active')
-            ) {
-              print('navigate to the dashboard....................');
-              return const DashboardDistributorScreen(); // User is authenticated, redirect to Home
-            } else {
-              print('No valid refresh token, trying auto-login');
-            }
+            if (accessToken != null && accessToken.isNotEmpty) {
+                  if (status == "active") {
+                    if (role == "distributor") {
+                      return const DashboardDistributorScreen();
+                    } else if (role == "serviceengineer") {
+                      return const DashboardPage();
+                    }
+                  } else {
+                    // STATUS = INACTIVE → SHOW MESSAGE
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Account Inactive"),
+                          content: const Text("Your account is inactive. Please contact admin."),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+
+                    return LoginScreen();
+                  }
+                }
 
             // Attempt auto-login if refresh token is not available
-            return FutureBuilder<bool>(
-              future: ref
-                  .read(loginProvider.notifier)
-                  .tryAutoLogin(), // Attempt auto-login
+           return FutureBuilder<bool>(
+              future: ref.read(loginProvider.notifier).tryAutoLogin(),
               builder: (context, snapshot) {
                 print('Token after auto-login attempt: $accessToken');
 
                 if (snapshot.connectionState == ConnectionState.waiting) {
-              // Show loading indicator while waiting
-              return const Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasData &&
-                snapshot.data == true &&
-                accessToken != null &&
-                accessToken.isNotEmpty &&
-                authState.data != null &&
-                authState.data!.isNotEmpty) {
-              
-              final role = authState.data![0].details?.role?.toLowerCase();
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-              if (role == "distributor") {
-                return const DashboardDistributorScreen();
-              } else if (role == "serviceengineer") {
-                return const DashboardPage(); // replace with your actual screen
-              } else {
-                // Unknown role fallback
+                // Read updated auth state after auto-login
+                final newAuth = ref.read(loginProvider);
+                final user = newAuth.data?.isNotEmpty == true ? newAuth.data![0] : null;
+
+                final token = user?.accessToken;
+                final status = user?.details?.status?.toLowerCase();
+                final role = user?.details?.role?.toLowerCase();
+
+                if (snapshot.hasData &&
+                    snapshot.data == true &&
+                    token != null &&
+                    token.isNotEmpty) {
+
+                  if (status == "active") {
+                    // USER IS ACTIVE
+                    if (role == "distributor") {
+                      return const DashboardDistributorScreen();
+                    } else if (role == "serviceengineer") {
+                      return const DashboardPage();
+                    } else {
+                      return LoginScreen();
+                    }
+                  } else {
+                    // USER INACTIVE 
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text("Account Inactive"),
+                          content: const Text("Your account is inactive. Please contact admin."),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                    });
+
+                    return LoginScreen();
+                  }
+                }
+
+                // Auto-login failed 
                 return LoginScreen();
-              }
-            } else {
-              // Login failed or token not found
-              return LoginScreen();
-            }
-
               },
+
+
             );
           },
         ),
